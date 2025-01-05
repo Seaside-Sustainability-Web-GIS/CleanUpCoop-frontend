@@ -1,14 +1,43 @@
+import React, { useCallback, useMemo } from 'react';
 import { Box, Button, Typography } from '@mui/material';
 import { DataGrid, GridToolbar } from '@mui/x-data-grid';
-import { useDemoData } from '@mui/x-data-grid-generator';
 import useStore from '../src/store/useStore';
 
-const CollapsibleTable = () => {
+const CollapsibleTable = ({ geojsonData }) => {
     const { isTableCollapsed, toggleTable } = useStore();
-    const { data, loading } = useDemoData({
-        dataSet: 'Employee',
-        rowLength: 100,
-    });
+
+    // Transform GeoJSON features into rows using useMemo to memoize rows calculation
+    const rows = useMemo(() => {
+        return (
+            geojsonData?.features?.map((feature) => ({
+                id: feature.properties.OBJECTID, // Use OBJECTID as the unique ID
+                ...feature.properties, // Spread the rest of the properties
+            })) || []
+        );
+    }, [geojsonData]);
+
+    // Define columns for the DataGrid
+    const columns = useMemo(
+        () => [
+            { field: 'OBJECTID', headerName: 'OBJECTID', flex: 1 },
+            { field: 'MUNICIPALITY', headerName: 'Municipality', flex: 2 },
+            { field: 'MUNI', headerName: 'MUNI Code', flex: 1 },
+            { field: 'MUNICODE', headerName: 'Municipality Code', flex: 1 },
+            { field: 'LABELTXT', headerName: 'Label Text', flex: 1, type: 'number' },
+            { field: 'SQ_MILES', headerName: 'Square Miles', flex: 1, type: 'number' },
+            {
+                field: 'last_edited_date',
+                headerName: 'Last Edited Date',
+                flex: 2,
+                type: 'date',
+                valueGetter: (params) =>
+                    params.value ? new Date(params.value).toLocaleDateString() : '',
+            },
+            { field: 'Shape__Area', headerName: 'Area', flex: 1, type: 'number' },
+            { field: 'Shape__Length', headerName: 'Length', flex: 1, type: 'number' },
+        ],
+        [] // Columns are static, so no dependencies needed
+    );
 
     return (
         <Box
@@ -22,7 +51,7 @@ const CollapsibleTable = () => {
                 flexDirection: 'column',
             }}
         >
-            {/* Button */}
+            {/* Toggle Button */}
             <Box
                 sx={{
                     alignSelf: 'flex-end',
@@ -35,44 +64,44 @@ const CollapsibleTable = () => {
                 </Button>
             </Box>
 
-            {/* Table */}
+            {/* Collapsible Table */}
             {!isTableCollapsed && (
                 <Box
                     sx={{
-                        height: '70%,',
+                        height: '70%',
                         width: '100%',
                         backgroundColor: 'white',
                         boxShadow: 3,
                         borderRadius: 1,
-                        overflow: 'hidden', // Prevents unintended overflow
-                        zIndex: 10, // Ensures the table stays under the toolbar menu
+                        overflow: 'hidden',
+                        zIndex: 10,
                     }}
                 >
                     <Typography variant="h6" sx={{ padding: 1 }}>
                         Attribute Table
                     </Typography>
-                    <Box
-                        sx={{
-                            height: 650,
-                            width: '100%',
-                            position: 'relative', // Allows proper stacking of dropdown menus
-                        }}
-                    >
-                        <DataGrid
-                            {...data}
-                            loading={loading}
-                            slots={{
-                                toolbar: GridToolbar,
-                            }}
-                            componentsProps={{
-                                toolbar: {
-                                    sx: {
-                                        zIndex: 2000, // Ensures the toolbar is above the table
-                                    },
-                                },
-                            }}
-                        />
-                    </Box>
+                    {rows.length > 0 ? (
+                        <Box sx={{ height: 650, width: '100%' }}>
+                            <DataGrid
+                                rows={rows}
+                                columns={columns}
+                                loading={!geojsonData}
+                                slots={{ toolbar: GridToolbar }}
+                                initialState={{
+                                    pagination: { paginationModel: { pageSize: 10 } },
+                                }}
+                                pageSizeOptions={[5, 10, 25]}
+                            />
+                        </Box>
+                    ) : (
+                        <Typography
+                            variant="body1"
+                            align="center"
+                            sx={{ marginTop: 4 }}
+                        >
+                            No data available.
+                        </Typography>
+                    )}
                 </Box>
             )}
         </Box>
