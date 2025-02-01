@@ -106,7 +106,7 @@ function MapUpdater() {
         if (mapCenter) {
             map.setView(mapCenter); // Update the map view dynamically
         }
-    }, [mapCenter, map]);
+    }, [mapCenter]);
 
     return null;
 }
@@ -114,30 +114,15 @@ function MapUpdater() {
 function MapView() {
     const { BaseLayer } = LayersControl;
     const mapCenter = useStore((state) => state.mapCenter);
-    const [geojsonData, setGeojsonData] = useState(null);
+    const geojsonData = useStore((state) => state.geojsonData);
     const userLocation = useStore((state) => state.userLocation);
-    const [isDataLoaded, setIsDataLoaded] = useState(false);
+    const isDataLoaded = useStore((state) => state.isDataLoaded);
+    const fetchGeoJSONData = useStore((state) => state.fetchGeoJSONData);;
 
-    // Fetch GeoJSON data
+    // Fetch GeoJSON data on mount
     useEffect(() => {
-        const fetchGeoJSONData = async () => {
-            try {
-                const response = await fetch(
-                    'https://services2.arcgis.com/w657bnjzrjguNyOy/ArcGIS/rest/services/Municipal_Boundaries_Line/FeatureServer/1/query?where=1%3D1&outFields=*&f=geojson'
-                );
-                const data = await response.json();
-                setGeojsonData(data);
-                if (data?.features?.length > 0) {
-                    setIsDataLoaded(true);
-                }
-            } catch (error) {
-                console.error('Error fetching GeoJSON data:', error);
-                setIsDataLoaded(false);
-            }
-        };
-
         fetchGeoJSONData();
-    }, []);
+    }, [fetchGeoJSONData]);
 
     // Styling for polygons
     const geoJsonStyle = {
@@ -165,7 +150,7 @@ function MapView() {
                     <Marker key={userLocation.toString()} position={userLocation} icon={gpsLocationIcon} />
                 )}
                 {/* GeoJSON Layer */}
-                {geojsonData && <GeoJSON data={geojsonData} style={geoJsonStyle} />}
+                {geojsonData && <GeoJSON data={geojsonData} style={{ color: 'blue' }} />}
                 {/* Layers Control */}
                 <LayersControl
                     style={{
@@ -196,7 +181,7 @@ function MapView() {
                 </LayersControl>
             </MapContainer>
             {/* Render CollapsibleTable only if data is loaded */}
-            {isDataLoaded && <CollapsibleTable geojsonData={geojsonData} />}
+            {isDataLoaded && <CollapsibleTable />}
         </Box>
     );
 }

@@ -1,17 +1,20 @@
-import React, { useCallback, useMemo } from 'react';
+import React, {  useMemo } from 'react';
 import { Box, Button, Typography } from '@mui/material';
 import { DataGrid, GridToolbar } from '@mui/x-data-grid';
 import useStore from '../src/store/useStore';
 
-const CollapsibleTable = ({ geojsonData }) => {
-    const { isTableCollapsed, toggleTable } = useStore();
+const CollapsibleTable = () => {
+    const geojsonData = useStore((state) => state.geojsonData);
+    const isDataLoaded = useStore((state) => state.isDataLoaded);
+    const isTableCollapsed = useStore((state) => state.isTableCollapsed);
+    const toggleTable = useStore((state) => state.toggleTable);
 
     // Transform GeoJSON features into rows using useMemo to memoize rows calculation
     const rows = useMemo(() => {
         return (
             geojsonData?.features?.map((feature) => ({
-                id: feature.properties.OBJECTID, // Use OBJECTID as the unique ID
-                ...feature.properties, // Spread the rest of the properties
+                id: feature.properties.OBJECTID,
+                ...feature.properties,
             })) || []
         );
     }, [geojsonData]);
@@ -36,7 +39,7 @@ const CollapsibleTable = ({ geojsonData }) => {
             { field: 'Shape__Area', headerName: 'Area', flex: 1, type: 'number' },
             { field: 'Shape__Length', headerName: 'Length', flex: 1, type: 'number' },
         ],
-        [] // Columns are static, so no dependencies needed
+        []
     );
 
     return (

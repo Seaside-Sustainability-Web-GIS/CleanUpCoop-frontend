@@ -7,7 +7,6 @@ const useStore = create((set) => ({
 
    userLocation: null,
     setUserLocation: (location) => {
-        console.log("Updating userLocation in Zustand:", location);
         set(() => ({ userLocation: location ? [...location] : null })); // Ensure a new array reference
     },
 
@@ -17,6 +16,26 @@ const useStore = create((set) => ({
     aboutOpen: false, // State for dialog
     openAbout: () => set({ aboutOpen: true }),
     closeAbout: () => set({ aboutOpen: false }),
+
+    geojsonData: null,
+    isDataLoaded: false,
+    fetchGeoJSONData: async () => {
+        try {
+            console.log("Fetching GeoJSON data...");
+            const response = await fetch(
+                'https://services2.arcgis.com/w657bnjzrjguNyOy/ArcGIS/rest/services/Municipal_Boundaries_Line/FeatureServer/1/query?where=1%3D1&outFields=*&f=geojson'
+            );
+            const data = await response.json();
+            set({
+                geojsonData: data,
+                isDataLoaded: data?.features?.length > 0,
+            });
+            console.log("GeoJSON data successfully loaded:", data);
+        } catch (error) {
+            console.error('Error fetching GeoJSON data:', error);
+            set({ geojsonData: null, isDataLoaded: false });
+        }
+    },
 }));
 
 export default useStore;
