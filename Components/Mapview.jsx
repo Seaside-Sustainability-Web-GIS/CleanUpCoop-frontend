@@ -1,5 +1,12 @@
-import {useEffect, useState} from 'react';
-import {MapContainer, TileLayer, LayersControl, useMap, Marker, GeoJSON} from 'react-leaflet';
+import { useEffect, useState } from 'react';
+import {
+    MapContainer,
+    TileLayer,
+    LayersControl,
+    useMap,
+    Marker,
+    GeoJSON,
+} from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import '../src/App.css';
@@ -7,7 +14,7 @@ import { Box, IconButton } from '@mui/material';
 import HomeIcon from '@mui/icons-material/Home';
 import GpsFixedIcon from '@mui/icons-material/GpsFixed';
 import useStore from '../src/store/useStore';
-import useGeojson from '../hooks/useGeojson';
+import CollapsibleTable from './CollapsableTable.jsx';
 
 const gpsLocationIcon = L.divIcon({
     className: 'gps-location-icon',
@@ -46,8 +53,9 @@ function HomeButton() {
     );
 }
 
-function GpsButton({ setUserLocation }) {
+function GpsButton() {
     const map = useMap();
+    const setUserLocation = useStore((state) => state.setUserLocation);
 
     const handleGpsClick = () => {
         if ('geolocation' in navigator) {
@@ -94,44 +102,39 @@ function MapUpdater() {
     const map = useMap();
     const mapCenter = useStore((state) => state.mapCenter);
 
-
     useEffect(() => {
         if (mapCenter) {
             map.setView(mapCenter); // Update the map view dynamically
         }
-    }, [mapCenter, map]);
+    }, [mapCenter]);
 
-    return null; // This component doesn't render anything
+    return null;
 }
 
 function MapView() {
     const { BaseLayer } = LayersControl;
     const mapCenter = useStore((state) => state.mapCenter);
-    const [userLocation, setUserLocation] = useState(null);
-    const { data: geojsonData, error } = useGeojson(
-        'https://www.ncdc.noaa.gov/swdiws/geojson/nx3hail/20240821:20240920?bbox=-90.7,38.3,-90.1,38.8'
-    );
+    const geojsonData = useStore((state) => state.geojsonData);
+    const userLocation = useStore((state) => state.userLocation);
+    const isDataLoaded = useStore((state) => state.isDataLoaded);
+    const fetchGeoJSONData = useStore((state) => state.fetchGeoJSONData);;
 
-    if (error) console.error('GeoJSON Fetch Error:', error);
+    // Fetch GeoJSON data on mount
+    useEffect(() => {
+        fetchGeoJSONData();
+    }, [fetchGeoJSONData]);
 
-    // Custom icon for GeoJSON points
-    const customGeoJsonIcon = L.divIcon({
-        className: 'custom-geojson-icon',
-        iconSize: [16, 16],
-        html: `<div style="
-            width: 16px;
-            height: 16px;
-            background-color: red;
-            border-radius: 50%;
-            border: 2px solid white;
-            box-shadow: 0 0 6px rgba(255, 0, 0, 0.6);
-        "></div>`,
-    });
-
-    // Use pointToLayer to style points
-    const pointToLayer = (feature, latlng) => {
-        return L.marker(latlng, { icon: customGeoJsonIcon });
+    // Styling for polygons
+    const geoJsonStyle = {
+        color: 'blue',
+        weight: 2,
+        opacity: 0.6,
+        fillColor: 'lightblue',
+        fillOpacity: 0.4,
     };
+
+    useEffect(() => {
+          }, [userLocation]);
 
     return (
         <Box sx={{ flex: 1, position: 'relative' }}>
@@ -141,41 +144,44 @@ function MapView() {
                 style={{ height: '100%', width: '100%' }}
             >
                 <HomeButton />
-                <GpsButton setUserLocation={setUserLocation} />
+                <GpsButton />
                 <MapUpdater />
                 {userLocation && (
-                    <Marker position={userLocation} icon={gpsLocationIcon} />
+                    <Marker key={userLocation.toString()} position={userLocation} icon={gpsLocationIcon} />
                 )}
+                {/* GeoJSON Layer */}
+                {geojsonData && <GeoJSON data={geojsonData} style={{ color: 'blue' }} />}
                 {/* Layers Control */}
                 <LayersControl
-                style={{
-                    top: '20px',
-                    position: 'absolute',
-                    zIndex: 1001,
-                }}>
+                    style={{
+                        top: '20px',
+                        position: 'absolute',
+                        zIndex: 1001,
+                    }}
+                >
                     {/* Base Layers */}
                     <BaseLayer checked name="OpenStreetMap">
                         <TileLayer
                             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                            attribution="&copy; <a href='https://www.openstreetmap.org/copyright'>OpenStreetMap</a> contributors"
+                            attribution="&copy; OpenStreetMap contributors"
                         />
                     </BaseLayer>
                     <BaseLayer name="OpenTopoMap">
                         <TileLayer
                             url="https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png"
-                            attribution="&copy; <a href='https://opentopomap.org'>OpenTopoMap</a>"
+                            attribution="&copy; OpenTopoMap contributors"
                         />
                     </BaseLayer>
                     <BaseLayer name="ESRI World Imagery">
                         <TileLayer
                             url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
-                            attribution="&copy; <a href='https://www.esri.com/en-us/home'>ESRI</a>"
+                            attribution="&copy; ESRI"
                         />
                     </BaseLayer>
                 </LayersControl>
-                {/* GeoJSON Layer */}
-                {geojsonData && <GeoJSON data={geojsonData} pointToLayer={pointToLayer }/>}
             </MapContainer>
+            {/* Render CollapsibleTable only if data is loaded */}
+            {isDataLoaded && <CollapsibleTable />}
         </Box>
     );
 }
