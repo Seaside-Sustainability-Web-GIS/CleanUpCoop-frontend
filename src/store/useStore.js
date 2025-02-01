@@ -5,6 +5,12 @@ const useStore = create((set) => ({
     mapCenter: [38.64, -90.3], // Default map center
     setMapCenter: (newCenter) => set({ mapCenter: newCenter }),
 
+   userLocation: null,
+    setUserLocation: (location) => {
+        console.log("Updating userLocation in Zustand:", location);
+        set(() => ({ userLocation: location ? [...location] : null })); // Ensure a new array reference
+    },
+
     isTableCollapsed: true,
     toggleTable: () => set((state) => ({ isTableCollapsed: !state.isTableCollapsed })),
 

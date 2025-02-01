@@ -53,8 +53,9 @@ function HomeButton() {
     );
 }
 
-function GpsButton({ setUserLocation }) {
+function GpsButton() {
     const map = useMap();
+    const setUserLocation = useStore((state) => state.setUserLocation);
 
     const handleGpsClick = () => {
         if ('geolocation' in navigator) {
@@ -114,7 +115,7 @@ function MapView() {
     const { BaseLayer } = LayersControl;
     const mapCenter = useStore((state) => state.mapCenter);
     const [geojsonData, setGeojsonData] = useState(null);
-    const [userLocation, setUserLocation] = useState(null);
+    const userLocation = useStore((state) => state.userLocation);
     const [isDataLoaded, setIsDataLoaded] = useState(false);
 
     // Fetch GeoJSON data
@@ -147,6 +148,9 @@ function MapView() {
         fillOpacity: 0.4,
     };
 
+    useEffect(() => {
+          }, [userLocation]);
+
     return (
         <Box sx={{ flex: 1, position: 'relative' }}>
             <MapContainer
@@ -155,10 +159,10 @@ function MapView() {
                 style={{ height: '100%', width: '100%' }}
             >
                 <HomeButton />
-                <GpsButton setUserLocation={setUserLocation} />
+                <GpsButton />
                 <MapUpdater />
                 {userLocation && (
-                    <Marker position={userLocation} icon={gpsLocationIcon} />
+                    <Marker key={userLocation.toString()} position={userLocation} icon={gpsLocationIcon} />
                 )}
                 {/* GeoJSON Layer */}
                 {geojsonData && <GeoJSON data={geojsonData} style={geoJsonStyle} />}
