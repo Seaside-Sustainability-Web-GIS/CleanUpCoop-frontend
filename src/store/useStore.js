@@ -17,6 +17,10 @@ const useStore = create((set) => ({
     openAbout: () => set({ aboutOpen: true }),
     closeAbout: () => set({ aboutOpen: false }),
 
+    authOpen: false,
+    openAuth: () => set({ authOpen: true }),
+    closeAuth: () => set({ authOpen: false }),
+
     geojsonData: null,
     isDataLoaded: false,
     fetchGeoJSONData: async () => {
