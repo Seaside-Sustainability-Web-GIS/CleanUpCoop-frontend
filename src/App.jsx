@@ -3,6 +3,8 @@ import Sidebar from '../Components/Sidebar.jsx';
 import MapView from '../Components/Mapview.jsx';
 import CollapsibleTable from "../Components/CollapsableTable.jsx";
 import useStore from '../src/store/useStore';
+import AuthForm from "../Components/AuthForm.jsx";
+import useAuthStore from "../src/store/useAuthStore.js";
 
 function App() {
     const mapCenter = useStore((state) => state.mapCenter); // Access state
@@ -10,6 +12,10 @@ function App() {
     const aboutOpen = useStore((state) => state.aboutOpen);
     const openAbout = useStore((state) => state.openAbout);
     const closeAbout = useStore((state) => state.closeAbout);
+    const authOpen = useStore((state) => state.authOpen);
+    const openAuth = useStore((state) => state.openAuth);
+    const closeAuth = useStore((state) => state.closeAuth);
+     const { isAuthenticated, logout } = useAuthStore();
 
     return (
         <Box sx={{ display: 'flex', flexDirection: 'column', height: '100vh', overflow: 'hidden' }}>
@@ -20,7 +26,16 @@ function App() {
                     </Typography>
                     <Button color="inherit" onClick={() => window.location.reload()}>Home</Button>
                     <Button color="inherit" onClick={openAbout}>About</Button>
-                    <Button color="inherit">Sign in</Button>
+                    {/* Toggle between Sign in & Sign out */}
+                    {isAuthenticated ? (
+                        <Button color="inherit" onClick={logout}>
+                            Sign out
+                        </Button>
+                    ) : (
+                        <Button color="inherit" onClick={openAuth}>
+                            Sign in
+                        </Button>
+                    )}
                 </Toolbar>
             </AppBar>
 
@@ -44,6 +59,19 @@ function App() {
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={closeAbout} color="primary">
+                        Close
+                    </Button>
+                </DialogActions>
+            </Dialog>
+
+            {/* Sign-In Modal */}
+            <Dialog open={authOpen} onClose={closeAuth}>
+                <DialogTitle>Sign in</DialogTitle>
+                <DialogContent>
+                    <AuthForm />
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={closeAuth} color="primary">
                         Close
                     </Button>
                 </DialogActions>
