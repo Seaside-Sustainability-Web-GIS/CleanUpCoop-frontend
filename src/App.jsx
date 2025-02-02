@@ -4,6 +4,7 @@ import MapView from '../Components/Mapview.jsx';
 import CollapsibleTable from "../Components/CollapsableTable.jsx";
 import useStore from '../src/store/useStore';
 import AuthForm from "../Components/AuthForm.jsx";
+import useAuthStore from "../src/store/useAuthStore.js";
 
 function App() {
     const mapCenter = useStore((state) => state.mapCenter); // Access state
@@ -14,6 +15,7 @@ function App() {
     const authOpen = useStore((state) => state.authOpen);
     const openAuth = useStore((state) => state.openAuth);
     const closeAuth = useStore((state) => state.closeAuth);
+     const { isAuthenticated, logout } = useAuthStore();
 
     return (
         <Box sx={{ display: 'flex', flexDirection: 'column', height: '100vh', overflow: 'hidden' }}>
@@ -24,7 +26,16 @@ function App() {
                     </Typography>
                     <Button color="inherit" onClick={() => window.location.reload()}>Home</Button>
                     <Button color="inherit" onClick={openAbout}>About</Button>
-                    <Button color="inherit" onClick={openAuth}>Sign in</Button>
+                    {/* Toggle between Sign in & Sign out */}
+                    {isAuthenticated ? (
+                        <Button color="inherit" onClick={logout}>
+                            Sign out
+                        </Button>
+                    ) : (
+                        <Button color="inherit" onClick={openAuth}>
+                            Sign in
+                        </Button>
+                    )}
                 </Toolbar>
             </AppBar>
 
