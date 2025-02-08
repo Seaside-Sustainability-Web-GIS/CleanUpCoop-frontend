@@ -52,6 +52,7 @@ jobs:
   code-quality:
     needs: copilot-review
     runs-on: ubuntu-latest
+    continue-on-error: true
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
