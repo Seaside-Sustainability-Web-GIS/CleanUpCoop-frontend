@@ -38,6 +38,19 @@ const useStore = create((set) => ({
             set({ geojsonData: null, isDataLoaded: false });
         }
     },
+    snackbar: {
+    open: false,
+    message: '',
+    severity: 'success',
+  },
+  showSnackbar: (message, severity = 'success') =>
+    set({
+      snackbar: { open: true, message, severity },
+    }),
+  hideSnackbar: () =>
+    set((state) => ({
+      snackbar: { ...state.snackbar, open: false },
+    })),
 }));
 
 export default useStore;

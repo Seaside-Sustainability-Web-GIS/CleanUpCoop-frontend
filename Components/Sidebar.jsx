@@ -1,9 +1,8 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Typography, TextField, Button, Paper, Box, IconButton } from '@mui/material';
 import { ChevronLeft, ChevronRight } from '@mui/icons-material';
 
 function Sidebar({ setMapCenter }) {
-    const [formData, setFormData] = useState({});
     const [searchText, setSearchText] = useState('');
     const [isCollapsed, setIsCollapsed] = useState(false); // State to manage collapse
 
