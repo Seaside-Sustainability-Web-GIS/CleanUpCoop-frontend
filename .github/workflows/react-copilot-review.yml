@@ -25,17 +25,19 @@ jobs:
       - name: Install GitHub Copilot CLI
         run: npm install -g @githubnext/github-copilot-cli
 
-      - name: Authenticate GitHub Copilot CLI
-        run: echo "${{ secrets.GH_PAT }}" | gh auth login --with-token
+      - name: Authenticate GitHub CLI
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+        run: gh auth login --with-token <<< "${GH_TOKEN}"
 
       - name: Run GitHub Copilot Code Review
         run: copilot suggest .
-        continue-on-error: true  # Ensures workflow doesn't fail on suggestions
+        continue-on-error: true  # Ensures workflow doesn't fail if Copilot can't review
 
       - name: Post Copilot Review Comments
         uses: actions/github-script@v6
         with:
-          github-token: ${{ secrets.GH_PAT }}
+          github-token: ${{ secrets.GH_PAT }}  # Ensure the token is correctly passed
           script: |
             const { owner, repo } = context.repo;
             const prNumber = context.payload.pull_request.number;
@@ -47,6 +49,7 @@ jobs:
               body: reviewBody,
               event: "COMMENT"
             });
+
   code-quality:
     runs-on: ubuntu-latest
 
