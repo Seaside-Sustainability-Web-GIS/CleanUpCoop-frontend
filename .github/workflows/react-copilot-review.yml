@@ -4,12 +4,11 @@ on:
   pull_request:
     branches:
       - main
-      - develop
+      - dev
 
 jobs:
   copilot-review:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -28,21 +27,21 @@ jobs:
       - name: Authenticate GitHub CLI
         env:
           GH_TOKEN: ${{ secrets.GH_PAT }}
-        run: gh auth login --with-token <<< "${GH_TOKEN}"
+        run: echo "${GH_TOKEN}" | gh auth login --with-token
 
       - name: Run GitHub Copilot Code Review
-        run: copilot suggest .
+        run: copilot review .
         continue-on-error: true  # Ensures workflow doesn't fail if Copilot can't review
 
       - name: Post Copilot Review Comments
         uses: actions/github-script@v6
         with:
-          github-token: ${{ secrets.GH_PAT }}  # Ensure the token is correctly passed
+          github-token: ${{ secrets.GH_PAT }}
           script: |
             const { owner, repo } = context.repo;
             const prNumber = context.payload.pull_request.number;
             const reviewBody = "GitHub Copilot has reviewed the code. Suggestions will be visible in the workflow logs.";
-            github.rest.pulls.createReview({
+            await github.rest.pulls.createReview({
               owner,
               repo,
               pull_number: prNumber,
@@ -52,7 +51,6 @@ jobs:
 
   code-quality:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -76,9 +74,10 @@ jobs:
 
       - name: Run Prettier Check
         run: npm run prettier -- --check .
-  auto-fix:
-    runs-on: ubuntu-latest
 
+  auto-fix:
+    needs: code-quality
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -102,5 +101,5 @@ jobs:
           git config --global user.email "bot@example.com"
           git config --global user.name "GitHub Bot"
           git add .
-          git commit -m "Apply automated linting & formatting fixes"
+          git commit -m "Apply automated linting & formatting fixes" || echo "No changes to commit"
           git push
