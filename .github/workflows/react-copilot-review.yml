@@ -27,9 +27,10 @@ jobs:
       - name: Authenticate GitHub CLI
         env:
           GH_TOKEN: ${{ secrets.GH_PAT }}
-        run: |
-          echo "${GH_TOKEN}" | gh auth login --with-token
-          gh auth status
+        run: echo "${GH_TOKEN}" | gh auth login --with-token
+
+      - name: Verify GitHub CLI Authentication
+        run: gh auth status
 
       - name: Run GitHub Copilot Code Review
         run: copilot review .
