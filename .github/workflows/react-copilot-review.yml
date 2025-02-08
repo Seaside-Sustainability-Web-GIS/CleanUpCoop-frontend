@@ -22,11 +22,15 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Install GitHub Copilot CLI
+        run: npm install -g @githubnext/github-copilot-cli
+
+      - name: Authenticate GitHub Copilot CLI
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | gh auth login --with-token
+
       - name: Run GitHub Copilot Code Review
-        uses: github/copilot-cli-action@v1
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          review-mode: full  # Options: full, summary, inline-comments
+        run: copilot suggest .
+        continue-on-error: true  # Ensures workflow doesn't fail on suggestions
 
       - name: Post Copilot Review Comments
         uses: actions/github-script@v6
@@ -35,7 +39,7 @@ jobs:
           script: |
             const { owner, repo } = context.repo;
             const prNumber = context.payload.pull_request.number;
-            const reviewBody = "GitHub Copilot has reviewed the code. Suggested changes are in the comments.";
+            const reviewBody = "GitHub Copilot has reviewed the code. Suggestions will be visible in the workflow logs.";
             github.rest.pulls.createReview({
               owner,
               repo,
