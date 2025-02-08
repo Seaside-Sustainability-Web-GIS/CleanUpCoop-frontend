@@ -1,26 +1,24 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { TextField, Button, Box, Typography, Paper } from "@mui/material";
-import useAuthStore from "../src/store/useAuthStore.js"
-import useStore from "../src/store/useStore";
+import { TextField, Button, Box, } from "@mui/material";
+import { useAuthStore } from "../src/store/useAuthStore.js";
 
-const AuthForm = () => {
-  const [isRegister, setIsRegister] = useState(false);
-  const { register, login } = useAuthStore();
-  const closeAuth = useStore((state) => state.closeAuth);
-  const { handleSubmit, register: formRegister, reset, formState: { errors } } = useForm();
+const AuthForm = ({ closeAuth }) => {
+    const [isRegister, setIsRegister] = useState(false);
+    const { register, login } = useAuthStore();
+    const { handleSubmit, register: formRegister, reset, formState: { errors } } = useForm();
 
-  const onSubmit = (data) => {
-    if (isRegister) {
-      register({ email: data.email, password: data.password });
-    } else {
-      login(data.email, data.password);
-    }
-    reset();
-    closeAuth();
-  };
+    const onSubmit = async (data) => {
+        if (isRegister) {
+            await register({ email: data.email, password: data.password });
+        } else {
+            await login(data.email, data.password);
+        }
+        reset();
+        closeAuth(); // Close the modal on success
+    };
 
-  return (
+    return (
         <Box component="form" onSubmit={handleSubmit(onSubmit)} sx={{ width: 300 }}>
             <TextField
                 label="Email"

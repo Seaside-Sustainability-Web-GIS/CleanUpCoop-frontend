@@ -1,54 +1,63 @@
-import { AppBar, Toolbar, Typography, Button, Box, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
+import { useState, useEffect } from 'react';
+import {
+    AppBar,
+    Toolbar,
+    Typography,
+    Button,
+    Box,
+    DialogActions,
+    DialogContent,
+    Dialog,
+    DialogTitle
+} from '@mui/material';
 import Sidebar from '../Components/Sidebar.jsx';
 import MapView from '../Components/Mapview.jsx';
 import CollapsibleTable from "../Components/CollapsableTable.jsx";
-import useStore from '../src/store/useStore';
 import AuthForm from "../Components/AuthForm.jsx";
-import useAuthStore from "../src/store/useAuthStore.js";
+import useStore from '../src/store/useStore';
+import { useAuthStore } from './store/useAuthStore.js';
 
 function App() {
-    const mapCenter = useStore((state) => state.mapCenter); // Access state
-    const setMapCenter = useStore((state) => state.setMapCenter); // Access actions
-    const aboutOpen = useStore((state) => state.aboutOpen);
-    const openAbout = useStore((state) => state.openAbout);
-    const closeAbout = useStore((state) => state.closeAbout);
-    const authOpen = useStore((state) => state.authOpen);
-    const openAuth = useStore((state) => state.openAuth);
-    const closeAuth = useStore((state) => state.closeAuth);
-     const { isAuthenticated, logout } = useAuthStore();
+    const setMapCenter = useStore((state) => state.setMapCenter);
+    const { isAuthenticated, logout } = useAuthStore();
+    const setCsrfToken = useAuthStore(state => state.setCsrfToken);
+
+    // Modal State
+    const [aboutOpen, setAboutOpen] = useState(false);
+    const [authOpen, setAuthOpen] = useState(false);
+
+    useEffect(() => {
+        void setCsrfToken();
+    }, [setCsrfToken]);
 
     return (
         <Box sx={{ display: 'flex', flexDirection: 'column', height: '100vh', overflow: 'hidden' }}>
+            {/* Navbar */}
             <AppBar position="static">
                 <Toolbar>
                     <Typography variant="h6" sx={{ flexGrow: 1 }}>
                         WebGIS Application Template
-                    </Typography>
+                     </Typography>
                     <Button color="inherit" onClick={() => window.location.reload()}>Home</Button>
-                    <Button color="inherit" onClick={openAbout}>About</Button>
-                    {/* Toggle between Sign in & Sign out */}
+                    <Button color="inherit" onClick={() => setAboutOpen(true)}>About</Button>
                     {isAuthenticated ? (
-                        <Button color="inherit" onClick={logout}>
-                            Sign out
-                        </Button>
+                        <Button color="inherit" onClick={logout}>Sign out</Button>
                     ) : (
-                        <Button color="inherit" onClick={openAuth}>
-                            Sign in
-                        </Button>
+                        <Button color="inherit" onClick={() => setAuthOpen(true)}>Sign in</Button>
                     )}
                 </Toolbar>
             </AppBar>
 
+            {/* Main Content */}
             <Box sx={{ display: 'flex', flex: 1, position: 'relative' }}>
                 <Sidebar setMapCenter={setMapCenter} />
-                <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', position: 'relative' }}>
-                    <MapView mapCenter={mapCenter} style={{ flex: 1 }} />
+                 <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', position: 'relative' }}>
+                    <MapView />
                     <CollapsibleTable />
                 </Box>
             </Box>
-
             {/* About Modal */}
-            <Dialog open={aboutOpen} onClose={closeAbout}>
+            <Dialog open={aboutOpen} onClose={() => setAboutOpen(false)}>
                 <DialogTitle>About This Application</DialogTitle>
                 <DialogContent>
                     <Typography>
@@ -58,20 +67,20 @@ function App() {
                     </Typography>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={closeAbout} color="primary">
+                    <Button onClick={() => setAboutOpen(false)} color="primary">
                         Close
                     </Button>
                 </DialogActions>
             </Dialog>
 
             {/* Sign-In Modal */}
-            <Dialog open={authOpen} onClose={closeAuth}>
+            <Dialog open={authOpen} onClose={() => setAuthOpen(false)}>
                 <DialogTitle>Sign in</DialogTitle>
                 <DialogContent>
-                    <AuthForm />
+                    <AuthForm closeAuth={() => setAuthOpen(false)} />
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={closeAuth} color="primary">
+                    <Button onClick={() => setAuthOpen(false)} color="primary">
                         Close
                     </Button>
                 </DialogActions>
