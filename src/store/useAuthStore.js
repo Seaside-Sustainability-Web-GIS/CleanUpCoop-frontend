@@ -51,8 +51,6 @@ export const useAuthStore = create(
                     await get().setCsrfToken();
                     const csrftoken = get().csrfToken || getCSRFToken();
 
-                    console.log("CSRF Token before logout:", csrftoken);
-
                     const response = await fetch('http://localhost:8000/api/logout', {
                         method: 'POST',
                         headers: {
@@ -63,11 +61,9 @@ export const useAuthStore = create(
                     });
 
                     const responseData = await response.json();
-                    console.log("Logout response:", response.status, responseData);
 
                     if (response.ok) {
                         set({user: null, isAuthenticated: false, csrfToken: null});
-                        console.log("User logged out successfully");
                     } else {
                         console.error("Logout failed:", responseData);
                     }

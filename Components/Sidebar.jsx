@@ -9,7 +9,6 @@ function Sidebar({ setMapCenter }) {
 
     const handleFormSubmit = (event) => {
         event.preventDefault();
-        console.log(formData);
     };
 
     const handleSearch = async () => {
