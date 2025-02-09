@@ -16,8 +16,10 @@ import Sidebar from '../Components/Sidebar.jsx';
 import MapView from '../Components/Mapview.jsx';
 import CollapsibleTable from "../Components/CollapsableTable.jsx";
 import AuthForm from "../Components/AuthForm.jsx";
+import ForgotPasswordForm from "../Components/ForgotPasswordForm.jsx";
 import useStore from '../src/store/useStore';
 import {useAuthStore} from './store/useAuthStore.js';
+import {set} from "react-hook-form";
 
 function App() {
     const setMapCenter = useStore((state) => state.setMapCenter);
@@ -29,6 +31,8 @@ function App() {
     const [authOpen, setAuthOpen] = useState(false);
 
     const { snackbar, showSnackbar, hideSnackbar } = useStore();
+
+    const [forgotPasswordOpen, setForgotPasswordOpen] = useState(false);
 
  // Trigger a snackbar message on authentication changes
   useEffect(() => {
@@ -69,6 +73,7 @@ function App() {
                     <CollapsibleTable/>
                 </Box>
             </Box>
+
             {/* About Modal */}
             <Dialog open={aboutOpen} onClose={() => setAboutOpen(false)}>
                 <DialogTitle>About This Application</DialogTitle>
@@ -90,7 +95,11 @@ function App() {
             <Dialog open={authOpen} onClose={() => setAuthOpen(false)}>
                 <DialogTitle>Sign in</DialogTitle>
                 <DialogContent>
-                    <AuthForm closeAuth={() => setAuthOpen(false)}/>
+                    <AuthForm closeAuth={() => setAuthOpen(false)}
+                    openForgotPassword={() => {
+                        setAuthOpen(false);
+                        setForgotPasswordOpen(true);
+                    }}/>
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={() => setAuthOpen(false)} color="primary">
@@ -98,6 +107,17 @@ function App() {
                     </Button>
                 </DialogActions>
             </Dialog>
+
+        {/* Forgot Password Modal */}
+      <Dialog open={forgotPasswordOpen} onClose={() => setForgotPasswordOpen(false)}>
+        <DialogContent>
+          <ForgotPasswordForm onClose={() => setForgotPasswordOpen(false)} />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setForgotPasswordOpen(false)} color="primary">
+          </Button>
+        </DialogActions>
+      </Dialog>
 
             {/* Snackbar for notifications */}
             <Snackbar

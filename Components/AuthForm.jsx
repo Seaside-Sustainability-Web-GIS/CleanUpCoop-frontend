@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { TextField, Button, Box, } from "@mui/material";
+import {TextField, Button, Box, Typography,} from "@mui/material";
 import { useAuthStore } from "../src/store/useAuthStore.js";
 
-const AuthForm = ({ closeAuth }) => {
+const AuthForm = ({ closeAuth, openForgotPassword }) => {
     const [isRegister, setIsRegister] = useState(false);
     const { register, login } = useAuthStore();
     const { handleSubmit, register: formRegister, reset, formState: { errors } } = useForm();
@@ -15,7 +15,7 @@ const AuthForm = ({ closeAuth }) => {
             await login(data.email, data.password);
         }
         reset();
-        closeAuth(); // Close the modal on success
+        closeAuth();
     };
 
     return (
@@ -58,6 +58,16 @@ const AuthForm = ({ closeAuth }) => {
             <Button fullWidth sx={{ mt: 1 }} onClick={() => setIsRegister(!isRegister)}>
                 {isRegister ? "Already have an account? Login" : "Don't have an account? Register"}
             </Button>
+            {/* Forgot Password Link */}
+            {!isRegister && (
+                <Typography
+                  variant="body2"
+                  onClick={openForgotPassword}
+                  sx={{ mt: 1, textDecoration: "underline", cursor: "pointer" }}
+                >
+                  Forgot Password?
+                </Typography>
+            )}
         </Box>
     );
 };
