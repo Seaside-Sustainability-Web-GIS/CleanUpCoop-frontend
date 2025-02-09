@@ -25,7 +25,6 @@ const useStore = create((set) => ({
     isDataLoaded: false,
     fetchGeoJSONData: async () => {
         try {
-            console.log("Fetching GeoJSON data...");
             const response = await fetch(
                 'https://services2.arcgis.com/w657bnjzrjguNyOy/ArcGIS/rest/services/Municipal_Boundaries_Line/FeatureServer/1/query?where=1%3D1&outFields=*&f=geojson'
             );
@@ -34,12 +33,24 @@ const useStore = create((set) => ({
                 geojsonData: data,
                 isDataLoaded: data?.features?.length > 0,
             });
-            console.log("GeoJSON data successfully loaded:", data);
         } catch (error) {
             console.error('Error fetching GeoJSON data:', error);
             set({ geojsonData: null, isDataLoaded: false });
         }
     },
+    snackbar: {
+    open: false,
+    message: '',
+    severity: 'success',
+  },
+  showSnackbar: (message, severity = 'success') =>
+    set({
+      snackbar: { open: true, message, severity },
+    }),
+  hideSnackbar: () =>
+    set((state) => ({
+      snackbar: { ...state.snackbar, open: false },
+    })),
 }));
 
 export default useStore;
