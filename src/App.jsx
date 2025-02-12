@@ -20,6 +20,7 @@ import ForgotPasswordForm from "../Components/ForgotPasswordForm.jsx";
 import useStore from '../src/store/useStore';
 import {useAuthStore} from './store/useAuthStore.js';
 import {set} from "react-hook-form";
+import Footer from "../Components/Footer.jsx";
 
 function App() {
     const setMapCenter = useStore((state) => state.setMapCenter);
@@ -30,18 +31,18 @@ function App() {
     const [aboutOpen, setAboutOpen] = useState(false);
     const [authOpen, setAuthOpen] = useState(false);
 
-    const { snackbar, showSnackbar, hideSnackbar } = useStore();
+    const {snackbar, showSnackbar, hideSnackbar} = useStore();
 
     const [forgotPasswordOpen, setForgotPasswordOpen] = useState(false);
 
- // Trigger a snackbar message on authentication changes
-  useEffect(() => {
-    if (isAuthenticated) {
-      showSnackbar('You are now logged in!', 'success');
-    } else {
-      showSnackbar('You are now logged out!', 'info');
-    }
-  }, [isAuthenticated, showSnackbar]);
+    // Trigger a snackbar message on authentication changes
+    useEffect(() => {
+        if (isAuthenticated) {
+            showSnackbar('You are now logged in!', 'success');
+        } else {
+            showSnackbar('You are now logged out!', 'info');
+        }
+    }, [isAuthenticated, showSnackbar]);
 
     useEffect(() => {
         void setCsrfToken();
@@ -96,10 +97,10 @@ function App() {
                 <DialogTitle>Sign in</DialogTitle>
                 <DialogContent>
                     <AuthForm closeAuth={() => setAuthOpen(false)}
-                    openForgotPassword={() => {
-                        setAuthOpen(false);
-                        setForgotPasswordOpen(true);
-                    }}/>
+                              openForgotPassword={() => {
+                                  setAuthOpen(false);
+                                  setForgotPasswordOpen(true);
+                              }}/>
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={() => setAuthOpen(false)} color="primary">
@@ -108,28 +109,32 @@ function App() {
                 </DialogActions>
             </Dialog>
 
-        {/* Forgot Password Modal */}
-      <Dialog open={forgotPasswordOpen} onClose={() => setForgotPasswordOpen(false)}>
-        <DialogContent>
-          <ForgotPasswordForm onClose={() => setForgotPasswordOpen(false)} />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setForgotPasswordOpen(false)} color="primary">
-          </Button>
-        </DialogActions>
-      </Dialog>
+            {/* Forgot Password Modal */}
+            <Dialog open={forgotPasswordOpen} onClose={() => setForgotPasswordOpen(false)}>
+                <DialogContent>
+                    <ForgotPasswordForm onClose={() => setForgotPasswordOpen(false)}/>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => setForgotPasswordOpen(false)} color="primary">
+                    </Button>
+                </DialogActions>
+            </Dialog>
 
             {/* Snackbar for notifications */}
             <Snackbar
-        open={snackbar.open}
-        autoHideDuration={3000}
-        onClose={hideSnackbar}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-      >
-        <Alert onClose={hideSnackbar} severity={snackbar.severity} sx={{ width: '100%' }}>
-          {snackbar.message}
-        </Alert>
-      </Snackbar>
+                open={snackbar.open}
+                autoHideDuration={3000}
+                onClose={hideSnackbar}
+                anchorOrigin={{vertical: 'bottom', horizontal: 'center'}}
+                sx={{ mb:4 }}
+            >
+                <Alert onClose={hideSnackbar} severity={snackbar.severity} sx={{width: '100%'}}>
+                    {snackbar.message}
+                </Alert>
+
+            </Snackbar>
+            {/* Footer */}
+            <Footer/>
         </Box>
     );
 }
