@@ -19,8 +19,8 @@ import AuthForm from "../Components/AuthForm.jsx";
 import ForgotPasswordForm from "../Components/ForgotPasswordForm.jsx";
 import useStore from '../src/store/useStore';
 import {useAuthStore} from './store/useAuthStore.js';
-import {set} from "react-hook-form";
 import Footer from "../Components/Footer.jsx";
+import logo from './assets/geobradlogo.png';
 
 function App() {
     const setMapCenter = useStore((state) => state.setMapCenter);
@@ -53,6 +53,12 @@ function App() {
             {/* Navbar */}
             <AppBar position="static">
                 <Toolbar>
+                    <Box
+                    component="img"
+                    sx={{ height: 55, marginRight: 1 }}
+                    alt="Logo"
+                    src={logo}
+                />
                     <Typography variant="h6" sx={{flexGrow: 1}}>
                         WebGIS Application Template
                     </Typography>
