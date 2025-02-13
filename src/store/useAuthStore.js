@@ -46,32 +46,41 @@ export const useAuthStore = create(
                 return response.ok;
             },
 
-            logout: async () => {
-                try {
-                    await get().setCsrfToken();
-                    const csrftoken = get().csrfToken || getCSRFToken();
+logout: async () => {
+    try {
+        const { setCsrfToken, csrfToken, set, showSnackbar } = get();
 
-                    const response = await fetch('http://localhost:8000/api/logout', {
-                        method: 'POST',
-                        headers: {
-                            'X-CSRFToken': csrftoken,
-                            'Content-Type': 'application/json'
-                        },
-                        credentials: 'include'
-                    });
+        // Ensure CSRF token is up to date
+        await setCsrfToken();
+        const csrftoken = csrfToken || getCSRFToken();
 
-                    const responseData = await response.json();
-
-                    if (response.ok) {
-                        set({user: null, isAuthenticated: false, csrfToken: null});
-                    } else {
-                        console.error("Logout failed:", responseData);
-                    }
-                } catch (error) {
-                    console.error('Logout error:', error);
-                    throw error;
-                }
+        // Perform logout request
+        const response = await fetch('http://localhost:8000/api/logout', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': csrftoken,
+                'Content-Type': 'application/json'
             },
+            credentials: 'include'
+        });
+
+        if (!response.ok) {
+            const responseData = await response.json();
+            console.error("Logout failed:", responseData);
+            showSnackbar("Logout failed. Please try again.", "error");
+            return;
+        }
+
+        // Logout successful
+        set({ user: null, isAuthenticated: false, csrfToken: null });
+        showSnackbar("You are now logged out!", "info");
+
+    } catch (error) {
+        console.error('Logout error:', error);
+        showSnackbar("An error occurred while logging out.", "error");
+    }
+},
+
 
             fetchUser: async () => {
                 try {

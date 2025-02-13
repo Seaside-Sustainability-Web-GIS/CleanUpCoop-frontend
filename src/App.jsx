@@ -39,8 +39,6 @@ function App() {
     useEffect(() => {
         if (isAuthenticated) {
             showSnackbar('You are now logged in!', 'success');
-        } else {
-            showSnackbar('You are now logged out!', 'info');
         }
     }, [isAuthenticated, showSnackbar]);
 

@@ -124,14 +124,6 @@ function MapView() {
         fetchGeoJSONData();
     }, [fetchGeoJSONData]);
 
-    // Styling for polygons
-    const geoJsonStyle = {
-        color: 'blue',
-        weight: 2,
-        opacity: 0.6,
-        fillColor: 'lightblue',
-        fillOpacity: 0.4,
-    };
 
     useEffect(() => {
           }, [userLocation]);
