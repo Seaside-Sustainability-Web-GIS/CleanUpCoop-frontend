@@ -30,9 +30,7 @@ function App() {
     // Modal State
     const [aboutOpen, setAboutOpen] = useState(false);
     const [authOpen, setAuthOpen] = useState(false);
-
     const {snackbar, showSnackbar, hideSnackbar} = useStore();
-
     const [forgotPasswordOpen, setForgotPasswordOpen] = useState(false);
 
     // Trigger a snackbar message on authentication changes
@@ -45,6 +43,15 @@ function App() {
     useEffect(() => {
         void setCsrfToken();
     }, [setCsrfToken]);
+
+    const handleLogout = async () => {
+        const success = await logout();
+        if (success) {
+            showSnackbar("You are now logged out!", "info");
+        } else {
+            showSnackbar("Logout failed. Please try again.", "error");
+        }
+    };
 
     return (
         <Box sx={{display: 'flex', flexDirection: 'column', height: '100vh', overflow: 'hidden'}}>
@@ -63,7 +70,7 @@ function App() {
                     <Button color="inherit" onClick={() => window.location.reload()}>Home</Button>
                     <Button color="inherit" onClick={() => setAboutOpen(true)}>About</Button>
                     {isAuthenticated ? (
-                        <Button color="inherit" onClick={logout}>Sign out</Button>
+                        <Button color="inherit" onClick={handleLogout}>Sign out</Button>
                     ) : (
                         <Button color="inherit" onClick={() => setAuthOpen(true)}>Sign in</Button>
                     )}
