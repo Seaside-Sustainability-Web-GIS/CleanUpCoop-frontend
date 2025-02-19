@@ -4,8 +4,15 @@ import { useForm } from "react-hook-form";
 import { TextField, Button, Box, Typography } from "@mui/material";
 import { useSearchParams, useNavigate } from "react-router-dom";
 
+const getCSRFToken = () => {
+  return document.cookie
+    .split("; ")
+    .find((row) => row.startsWith("csrftoken="))
+    ?.split("=")[1];
+};
+
 const ResetPassword = () => {
-  const { register, handleSubmit, formState: { errors } } = useForm();
+  const { register, handleSubmit, watch, formState: { errors } } = useForm();
   const [serverMessage, setServerMessage] = useState("");
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
@@ -13,6 +20,17 @@ const ResetPassword = () => {
   // Extract uid and token from the URL (e.g., ?uid=...&token=...)
   const uid = searchParams.get("uid");
   const token = searchParams.get("token");
+
+  // Show an error if `uid` or `token` is missing
+  if (!uid || !token) {
+    return (
+      <Box sx={{ width: 300, margin: "auto", mt: 4 }}>
+        <Typography variant="h6" color="error">
+          Invalid or missing reset link.
+        </Typography>
+      </Box>
+    );
+  }
 
   const onSubmit = async (data) => {
     if (data.password !== data.confirmPassword) {
@@ -25,13 +43,14 @@ const ResetPassword = () => {
         headers: {
           "Content-Type": "application/json",
           // Include CSRF token header if required:
-          // "X-CSRFToken": getCookie("csrftoken")
+          "X-CSRFToken": getCSRFToken(),
         },
         body: JSON.stringify({
           uid,
           token,
           new_password: data.password,
         }),
+         credentials: "include",
       });
       const responseData = await res.json();
       if (res.ok) {
@@ -39,7 +58,7 @@ const ResetPassword = () => {
         // Redirect after a brief delay
         setTimeout(() => navigate("/"), 2000);
       } else {
-        setServerMessage(responseData.error || "Reset failed.");
+        setServerMessage(responseData.error || "Reset failed. Please try again");
       }
     } catch (error) {
       setServerMessage("An error occurred. Please try again.");
@@ -65,7 +84,10 @@ const ResetPassword = () => {
         type="password"
         fullWidth
         margin="normal"
-        {...register("confirmPassword", { required: "Please confirm your password" })}
+       {...register("confirmPassword", {
+          required: "Please confirm your password",
+          validate: (value) => value === watch("password") || "Passwords do not match"
+        })}
         error={!!errors.confirmPassword}
         helperText={errors.confirmPassword?.message}
       />

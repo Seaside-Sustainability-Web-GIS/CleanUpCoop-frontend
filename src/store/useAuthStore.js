@@ -23,6 +23,41 @@ export const useAuthStore = create(
                 }
             },
 
+            register: async ({ email, password, first_name, last_name }) => {
+                await get().setCsrfToken();
+                const csrftoken = get().csrfToken || getCSRFToken();
+
+                if (!csrftoken) {
+                    console.error("CSRF token is missing. Cannot register.");
+                    return false;
+                }
+
+                try {
+                    const response = await fetch('http://localhost:8000/api/register', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': csrftoken
+                        },
+                        body: JSON.stringify({ email, password, first_name, last_name }),
+                        credentials: 'include'
+                    });
+
+                    const data = await response.json();
+
+                    if (response.ok) {
+                        set({ user: data.user, isAuthenticated: true });
+                        return true;
+                    } else {
+                        console.error("Registration failed:", data);
+                        return false;
+                    }
+                } catch (error) {
+                    console.error("Error during registration:", error);
+                    return false;
+                }
+            },
+
             login: async (email, password) => {
                 await get().setCsrfToken();
                 const csrftoken = get().csrfToken || getCSRFToken();
@@ -32,24 +67,30 @@ export const useAuthStore = create(
                     return false;
                 }
 
-                const response = await fetch('http://localhost:8000/api/login', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRFToken': csrftoken
-                    },
-                    body: JSON.stringify({email, password}),
-                    credentials: 'include'
-                });
+                try {
+                    const response = await fetch('http://localhost:8000/api/login', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': csrftoken
+                        },
+                        body: JSON.stringify({ email, password }),
+                        credentials: 'include'
+                    });
 
-                const data = await response.json();
-                if (response.ok) {
-                    set({user: data.user, isAuthenticated: true});
-                    return true;
-                } else {
-                    set({user: null, isAuthenticated: false});
+                    const data = await response.json();
+                    if (response.ok) {
+                        set({ user: data.user, isAuthenticated: true });
+                        return true;
+                    } else {
+                        set({ user: null, isAuthenticated: false });
+                        return false;
+                    }
+                } catch (error) {
+                    console.error("Login failed:", error);
                     return false;
                 }
+
             },
 
             logout: async () => {
