@@ -30,23 +30,39 @@ function App() {
     // Modal State
     const [aboutOpen, setAboutOpen] = useState(false);
     const [authOpen, setAuthOpen] = useState(false);
-
     const {snackbar, showSnackbar, hideSnackbar} = useStore();
-
     const [forgotPasswordOpen, setForgotPasswordOpen] = useState(false);
 
-    // Trigger a snackbar message on authentication changes
-    useEffect(() => {
-        if (isAuthenticated) {
-            showSnackbar('You are now logged in!', 'success');
-        } else {
-            showSnackbar('You are now logged out!', 'info');
-        }
-    }, [isAuthenticated, showSnackbar]);
+    const {login} = useAuthStore();
+
 
     useEffect(() => {
         void setCsrfToken();
     }, [setCsrfToken]);
+
+    const handleLogin = async (email, password) => {
+    if (!login) {
+        console.error("login function is not defined in useAuthStore");
+        return;
+    }
+
+    const success = await login(email, password);
+    if (success) {
+        showSnackbar("You are now logged in!", "success");
+        setAuthOpen(false);  // ✅ Close modal on success
+    } else {
+        showSnackbar("Login failed. Please check your credentials.", "error");
+    }
+};
+
+    const handleLogout = async () => {
+        const success = await logout();
+        if (success) {
+            showSnackbar("You are now logged out!", "info");
+        } else {
+            showSnackbar("Logout failed. Please try again.", "error");
+        }
+    };
 
     return (
         <Box sx={{display: 'flex', flexDirection: 'column', height: '100vh', overflow: 'hidden'}}>
@@ -54,18 +70,18 @@ function App() {
             <AppBar position="static">
                 <Toolbar>
                     <Box
-                    component="img"
-                    sx={{ height: 55, marginRight: 1 }}
-                    alt="Logo"
-                    src={logo}
-                />
+                        component="img"
+                        sx={{height: 55, marginRight: 1}}
+                        alt="Logo"
+                        src={logo}
+                    />
                     <Typography variant="h6" sx={{flexGrow: 1}}>
                         WebGIS Application Template
                     </Typography>
                     <Button color="inherit" onClick={() => window.location.reload()}>Home</Button>
                     <Button color="inherit" onClick={() => setAboutOpen(true)}>About</Button>
                     {isAuthenticated ? (
-                        <Button color="inherit" onClick={logout}>Sign out</Button>
+                        <Button color="inherit" onClick={handleLogout}>Sign out</Button>
                     ) : (
                         <Button color="inherit" onClick={() => setAuthOpen(true)}>Sign in</Button>
                     )}
@@ -106,7 +122,9 @@ function App() {
                               openForgotPassword={() => {
                                   setAuthOpen(false);
                                   setForgotPasswordOpen(true);
-                              }}/>
+                              }}
+                              onLogin={handleLogin}
+                    />
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={() => setAuthOpen(false)} color="primary">
@@ -132,7 +150,7 @@ function App() {
                 autoHideDuration={3000}
                 onClose={hideSnackbar}
                 anchorOrigin={{vertical: 'bottom', horizontal: 'center'}}
-                sx={{ mb:4 }}
+                sx={{mb: 4}}
             >
                 <Alert onClose={hideSnackbar} severity={snackbar.severity} sx={{width: '100%'}}>
                     {snackbar.message}
