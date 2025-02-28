@@ -1,5 +1,5 @@
-import {create} from 'zustand';
-import {persist, createJSONStorage} from 'zustand/middleware';
+import { create } from 'zustand';
+import { persist, createJSONStorage } from 'zustand/middleware';
 
 export const useAuthStore = create(
     persist(
@@ -8,6 +8,7 @@ export const useAuthStore = create(
             isAuthenticated: false,
             csrfToken: null,
 
+            // ✅ Set CSRF Token before making requests
             setCsrfToken: async () => {
                 try {
                     const response = await fetch('http://localhost:8000/api/set-csrf-token', {
@@ -16,20 +17,21 @@ export const useAuthStore = create(
                     });
                     const data = await response.json();
                     if (data.csrftoken) {
-                        set({csrfToken: data.csrftoken});
+                        set({ csrfToken: data.csrftoken });
                     }
                 } catch (error) {
                     console.error("Failed to fetch CSRF token", error);
                 }
             },
 
+            // ✅ Register User
             register: async ({ email, password, first_name, last_name }) => {
-                await get().setCsrfToken();
+                await get().setCsrfToken(); // Ensure CSRF is set before proceeding
                 const csrftoken = get().csrfToken || getCSRFToken();
 
                 if (!csrftoken) {
                     console.error("CSRF token is missing. Cannot register.");
-                    return false;
+                    return { success: false, message: "CSRF token missing" };
                 }
 
                 try {
@@ -47,24 +49,24 @@ export const useAuthStore = create(
 
                     if (response.ok) {
                         set({ user: data.user, isAuthenticated: true });
-                        return true;
+                        return { success: true, message: "Registration successful!" };
                     } else {
-                        console.error("Registration failed:", data);
-                        return false;
+                        return { success: false, message: data.error || "Registration failed" };
                     }
                 } catch (error) {
                     console.error("Error during registration:", error);
-                    return false;
+                    return { success: false, message: "Server error. Please try again later." };
                 }
             },
 
+            // ✅ Login User
             login: async (email, password) => {
                 await get().setCsrfToken();
                 const csrftoken = get().csrfToken || getCSRFToken();
 
                 if (!csrftoken) {
                     console.error("CSRF token is missing. Cannot log in.");
-                    return false;
+                    return { success: false, message: "CSRF token missing" };
                 }
 
                 try {
@@ -79,51 +81,37 @@ export const useAuthStore = create(
                     });
 
                     const data = await response.json();
+                    console.log("Response Status:", response.status);
+                    console.log("Response Data:", data);
                     if (response.ok) {
+                        console.log(response.ok);
                         set({ user: data.user, isAuthenticated: true });
-                        return true;
+                        return { success: true, message: "Login successful!" };
                     } else {
-                        set({ user: null, isAuthenticated: false });
-                        return false;
+                        return { success: false, message: data.error || "Invalid credentials" };
                     }
                 } catch (error) {
                     console.error("Login failed:", error);
-                    return false;
+                    return { success: false, message: "Server error. Please try again later." };
                 }
-
             },
 
+            // ✅ Logout User
             logout: async () => {
                 try {
-                    const {setCsrfToken, isAuthenticated} = get();
+                    const { setCsrfToken, isAuthenticated } = get();
 
                     if (!isAuthenticated) {
-                        console.warn("User is not authenticated, no need to logout.");
-                        return false;
+                        return { success: false, message: "User is not logged in." };
                     }
 
-                    // Ensure CSRF token is up to date
                     await setCsrfToken();
                     const updatedCsrfToken = get().csrfToken || getCSRFToken();
 
                     if (!updatedCsrfToken) {
-                        console.error("CSRF token is missing. Cannot log out.");
-                        return false;
+                        return { success: false, message: "CSRF token missing. Cannot log out." };
                     }
 
-                     // 🔹 Debugging: Check if the user is still authenticated
-                    const sessionCheck = await fetch('http://localhost:8000/api/user', {
-                        credentials: 'include',
-                        headers: {'Content-Type': 'application/json'}
-                    });
-
-                    if (sessionCheck.status === 401) {
-                        console.warn("Session expired, forcing logout.");
-                        set(() => ({ user: null, isAuthenticated: false, csrfToken: null }));
-                        return false;
-                    }
-
-                    // Perform logout request
                     const response = await fetch('http://localhost:8000/api/logout', {
                         method: 'POST',
                         headers: {
@@ -134,24 +122,19 @@ export const useAuthStore = create(
                     });
 
                     if (!response.ok) {
-                        const responseData = await response.json();
-                        console.error("Logout failed:", responseData);
-                        return false;
+                        return { success: false, message: "Logout failed. Try again later." };
                     }
 
-                    // Logout successful
-                    set(() => ({ user: null, isAuthenticated: false, csrfToken: null }));
-                    console.log("Logout successful!");
-
-                    return true;
+                    set({ user: null, isAuthenticated: false, csrfToken: null });
+                    return { success: true, message: "Logout successful!" };
 
                 } catch (error) {
                     console.error('Logout error:', error);
-                    return false;
+                    return { success: false, message: "Server error. Try again later." };
                 }
             },
 
-
+            // ✅ Fetch User Session
             fetchUser: async () => {
                 try {
                     await get().setCsrfToken();
@@ -167,13 +150,13 @@ export const useAuthStore = create(
 
                     if (response.ok) {
                         const data = await response.json();
-                        set({user: data, isAuthenticated: true});
+                        set({ user: data, isAuthenticated: true });
                     } else {
-                        set({user: null, isAuthenticated: false});
+                        set({ user: null, isAuthenticated: false });
                     }
                 } catch (error) {
                     console.error('Failed to fetch user', error);
-                    set({user: null, isAuthenticated: false});
+                    set({ user: null, isAuthenticated: false });
                 }
             },
         }),
@@ -184,7 +167,7 @@ export const useAuthStore = create(
     )
 );
 
-// ✅ Use this function to get CSRF from cookies
+// ✅ Improved CSRF Token Retrieval Function
 export const getCSRFToken = () => {
     const name = 'csrftoken';
     let cookieValue = null;
@@ -198,8 +181,5 @@ export const getCSRFToken = () => {
             }
         }
     }
-    if (!cookieValue) {
-        throw new Error('Missing CSRF cookie.');
-    }
-    return cookieValue;
+    return cookieValue || null; // Return null instead of throwing an error
 };

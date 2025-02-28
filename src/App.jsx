@@ -40,20 +40,22 @@ function App() {
         void setCsrfToken();
     }, [setCsrfToken]);
 
-    const handleLogin = async (email, password) => {
+const handleLogin = async (email, password) => {
     if (!login) {
         console.error("login function is not defined in useAuthStore");
         return;
     }
 
-    const success = await login(email, password);
-    if (success) {
+    const response = await login(email, password); // ✅ Use the full response object
+
+    if (response.success) {  // ✅ Now properly checking the `success` property
         showSnackbar("You are now logged in!", "success");
-        setAuthOpen(false);  // ✅ Close modal on success
+        setAuthOpen(false);
     } else {
-        showSnackbar("Login failed. Please check your credentials.", "error");
+        showSnackbar(response.message || "Login failed. Please check your credentials.", "error");
     }
 };
+
 
     const handleLogout = async () => {
         const success = await logout();
