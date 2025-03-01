@@ -24,7 +24,8 @@ import logo from './assets/geobradlogo.png';
 
 function App() {
     const setMapCenter = useStore((state) => state.setMapCenter);
-    const {isAuthenticated, logout} = useAuthStore();
+    const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+    const logout = useAuthStore((state) => state.logout);
     const setCsrfToken = useAuthStore(state => state.setCsrfToken);
 
     // Modal State
@@ -33,36 +34,58 @@ function App() {
     const {snackbar, showSnackbar, hideSnackbar} = useStore();
     const [forgotPasswordOpen, setForgotPasswordOpen] = useState(false);
 
-    const {login} = useAuthStore();
+    const {login, register} = useAuthStore();
 
 
     useEffect(() => {
         void setCsrfToken();
     }, [setCsrfToken]);
 
-    const handleLogin = async (email, password) => {
+const handleLogin = async (email, password) => {
     if (!login) {
         console.error("login function is not defined in useAuthStore");
         return;
     }
 
-    const success = await login(email, password);
-    if (success) {
+    const response = await login(email, password); // ✅ Use the full response object
+
+    if (response.success) {  // ✅ Now properly checking the `success` property
         showSnackbar("You are now logged in!", "success");
-        setAuthOpen(false);  // ✅ Close modal on success
+        setAuthOpen(false);
     } else {
-        showSnackbar("Login failed. Please check your credentials.", "error");
+        showSnackbar(response.message || "Login failed. Please check your credentials.", "error");
     }
 };
 
-    const handleLogout = async () => {
-        const success = await logout();
-        if (success) {
-            showSnackbar("You are now logged out!", "info");
-        } else {
-            showSnackbar("Logout failed. Please try again.", "error");
-        }
-    };
+
+const handleLogout = async () => {
+
+    const response = await logout();
+
+    if (response.success) {
+        showSnackbar("You are now logged out!", "info");
+    } else {
+        showSnackbar("Logout failed. Please try again.", "error");
+    }
+};
+
+const handleRegister = async (userData) => {
+    if (!register) {
+        console.error("register function is not defined in useAuthStore");
+        return;
+    }
+
+    const response = await register(userData); // ✅ Use the full response object
+
+    if (response.success) {
+        showSnackbar(response.message, "success");
+        setAuthOpen(false);  // ✅ Close modal after successful registration
+    } else {
+        showSnackbar(response.message || "Registration failed. Please try again.", "error");
+    }
+};
+
+
 
     return (
         <Box sx={{display: 'flex', flexDirection: 'column', height: '100vh', overflow: 'hidden'}}>
@@ -124,6 +147,7 @@ function App() {
                                   setForgotPasswordOpen(true);
                               }}
                               onLogin={handleLogin}
+                              onRegister={handleRegister}
                     />
                 </DialogContent>
                 <DialogActions>
