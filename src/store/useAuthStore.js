@@ -1,5 +1,5 @@
-import { create } from 'zustand';
-import { persist, createJSONStorage } from 'zustand/middleware';
+import {create} from 'zustand';
+import {persist, createJSONStorage} from 'zustand/middleware';
 
 export const useAuthStore = create(
     persist(
@@ -17,7 +17,7 @@ export const useAuthStore = create(
                     });
                     const data = await response.json();
                     if (data.csrftoken) {
-                        set({ csrfToken: data.csrftoken });
+                        set({csrfToken: data.csrftoken});
                     }
                 } catch (error) {
                     console.error("Failed to fetch CSRF token", error);
@@ -25,14 +25,22 @@ export const useAuthStore = create(
             },
 
             // ✅ Register User
-            register: async ({ email, password, first_name, last_name }) => {
-                await get().setCsrfToken(); // Ensure CSRF is set before proceeding
+            register: async ({email, password, first_name, last_name}) => {
+
+                await get().setCsrfToken();
                 const csrftoken = get().csrfToken || getCSRFToken();
 
                 if (!csrftoken) {
-                    console.error("CSRF token is missing. Cannot register.");
-                    return { success: false, message: "CSRF token missing" };
+                    console.error("🚨 CSRF token is missing. Cannot register.");
+                    return {success: false, message: "CSRF token missing"};
                 }
+
+                const requestBody = JSON.stringify({
+                    email,
+                    password,
+                    first_name,
+                    last_name
+                });
 
                 try {
                     const response = await fetch('http://localhost:8000/api/register', {
@@ -41,21 +49,21 @@ export const useAuthStore = create(
                             'Content-Type': 'application/json',
                             'X-CSRFToken': csrftoken
                         },
-                        body: JSON.stringify({ email, password, first_name, last_name }),
+                        body: requestBody,
                         credentials: 'include'
                     });
 
                     const data = await response.json();
 
                     if (response.ok) {
-                        set({ user: data.user, isAuthenticated: true });
-                        return { success: true, message: "Registration successful!" };
+                        set({user: data.user, isAuthenticated: true});
+                        return {success: true, message: "Registration successful! Check your email for confirmation"};
                     } else {
-                        return { success: false, message: data.error || "Registration failed" };
+                        return {success: false, message: data.error || "Registration failed"};
                     }
                 } catch (error) {
-                    console.error("Error during registration:", error);
-                    return { success: false, message: "Server error. Please try again later." };
+                    console.error("🚨 Error during registration:", error);
+                    return {success: false, message: "Server error. Please try again later."};
                 }
             },
 
@@ -66,7 +74,7 @@ export const useAuthStore = create(
 
                 if (!csrftoken) {
                     console.error("CSRF token is missing. Cannot log in.");
-                    return { success: false, message: "CSRF token missing" };
+                    return {success: false, message: "CSRF token missing"};
                 }
 
                 try {
@@ -76,63 +84,59 @@ export const useAuthStore = create(
                             'Content-Type': 'application/json',
                             'X-CSRFToken': csrftoken
                         },
-                        body: JSON.stringify({ email, password }),
+                        body: JSON.stringify({email, password}),
                         credentials: 'include'
                     });
 
                     const data = await response.json();
-                    console.log("Response Status:", response.status);
-                    console.log("Response Data:", data);
+
                     if (response.ok) {
-                        console.log(response.ok);
-                        set({ user: data.user, isAuthenticated: true });
-                        return { success: true, message: "Login successful!" };
+                        set({user: data.user, isAuthenticated: true});
+                        return {success: true, message: "Login successful!"};
                     } else {
-                        return { success: false, message: data.error || "Invalid credentials" };
+                        return {success: false, message: data.error || "Invalid credentials"};
                     }
                 } catch (error) {
                     console.error("Login failed:", error);
-                    return { success: false, message: "Server error. Please try again later." };
+                    return {success: false, message: "Server error. Please try again later."};
                 }
             },
 
             // ✅ Logout User
-            logout: async () => {
-                try {
-                    const { setCsrfToken, isAuthenticated } = get();
+          logout: async () => {
+    try {
 
-                    if (!isAuthenticated) {
-                        return { success: false, message: "User is not logged in." };
-                    }
+        await get().setCsrfToken();
+        const updatedCsrfToken = get().csrfToken || getCSRFToken();
 
-                    await setCsrfToken();
-                    const updatedCsrfToken = get().csrfToken || getCSRFToken();
+        if (!updatedCsrfToken) {
+            console.error("🚨 CSRF token missing. Cannot log out.");
+            return { success: false, message: "CSRF token missing. Cannot log out." };
+        }
 
-                    if (!updatedCsrfToken) {
-                        return { success: false, message: "CSRF token missing. Cannot log out." };
-                    }
-
-                    const response = await fetch('http://localhost:8000/api/logout', {
-                        method: 'POST',
-                        headers: {
-                            'X-CSRFToken': updatedCsrfToken,
-                            'Content-Type': 'application/json'
-                        },
-                        credentials: 'include'
-                    });
-
-                    if (!response.ok) {
-                        return { success: false, message: "Logout failed. Try again later." };
-                    }
-
-                    set({ user: null, isAuthenticated: false, csrfToken: null });
-                    return { success: true, message: "Logout successful!" };
-
-                } catch (error) {
-                    console.error('Logout error:', error);
-                    return { success: false, message: "Server error. Try again later." };
-                }
+        const response = await fetch('http://localhost:8000/api/logout', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': updatedCsrfToken,
+                'Content-Type': 'application/json'
             },
+            credentials: 'include'
+        });
+
+        // Update Zustand state
+        set(() => ({ user: null, isAuthenticated: false, csrfToken: null }));
+
+        if (response.ok) {
+            return { success: true, message: "Logout successful!" };
+        } else {
+            return { success: false, message: "Logout completed, but API returned an error." };
+        }
+    } catch (error) {
+        console.error("🚨 Logout error:", error);
+        return { success: false, message: "Server error. Try again later." };
+    }
+},
+
 
             // ✅ Fetch User Session
             fetchUser: async () => {
@@ -150,13 +154,13 @@ export const useAuthStore = create(
 
                     if (response.ok) {
                         const data = await response.json();
-                        set({ user: data, isAuthenticated: true });
+                        set({user: data, isAuthenticated: true});
                     } else {
-                        set({ user: null, isAuthenticated: false });
+                        set({user: null, isAuthenticated: false});
                     }
                 } catch (error) {
                     console.error('Failed to fetch user', error);
-                    set({ user: null, isAuthenticated: false });
+                    set({user: null, isAuthenticated: false});
                 }
             },
         }),
