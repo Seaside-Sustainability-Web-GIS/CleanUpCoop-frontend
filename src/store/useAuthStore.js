@@ -11,7 +11,7 @@ export const useAuthStore = create(
             // ✅ Set CSRF Token before making requests
             setCsrfToken: async () => {
                 try {
-                    const response = await fetch('http://localhost:8000/api/set-csrf-token', {
+                    const response = await fetch('https://webgis-django.onrender.com/api/set-csrf-token', {
                         method: 'GET',
                         credentials: 'include'
                     });
@@ -43,7 +43,7 @@ export const useAuthStore = create(
                 });
 
                 try {
-                    const response = await fetch('http://localhost:8000/api/register', {
+                    const response = await fetch('https://webgis-django.onrender.com/api/register', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -78,7 +78,7 @@ export const useAuthStore = create(
                 }
 
                 try {
-                    const response = await fetch('http://localhost:8000/api/login', {
+                    const response = await fetch('https://webgis-django.onrender.com/api/login', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -114,7 +114,7 @@ export const useAuthStore = create(
             return { success: false, message: "CSRF token missing. Cannot log out." };
         }
 
-        const response = await fetch('http://localhost:8000/api/logout', {
+        const response = await fetch('https://webgis-django.onrender.com/logout', {
             method: 'POST',
             headers: {
                 'X-CSRFToken': updatedCsrfToken,
@@ -144,7 +144,7 @@ export const useAuthStore = create(
                     await get().setCsrfToken();
                     const csrftoken = get().csrfToken || getCSRFToken();
 
-                    const response = await fetch('http://localhost:8000/api/user', {
+                    const response = await fetch('https://webgis-django.onrender.com/user', {
                         credentials: 'include',
                         headers: {
                             'Content-Type': 'application/json',

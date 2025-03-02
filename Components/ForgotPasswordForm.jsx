@@ -9,12 +9,10 @@ const ForgotPasswordForm = ({ onClose }) => {
 
   const onSubmit = async (data) => {
     try {
-      const res = await fetch("http://localhost:8000/api/forgot-password", {
+      const res = await fetch("https://webgis-django.onrender.com/api/forgot-password", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          // Include CSRF token if needed:
-          // "X-CSRFToken": getCookie("csrftoken")
         },
         body: JSON.stringify({ email: data.email }),
       });

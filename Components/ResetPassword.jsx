@@ -38,7 +38,7 @@ const ResetPassword = () => {
       return;
     }
     try {
-      const res = await fetch("http://localhost:8000/api/reset-password", {
+      const res = await fetch("https://webgis-django.onrender.com/api/reset-password", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
