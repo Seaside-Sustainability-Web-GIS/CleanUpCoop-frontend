@@ -28,11 +28,12 @@ export const useAuthStore = create(
             register: async ({email, password, first_name, last_name}) => {
 
                 await get().setCsrfToken();
+                await new Promise(resolve => setTimeout(resolve, 50));
                 const csrftoken = get().csrfToken || getCSRFToken();
 
-                if (!csrftoken) {
-                    console.error("🚨 CSRF token is missing. Cannot register.");
-                    return {success: false, message: "CSRF token missing"};
+                if (!csrftoken || csrftoken === "undefined") {
+                    console.error("🚨 CSRF token is missing or invalid. Cannot register.");
+                    return {success: false, message: "CSRF token missing or invalid"};
                 }
 
                 const requestBody = JSON.stringify({
