@@ -5,7 +5,7 @@ import ResetPassword from "../Components/ResetPassword";
 
 function AppRoutes() {
   return (
-    <Router basename="/WebGIS-React">
+    <Router>
       <Routes>
         <Route path="/" element={<App />} />
         <Route path="/reset-password" element={<ResetPassword />} />
