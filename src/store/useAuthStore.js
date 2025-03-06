@@ -79,6 +79,7 @@ export const useAuthStore = create(
                 }
 
                 try {
+                    console.log("CSRF Token: ", csrftoken);
                     const response = await fetch('https://webgis-django.onrender.com/api/login', {
                         method: 'POST',
                         headers: {
