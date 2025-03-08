@@ -67,6 +67,7 @@ export const useAuthStore = create(
                     return {success: false, message: "Server error. Please try again later."};
                 }
             },
+            
 
             // ✅ Login User
             login: async (email, password) => {
