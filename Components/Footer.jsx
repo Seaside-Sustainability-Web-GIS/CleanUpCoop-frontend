@@ -1,7 +1,7 @@
 import { Box, Typography, Link, IconButton } from '@mui/material';
 import {Facebook, LinkedIn, Instagram} from '@mui/icons-material';
 
-const Footer = () => {
+const Footer = ({ setTermsOpen, setPrivacyOpen }) => {
     return (
         <Box
             component="footer"
@@ -40,11 +40,11 @@ const Footer = () => {
 
                 {/* Right-aligned Links */}
                 <Box sx={{ display: 'flex', gap: 2 }}>
-                    <Link href="/terms" color="inherit" underline="hover" sx={{ fontSize: 14 }}>
-                        Terms
+                    <Link href="#" onClick={() => setTermsOpen(true)} color="inherit" underline="hover" sx={{ fontSize: 14 }}>
+                        Terms of Serice
                     </Link>
-                    <Link href="/privacy" color="inherit" underline="hover" sx={{ fontSize: 14 }}>
-                        Privacy
+                    <Link href="#" onClick={() => setPrivacyOpen(true)} color="inherit" underline="hover" sx={{ fontSize: 14 }}>
+                        Privacy Policy
                     </Link>
                 </Box>
             </Box>
