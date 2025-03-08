@@ -27,7 +27,6 @@ export const useAuthStore = create(
 
       register: async ({ email, password, first_name, last_name }) => {
         await get().setCsrfToken();
-        await new Promise(resolve => setTimeout(resolve, 50));
         const csrftoken = get().csrfToken || getCSRFToken();
 
         if (!csrftoken || csrftoken === 'undefined') {
