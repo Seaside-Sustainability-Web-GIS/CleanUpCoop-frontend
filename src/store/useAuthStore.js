@@ -4,7 +4,10 @@ import axios from 'axios';
 
 const API_BASE_URL = 'https://webgis-django.onrender.com/api';
 
-// Helper to read the csrf token from document.cookie
+/**
+ * Helper to read the `csrftoken` value from `document.cookie`
+ * so we can pass it as needed if the store isn't updated yet.
+ */
 export const getCSRFToken = () => {
   const name = 'csrftoken';
   let cookieValue = null;
@@ -12,7 +15,7 @@ export const getCSRFToken = () => {
     const cookies = document.cookie.split(';');
     for (let i = 0; i < cookies.length; i++) {
       const cookie = cookies[i].trim();
-      if (cookie.startsWith(name + '=')) {
+      if (cookie.startsWith(`${name}=`)) {
         cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
         break;
       }
@@ -28,13 +31,20 @@ export const useAuthStore = create(
       isAuthenticated: false,
       csrfToken: null,
 
-      // Fetch a CSRF token from the server and store it in Zustand
+      /**
+       * 1) Grabs a CSRF token from the server (GET /set-csrf-token)
+       * 2) Stores it in the Zustand state if present
+       *
+       * The server must also set a "Set-Cookie: csrftoken=..." header
+       * to allow cross-site cookies in the browser.
+       */
       setCsrfToken: async () => {
         try {
           const response = await axios.get(`${API_BASE_URL}/set-csrf-token`, {
-            withCredentials: true, // Important to include cookies
+            withCredentials: true, // Allows cross-site cookie exchange
           });
           const data = response.data;
+          // If the API returns { csrftoken: "..." } in JSON
           if (data.csrftoken) {
             set({ csrfToken: data.csrftoken });
           }
@@ -43,8 +53,11 @@ export const useAuthStore = create(
         }
       },
 
-      // Register a new user
+      /**
+       * Registers a new user
+       */
       register: async ({ email, password, first_name, last_name }) => {
+        // Ensure we have a fresh CSRF token in state (and in cookies)
         await get().setCsrfToken();
         const csrftoken = get().csrfToken || getCSRFToken();
 
@@ -74,17 +87,25 @@ export const useAuthStore = create(
               message: 'Registration successful! Check your email for confirmation',
             };
           } else {
-            return { success: false, message: data.error || 'Registration failed' };
+            return {
+              success: false,
+              message: data.error || 'Registration failed',
+            };
           }
         } catch (error) {
           console.error('🚨 Error during registration:', error);
-          // Axios errors can have response data in error.response.data
-          return { success: false, message: 'Server error. Please try again later.' };
+          return {
+            success: false,
+            message: 'Server error. Please try again later.',
+          };
         }
       },
 
-      // Log in
+      /**
+       * Logs the user in
+       */
       login: async (email, password) => {
+        // Ensure we have a fresh CSRF token
         await get().setCsrfToken();
         const csrftoken = get().csrfToken || getCSRFToken();
 
@@ -116,13 +137,19 @@ export const useAuthStore = create(
           }
         } catch (error) {
           console.error('Login failed:', error);
-          return { success: false, message: 'Server error. Please try again later.' };
+          return {
+            success: false,
+            message: 'Server error. Please try again later.',
+          };
         }
       },
 
-      // Log out
+      /**
+       * Logs the user out
+       */
       logout: async () => {
         try {
+          // Refresh CSRF token if needed
           await get().setCsrfToken();
           const updatedCsrfToken = get().csrfToken || getCSRFToken();
 
@@ -146,7 +173,7 @@ export const useAuthStore = create(
             }
           );
 
-          // Clear local user state regardless of API response
+          // Clear local user state regardless of the API response
           set({ user: null, isAuthenticated: false, csrfToken: null });
 
           if (response.status === 200) {
@@ -159,11 +186,16 @@ export const useAuthStore = create(
           }
         } catch (error) {
           console.error('🚨 Logout error:', error);
-          return { success: false, message: 'Server error. Try again later.' };
+          return {
+            success: false,
+            message: 'Server error. Try again later.',
+          };
         }
       },
 
-      // Fetch current user info
+      /**
+       * Fetches the current user's info from the server
+       */
       fetchUser: async () => {
         try {
           await get().setCsrfToken();
