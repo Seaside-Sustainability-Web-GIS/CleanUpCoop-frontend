@@ -1,7 +1,25 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
+import axios from 'axios';
 
 const API_BASE_URL = 'https://webgis-django.onrender.com/api';
+
+// Helper to read the csrf token from document.cookie
+export const getCSRFToken = () => {
+  const name = 'csrftoken';
+  let cookieValue = null;
+  if (document.cookie && document.cookie !== '') {
+    const cookies = document.cookie.split(';');
+    for (let i = 0; i < cookies.length; i++) {
+      const cookie = cookies[i].trim();
+      if (cookie.startsWith(name + '=')) {
+        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+        break;
+      }
+    }
+  }
+  return cookieValue || null;
+};
 
 export const useAuthStore = create(
   persist(
@@ -10,13 +28,13 @@ export const useAuthStore = create(
       isAuthenticated: false,
       csrfToken: null,
 
+      // Fetch a CSRF token from the server and store it in Zustand
       setCsrfToken: async () => {
         try {
-          const response = await fetch(`${API_BASE_URL}/set-csrf-token`, {
-            method: 'GET',
-            credentials: 'include',
+          const response = await axios.get(`${API_BASE_URL}/set-csrf-token`, {
+            withCredentials: true, // Important to include cookies
           });
-          const data = await response.json();
+          const data = response.data;
           if (data.csrftoken) {
             set({ csrfToken: data.csrftoken });
           }
@@ -25,6 +43,7 @@ export const useAuthStore = create(
         }
       },
 
+      // Register a new user
       register: async ({ email, password, first_name, last_name }) => {
         await get().setCsrfToken();
         const csrftoken = get().csrfToken || getCSRFToken();
@@ -35,30 +54,36 @@ export const useAuthStore = create(
         }
 
         try {
-          const response = await fetch(`${API_BASE_URL}/register`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'X-CSRFToken': csrftoken,
-            },
-            body: JSON.stringify({ email, password, first_name, last_name }),
-            credentials: 'include',
-          });
+          const response = await axios.post(
+            `${API_BASE_URL}/register`,
+            { email, password, first_name, last_name },
+            {
+              withCredentials: true,
+              headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrftoken,
+              },
+            }
+          );
 
-          const data = await response.json();
-
-          if (response.ok) {
+          const data = response.data;
+          if (response.status === 200) {
             set({ user: data.user, isAuthenticated: true });
-            return { success: true, message: 'Registration successful! Check your email for confirmation' };
+            return {
+              success: true,
+              message: 'Registration successful! Check your email for confirmation',
+            };
           } else {
             return { success: false, message: data.error || 'Registration failed' };
           }
         } catch (error) {
           console.error('🚨 Error during registration:', error);
+          // Axios errors can have response data in error.response.data
           return { success: false, message: 'Server error. Please try again later.' };
         }
       },
 
+      // Log in
       login: async (email, password) => {
         await get().setCsrfToken();
         const csrftoken = get().csrfToken || getCSRFToken();
@@ -70,19 +95,20 @@ export const useAuthStore = create(
 
         try {
           console.log('CSRF Token: ', csrftoken);
-          const response = await fetch(`${API_BASE_URL}/login`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'X-CSRFToken': csrftoken,
-            },
-            body: JSON.stringify({ email, password }),
-            credentials: 'include',
-          });
+          const response = await axios.post(
+            `${API_BASE_URL}/login`,
+            { email, password },
+            {
+              withCredentials: true,
+              headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrftoken,
+              },
+            }
+          );
 
-          const data = await response.json();
-
-          if (response.ok) {
+          const data = response.data;
+          if (response.status === 200) {
             set({ user: data.user, isAuthenticated: true });
             return { success: true, message: 'Login successful!' };
           } else {
@@ -94,6 +120,7 @@ export const useAuthStore = create(
         }
       },
 
+      // Log out
       logout: async () => {
         try {
           await get().setCsrfToken();
@@ -101,24 +128,34 @@ export const useAuthStore = create(
 
           if (!updatedCsrfToken) {
             console.error('🚨 CSRF token missing. Cannot log out.');
-            return { success: false, message: 'CSRF token missing. Cannot log out.' };
+            return {
+              success: false,
+              message: 'CSRF token missing. Cannot log out.',
+            };
           }
 
-          const response = await fetch(`${API_BASE_URL}/logout`, {
-            method: 'POST',
-            headers: {
-              'X-CSRFToken': updatedCsrfToken,
-              'Content-Type': 'application/json',
-            },
-            credentials: 'include',
-          });
+          const response = await axios.post(
+            `${API_BASE_URL}/logout`,
+            {},
+            {
+              withCredentials: true,
+              headers: {
+                'X-CSRFToken': updatedCsrfToken,
+                'Content-Type': 'application/json',
+              },
+            }
+          );
 
-          set(() => ({ user: null, isAuthenticated: false, csrfToken: null }));
+          // Clear local user state regardless of API response
+          set({ user: null, isAuthenticated: false, csrfToken: null });
 
-          if (response.ok) {
+          if (response.status === 200) {
             return { success: true, message: 'Logout successful!' };
           } else {
-            return { success: false, message: 'Logout completed, but API returned an error.' };
+            return {
+              success: false,
+              message: 'Logout completed, but API returned an error.',
+            };
           }
         } catch (error) {
           console.error('🚨 Logout error:', error);
@@ -126,21 +163,22 @@ export const useAuthStore = create(
         }
       },
 
+      // Fetch current user info
       fetchUser: async () => {
         try {
           await get().setCsrfToken();
           const csrftoken = get().csrfToken || getCSRFToken();
 
-          const response = await fetch(`${API_BASE_URL}/user`, {
-            credentials: 'include',
+          const response = await axios.get(`${API_BASE_URL}/user`, {
+            withCredentials: true,
             headers: {
               'Content-Type': 'application/json',
               'X-CSRFToken': csrftoken,
             },
           });
 
-          if (response.ok) {
-            const data = await response.json();
+          if (response.status === 200) {
+            const data = response.data;
             set({ user: data, isAuthenticated: true });
           } else {
             set({ user: null, isAuthenticated: false });
@@ -157,20 +195,3 @@ export const useAuthStore = create(
     }
   )
 );
-
-// Improved CSRF Token Retrieval Function
-export const getCSRFToken = () => {
-  const name = 'csrftoken';
-  let cookieValue = null;
-  if (document.cookie && document.cookie !== '') {
-    const cookies = document.cookie.split(';');
-    for (let i = 0; i < cookies.length; i++) {
-      const cookie = cookies[i].trim();
-      if (cookie.startsWith(name + '=')) {
-        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-        break;
-      }
-    }
-  }
-  return cookieValue || null; // Return null instead of throwing an error
-};
