@@ -10,13 +10,14 @@ import {
     Dialog,
     DialogTitle,
     Snackbar,
-    Alert,
+    Alert, FormControlLabel, Switch,
 } from '@mui/material';
 import Sidebar from '../Components/Sidebar.jsx';
 import MapView from '../Components/Mapview.jsx';
 import CollapsibleTable from "../Components/CollapsableTable.jsx";
 import AuthForm from "../Components/AuthForm.jsx";
 import ForgotPasswordForm from "../Components/ForgotPasswordForm.jsx";
+import Dashboard from '../Components/Dashboard.jsx';
 import useStore from '../src/store/useStore';
 import {useAuthStore} from './store/useAuthStore.js';
 import Footer from "../Components/Footer.jsx";
@@ -27,12 +28,18 @@ import TermsModal from "../Components/TermsModal.jsx";
 import PrivacyModal from "../Components/PrivacyModal.jsx";
 
 function App() {
+    // Map and Dashboard state
     const setMapCenter = useStore((state) => state.setMapCenter);
+    const currentView = useStore((state) => state.currentView);
+    const toggleView = useStore((state) => state.toggleView);
+
+    // User Auth State
     const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
     const logout = useAuthStore((state) => state.logout);
     const setCsrfToken = useAuthStore(state => state.setCsrfToken);
+    const {login, register} = useAuthStore();
 
-    // Modal State
+    // Modals State
     const [aboutOpen, setAboutOpen] = useState(false);
     const [authOpen, setAuthOpen] = useState(false);
     const {snackbar, showSnackbar, hideSnackbar} = useStore();
@@ -40,9 +47,7 @@ function App() {
     const [termsOpen, setTermsOpen] = useState(false);
     const [privacyOpen, setPrivacyOpen] = useState(false);
 
-
-    const {login, register} = useAuthStore();
-
+    const geojsonData = useStore((state) => state.geojsonData);
 
     useEffect(() => {
         void setCsrfToken();
@@ -107,6 +112,19 @@ function App() {
                     <Typography variant="h6" sx={{flexGrow: 1}}>
                         WebGIS Application Template
                     </Typography>
+                    <FormControlLabel
+                        control={
+                            <Switch
+                                checked={currentView === 'dashboard'}
+                                onChange={toggleView}
+                                color="default"
+                            />
+                        }
+                        label={currentView === 'map' ? 'Dashboard' : 'Map'}
+                        labelPlacement="start"
+                        sx={{mx: 2}}
+                    />
+
                     <Button color="inherit" onClick={() => window.location.reload()}>Home</Button>
                     <Button color="inherit" onClick={() => setAboutOpen(true)}>About</Button>
                     {isAuthenticated ? (
@@ -118,11 +136,18 @@ function App() {
             </AppBar>
 
             {/* Main Content */}
-            <Box sx={{display: 'flex', flex: 1, position: 'relative'}}>
+            <Box sx={{display: 'flex', flex: 1, position: 'relative', overflow: 'hidden'}}>
                 <Sidebar setMapCenter={setMapCenter}/>
-                <Box sx={{flex: 1, display: 'flex', flexDirection: 'column', position: 'relative'}}>
-                    <MapView/>
-                    <CollapsibleTable/>
+                <Box sx={{flex: 1, display: 'flex', flexDirection: 'column', position: 'relative', overflow: 'auto'}}>
+                    {currentView === 'map' && (
+                        <>
+                            <MapView/>
+                            <CollapsibleTable/>
+                        </>
+                    )}
+                    {currentView === 'dashboard' && (
+                        <Dashboard data={geojsonData.features.map(f => f.properties)}/>
+                    )}
                 </Box>
             </Box>
 
@@ -184,10 +209,10 @@ function App() {
 
             </Snackbar>
             {/* Footer */}
-           <TermsModal open={termsOpen} onClose={() => setTermsOpen(false)} />
-            <PrivacyModal open={privacyOpen} onClose={() => setPrivacyOpen(false)} />
+            <TermsModal open={termsOpen} onClose={() => setTermsOpen(false)}/>
+            <PrivacyModal open={privacyOpen} onClose={() => setPrivacyOpen(false)}/>
 
-            <Footer setTermsOpen={setTermsOpen} setPrivacyOpen={setPrivacyOpen} />
+            <Footer setTermsOpen={setTermsOpen} setPrivacyOpen={setPrivacyOpen}/>
         </Box>
     );
 }
