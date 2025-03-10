@@ -4,10 +4,6 @@ import axios from 'axios';
 
 const API_BASE_URL = 'https://webgis-django.onrender.com/api';
 
-/**
- * Helper to read the `csrftoken` value from `document.cookie`
- * so we can pass it as needed if the store isn't updated yet.
- */
 export const getCSRFToken = () => {
   const name = 'csrftoken';
   let cookieValue = null;
@@ -44,7 +40,6 @@ export const useAuthStore = create(
             withCredentials: true, // Allows cross-site cookie exchange
           });
           const data = response.data;
-          // If the API returns { csrftoken: "..." } in JSON
           if (data.csrftoken) {
             set({ csrfToken: data.csrftoken });
           }
@@ -115,7 +110,6 @@ export const useAuthStore = create(
         }
 
         try {
-          console.log('CSRF Token: ', csrftoken);
           const response = await axios.post(
             `${API_BASE_URL}/login`,
             { email, password },

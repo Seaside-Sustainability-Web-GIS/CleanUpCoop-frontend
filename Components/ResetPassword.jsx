@@ -21,7 +21,6 @@ const ResetPassword = () => {
   const uid = searchParams.get("uid");
   const token = searchParams.get("token");
 
-  // Show an error if `uid` or `token` is missing
   if (!uid || !token) {
     return (
       <Box sx={{ width: 300, margin: "auto", mt: 4 }}>
