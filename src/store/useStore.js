@@ -1,21 +1,25 @@
-import { create } from 'zustand';
+import {create} from 'zustand';
 
 const useStore = create((set) => ({
     defaultCenter: [38.64, -90.3], // Default map center
     mapCenter: [38.64, -90.3], // Default map center
-    setMapCenter: (newCenter) => set({ mapCenter: newCenter }),
+    setMapCenter: (newCenter) => set({mapCenter: newCenter}),
 
-   userLocation: null,
+    userLocation: null,
     setUserLocation: (location) => {
-        set(() => ({ userLocation: location ? [...location] : null })); // Ensure a new array reference
+        set(() => ({userLocation: location ? [...location] : null})); // Ensure a new array reference
     },
 
+    currentView: 'map',
+    toggleView: () =>
+        set((state) => ({
+            currentView: state.currentView === 'map' ? 'dashboard' : 'map',
+        })),
+
     isTableCollapsed: true,
-    toggleTable: () => set((state) => ({ isTableCollapsed: !state.isTableCollapsed })),
+    toggleTable: () => set((state) => ({isTableCollapsed: !state.isTableCollapsed})),
 
     aboutOpen: false, // State for dialog
-    openAbout: () => set({ aboutOpen: true }),
-    closeAbout: () => set({ aboutOpen: false }),
 
     geojsonData: null,
     isDataLoaded: false,
@@ -31,22 +35,22 @@ const useStore = create((set) => ({
             });
         } catch (error) {
             console.error('Error fetching GeoJSON data:', error);
-            set({ geojsonData: null, isDataLoaded: false });
+            set({geojsonData: null, isDataLoaded: false});
         }
     },
     snackbar: {
-    open: false,
-    message: '',
-    severity: 'success',
-  },
-  showSnackbar: (message, severity = 'success') =>
-    set({
-      snackbar: { open: true, message, severity },
-    }),
-  hideSnackbar: () =>
-    set((state) => ({
-      snackbar: { ...state.snackbar, open: false },
-    })),
+        open: false,
+        message: '',
+        severity: 'success',
+    },
+    showSnackbar: (message, severity = 'success') =>
+        set({
+            snackbar: {open: true, message, severity},
+        }),
+    hideSnackbar: () =>
+        set((state) => ({
+            snackbar: {...state.snackbar, open: false},
+        })),
 }));
 
 export default useStore;
