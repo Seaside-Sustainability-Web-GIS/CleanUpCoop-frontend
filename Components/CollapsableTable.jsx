@@ -1,11 +1,10 @@
-import React, {  useMemo } from 'react';
+import {  useMemo } from 'react';
 import { Box, Button, Typography } from '@mui/material';
 import { DataGrid, GridToolbar } from '@mui/x-data-grid';
 import useStore from '../src/store/useStore';
 
 const CollapsibleTable = () => {
     const geojsonData = useStore((state) => state.geojsonData);
-    const isDataLoaded = useStore((state) => state.isDataLoaded);
     const isTableCollapsed = useStore((state) => state.isTableCollapsed);
     const toggleTable = useStore((state) => state.toggleTable);
 
