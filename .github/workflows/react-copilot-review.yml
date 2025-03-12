@@ -22,7 +22,11 @@ jobs:
         run: npm ci
 
       - name: Install GitHub Copilot CLI
-        run: npm install -g @githubnext/github-copilot-cli
+        run: |
+          npm install -g @githubnext/github-copilot-cli
+          echo "$(/usr/bin/npm bin -g)" >> $GITHUB_PATH
+          which copilot
+          copilot --version
 
       - name: Authenticate GitHub CLI
         env:
@@ -31,7 +35,7 @@ jobs:
 
       - name: Run GitHub Copilot Code Review
         run: copilot review .
-        continue-on-error: true  # Ensures workflow doesn't fail if Copilot can't review
+        continue-on-error: true
 
       - name: Post Copilot Review Comments
         uses: actions/github-script@v6
