@@ -25,12 +25,7 @@ jobs:
         run: |
           npm install -g @githubnext/github-copilot-cli
           # Add the global npm bin directory to the PATH so we can call 'copilot'
-          echo "$(/usr/bin/npm bin -g)" >> $GITHUB_PATH
-
-      - name: Verify Copilot CLI is available
-        run: |
-          which copilot
-          copilot --version
+          echo "$(npm bin -g)" >> $GITHUB_PATH
 
       - name: Authenticate GitHub CLI
         env:
@@ -39,7 +34,6 @@ jobs:
 
       - name: Run GitHub Copilot Code Review
         run: copilot review .
-        continue-on-error: true
 
       - name: Post Copilot Review Comments
         uses: actions/github-script@v6
