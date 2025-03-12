@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { TextField, Button, Box, Typography } from "@mui/material";
 import { useSearchParams, useNavigate } from "react-router-dom";
+import axios from "axios";
 
 const getCSRFToken = () => {
   return document.cookie
@@ -11,13 +12,20 @@ const getCSRFToken = () => {
     ?.split("=")[1];
 };
 
+const API_BASE_URL = "https://webgis-django.onrender.com/api";
+
 const ResetPassword = () => {
-  const { register, handleSubmit, watch, formState: { errors } } = useForm();
+  const {
+    register,
+    handleSubmit,
+    watch,
+    formState: { errors }
+  } = useForm();
+
   const [serverMessage, setServerMessage] = useState("");
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
 
-  // Extract uid and token from the URL (e.g., ?uid=...&token=...)
   const uid = searchParams.get("uid");
   const token = searchParams.get("token");
 
@@ -36,36 +44,46 @@ const ResetPassword = () => {
       setServerMessage("Passwords do not match");
       return;
     }
+
     try {
-      const res = await fetch("https://webgis-django.onrender.com/api/reset-password", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          // Include CSRF token header if required:
-          "X-CSRFToken": getCSRFToken(),
-        },
-        body: JSON.stringify({
+      const csrfToken = getCSRFToken();
+      const response = await axios.post(
+        `${API_BASE_URL}/reset-password`,
+        {
           uid,
           token,
           new_password: data.password,
-        }),
-         credentials: "include",
-      });
-      const responseData = await res.json();
-      if (res.ok) {
-        setServerMessage(responseData.message || "Password reset successfully.");
-        // Redirect after a brief delay
-        setTimeout(() => navigate("/"), 2000);
-      } else {
-        setServerMessage(responseData.error || "Reset failed. Please try again");
-      }
+        },
+        {
+          // Include cross-site cookies if needed (if your domains differ)
+          withCredentials: true,
+          headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": csrfToken,
+          },
+        }
+      );
+
+      setServerMessage(
+        response.data?.message || "Password reset successfully."
+      );
+
+      setTimeout(() => navigate("/"), 2000);
     } catch (error) {
-      setServerMessage("An error occurred. Please try again.");
+      if (error.response?.data?.error) {
+        setServerMessage(error.response.data.error);
+      } else {
+        setServerMessage("Reset failed. Please try again.");
+      }
     }
   };
 
   return (
-    <Box component="form" onSubmit={handleSubmit(onSubmit)} sx={{ width: 300, margin: "auto", mt: 4 }}>
+    <Box
+      component="form"
+      onSubmit={handleSubmit(onSubmit)}
+      sx={{ width: 300, margin: "auto", mt: 4 }}
+    >
       <Typography variant="h6" gutterBottom>
         Reset Password
       </Typography>
@@ -74,7 +92,10 @@ const ResetPassword = () => {
         type="password"
         fullWidth
         margin="normal"
-        {...register("password", { required: "Password is required", minLength: { value: 6, message: "Minimum 6 characters" } })}
+        {...register("password", {
+          required: "Password is required",
+          minLength: { value: 6, message: "Minimum 6 characters" },
+        })}
         error={!!errors.password}
         helperText={errors.password?.message}
       />
@@ -83,9 +104,10 @@ const ResetPassword = () => {
         type="password"
         fullWidth
         margin="normal"
-       {...register("confirmPassword", {
+        {...register("confirmPassword", {
           required: "Please confirm your password",
-          validate: (value) => value === watch("password") || "Passwords do not match"
+          validate: (value) =>
+            value === watch("password") || "Passwords do not match",
         })}
         error={!!errors.confirmPassword}
         helperText={errors.confirmPassword?.message}
