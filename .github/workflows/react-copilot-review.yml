@@ -24,7 +24,11 @@ jobs:
       - name: Install GitHub Copilot CLI
         run: |
           npm install -g @githubnext/github-copilot-cli
+          # Add the global npm bin directory to the PATH so we can call 'copilot'
           echo "$(/usr/bin/npm bin -g)" >> $GITHUB_PATH
+
+      - name: Verify Copilot CLI is available
+        run: |
           which copilot
           copilot --version
 
