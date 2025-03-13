@@ -1,5 +1,5 @@
 // src/Components/ResetPassword.jsx
-import { useState } from "react";
+import {useEffect, useState} from "react";
 import { useForm } from "react-hook-form";
 import { TextField, Button, Box, Typography } from "@mui/material";
 import { useSearchParams, useNavigate } from "react-router-dom";
@@ -15,6 +15,20 @@ const getCSRFToken = () => {
 const API_BASE_URL = "https://webgis-django.onrender.com/api";
 
 const ResetPassword = () => {
+    useEffect(() => {
+    // GET request to set the csrftoken cookie
+    const fetchCSRF = async () => {
+      try {
+        await axios.get(`${API_BASE_URL}set-csrf-token`, {
+          withCredentials: true,
+        });
+      } catch (error) {
+        console.error("Failed to set CSRF cookie", error);
+      }
+    };
+
+    fetchCSRF();
+  }, []);
   const {
     register,
     handleSubmit,
@@ -55,7 +69,6 @@ const ResetPassword = () => {
           new_password: data.password,
         },
         {
-          // Include cross-site cookies if needed (if your domains differ)
           withCredentials: true,
           headers: {
             "Content-Type": "application/json",
