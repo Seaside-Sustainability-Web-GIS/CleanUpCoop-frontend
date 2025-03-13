@@ -19,7 +19,7 @@ const ResetPassword = () => {
     // GET request to set the csrftoken cookie
     const fetchCSRF = async () => {
       try {
-        await axios.get(`${API_BASE_URL}set-csrf-token`, {
+        await axios.get(`${API_BASE_URL}/set-csrf-token`, {
           withCredentials: true,
         });
       } catch (error) {
