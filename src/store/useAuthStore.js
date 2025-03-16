@@ -24,9 +24,10 @@ export const useAuthStore = create(
                 }
             },
 
-            // ✅ Register User
+// ✅ Register User using Allauth's default signup endpoint
             register: async ({email, password, first_name, last_name}) => {
 
+                // First, ensure you have a CSRF token
                 await get().setCsrfToken();
                 const csrftoken = get().csrfToken || getCSRFToken();
 
@@ -35,15 +36,20 @@ export const useAuthStore = create(
                     return {success: false, message: "CSRF token missing"};
                 }
 
+                // Use email as username (or derive username as needed)
+                const username = email; // Alternatively: email.split('@')[0]
+
+                // Prepare payload as expected by Allauth's signup endpoint
                 const requestBody = JSON.stringify({
                     email,
-                    password,
+                    username,
+                    password: password,
                     first_name,
                     last_name
                 });
 
                 try {
-                    const response = await fetch('http://localhost:8000/api/register', {
+                    const response = await fetch('http://localhost:8000/_allauth/app/v1/auth/signup', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -56,6 +62,7 @@ export const useAuthStore = create(
                     const data = await response.json();
 
                     if (response.ok) {
+                        // Optionally, set user info if provided in the response.
                         set({user: data.user, isAuthenticated: true});
                         return {success: true, message: "Registration successful! Check your email for confirmation"};
                     } else {
@@ -103,39 +110,39 @@ export const useAuthStore = create(
             },
 
             // ✅ Logout User
-          logout: async () => {
-    try {
+            logout: async () => {
+                try {
 
-        await get().setCsrfToken();
-        const updatedCsrfToken = get().csrfToken || getCSRFToken();
+                    await get().setCsrfToken();
+                    const updatedCsrfToken = get().csrfToken || getCSRFToken();
 
-        if (!updatedCsrfToken) {
-            console.error("🚨 CSRF token missing. Cannot log out.");
-            return { success: false, message: "CSRF token missing. Cannot log out." };
-        }
+                    if (!updatedCsrfToken) {
+                        console.error("🚨 CSRF token missing. Cannot log out.");
+                        return {success: false, message: "CSRF token missing. Cannot log out."};
+                    }
 
-        const response = await fetch('http://localhost:8000/api/logout', {
-            method: 'POST',
-            headers: {
-                'X-CSRFToken': updatedCsrfToken,
-                'Content-Type': 'application/json'
+                    const response = await fetch('http://localhost:8000/api/logout', {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRFToken': updatedCsrfToken,
+                            'Content-Type': 'application/json'
+                        },
+                        credentials: 'include'
+                    });
+
+                    // Update Zustand state
+                    set(() => ({user: null, isAuthenticated: false, csrfToken: null}));
+
+                    if (response.ok) {
+                        return {success: true, message: "Logout successful!"};
+                    } else {
+                        return {success: false, message: "Logout completed, but API returned an error."};
+                    }
+                } catch (error) {
+                    console.error("🚨 Logout error:", error);
+                    return {success: false, message: "Server error. Try again later."};
+                }
             },
-            credentials: 'include'
-        });
-
-        // Update Zustand state
-        set(() => ({ user: null, isAuthenticated: false, csrfToken: null }));
-
-        if (response.ok) {
-            return { success: true, message: "Logout successful!" };
-        } else {
-            return { success: false, message: "Logout completed, but API returned an error." };
-        }
-    } catch (error) {
-        console.error("🚨 Logout error:", error);
-        return { success: false, message: "Server error. Try again later." };
-    }
-},
 
 
             // ✅ Fetch User Session
