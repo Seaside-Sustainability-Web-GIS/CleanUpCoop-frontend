@@ -92,6 +92,8 @@ function App() {
         if (response.success) {
             showSnackbar(SNACKBAR_MESSAGES.REGISTER_SUCCESS, SNACKBAR_SEVERITIES.SUCCESS);
             setAuthOpen(false);
+        } else if (response.errors && response.errors.length) {
+            showSnackbar(`Registration Failed: ${response.errors[0].message}`, SNACKBAR_SEVERITIES.ERROR);
         } else {
             showSnackbar(SNACKBAR_MESSAGES.REGISTER_FAILURE, SNACKBAR_SEVERITIES.ERROR);
         }
