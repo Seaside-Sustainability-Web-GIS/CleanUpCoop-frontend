@@ -1,12 +1,17 @@
 import {create} from 'zustand';
 import {persist, createJSONStorage} from 'zustand/middleware';
 
+const allAuthEndpoint = 'http://localhost:8000/_allauth/app/v1/auth';
+
 export const useAuthStore = create(
     persist(
         (set, get) => ({
             user: null,
             isAuthenticated: false,
             csrfToken: null,
+
+            authStage: 'signin',
+            setAuthStage: (stage) => set({authStage: stage}),
 
             // ✅ Set CSRF Token before making requests
             setCsrfToken: async () => {
@@ -25,55 +30,55 @@ export const useAuthStore = create(
             },
 
 // ✅ Register User using Allauth's default signup endpoint
-            register: async ({email, password, first_name, last_name}) => {
-                // Ensure CSRF token is set
-                await get().setCsrfToken();
-                const csrftoken = get().csrfToken || getCSRFToken();
+register: async ({ email, password, first_name, last_name }) => {
+    // Ensure CSRF token is set
+    await get().setCsrfToken();
+    const csrftoken = get().csrfToken || getCSRFToken();
 
-                if (!csrftoken) {
-                    console.error("🚨 CSRF token is missing. Cannot register.");
-                    return {success: false, errors: [{message: "CSRF token missing"}]};
-                }
+    if (!csrftoken) {
+        console.error("🚨 CSRF token is missing. Cannot register.");
+        return { success: false, errors: [{ message: "CSRF token missing" }] };
+    }
 
-                // Prepare payload
-                const username = email; // or modify as needed
-                const requestBody = JSON.stringify({
-                    email,
-                    username,
-                    password,
-                    first_name,
-                    last_name
-                });
+    // Prepare payload
+    const username = email; // Using email as username
+    const requestBody = JSON.stringify({
+        email,
+        username,
+        password,
+        first_name,
+        last_name
+    });
 
-                try {
-                    const response = await fetch('http://localhost:8000/_allauth/app/v1/auth/signup', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRFToken': csrftoken
-                        },
-                        body: requestBody,
-                        credentials: 'include'
-                    });
-
-                    const data = await response.json();
-
-                    if (response.ok) {
-                        // Optionally set user info if provided in the response.
-                        set({user: data.user, isAuthenticated: true});
-                        return {success: true, message: "Registration successful! Check your email for confirmation"};
-                    } else {
-                        // Return the errors array from the API, or fallback to a single error message.
-                        return {
-                            success: false,
-                            errors: data.errors || [{message: data.error || "Registration failed"}]
-                        };
-                    }
-                } catch (error) {
-                    console.error("🚨 Error during registration:", error);
-                    return {success: false, errors: [{message: "Server error. Please try again later."}]};
-                }
+    try {
+        const response = await fetch(`${allAuthEndpoint}/signup`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrftoken
             },
+            body: requestBody,
+            credentials: 'include'
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            // Optionally set user info if provided in the response.
+            set({ user: data.user, isAuthenticated: true });
+            return { success: true, message: "Registration successful! Check your email for confirmation" };
+        } else {
+            // Return the errors array from the API, or fallback to a single error message.
+            return {
+                success: false,
+                errors: data.errors || [{ message: data.error || "Registration failed" }]
+            };
+        }
+    } catch (error) {
+        console.error("🚨 Error during registration:", error);
+        return { success: false, errors: [{ message: "Server error. Please try again later." }] };
+    }
+},
 
 
             // ✅ Login User
@@ -87,7 +92,7 @@ export const useAuthStore = create(
                 }
 
                 try {
-                    const response = await fetch('http://localhost:8000/api/login', {
+                    const response = await fetch(`${allAuthEndpoint}/login`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',

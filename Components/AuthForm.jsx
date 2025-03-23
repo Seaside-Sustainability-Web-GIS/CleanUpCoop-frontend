@@ -2,7 +2,7 @@ import {useState} from "react";
 import {useForm} from "react-hook-form";
 import {TextField, Button, Box, Typography, CircularProgress} from "@mui/material";
 
-const AuthForm = ({closeAuth, openForgotPassword, onLogin, onRegister}) => {
+const AuthForm = ({openForgotPassword, onLogin, onRegister}) => {
     const [isRegister, setIsRegister] = useState(false);
     const [loading, setLoading] = useState(false);
     const {
