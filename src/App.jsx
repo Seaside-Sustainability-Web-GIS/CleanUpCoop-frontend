@@ -209,7 +209,12 @@ function App() {
             {/* Sign-In Modal */}
             <Dialog open={authOpen} onClose={() => setAuthOpen(false)}>
                 <DialogTitle>
-                    {authStage === 'verify-email' ? 'Verify Your Email' : 'Sign in'}
+                    {authStage === 'verify-email'
+                        ? 'Verify Your Email'
+                        : authStage === 'register'
+                            ? 'Register'
+                            : 'Sign in'
+                    }
                 </DialogTitle>
                 <DialogContent>
                     {authStage === 'verify-email' ? (

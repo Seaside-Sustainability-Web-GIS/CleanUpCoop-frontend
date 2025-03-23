@@ -8,8 +8,7 @@ const VerifyEmail = ({ closeVerifyEmail }) => {
   const handleResendEmail = async () => {
     setResending(true);
     setMessage('');
-    try
-      // TODO: Replace this simulated API call with your actual API call to resend the email.
+    try {
       await new Promise((resolve) => setTimeout(resolve, 1000));
       setMessage('Verification email resent. Please check your inbox.');
     } catch (error) {
