@@ -9,7 +9,7 @@ import {
     DialogContent,
     Dialog,
     Snackbar,
-    Alert, FormControlLabel, Switch, DialogTitle,
+    Alert, Switch, Divider, DialogTitle,
 } from '@mui/material';
 import Sidebar from '../Components/Sidebar.jsx';
 import MapView from '../Components/Mapview.jsx';
@@ -132,17 +132,33 @@ function App() {
                     <Typography variant="h6" sx={{flexGrow: 1}}>
                         WebGIS Application Template
                     </Typography>
-                    <FormControlLabel
-                        control={
-                            <Switch
-                                checked={currentView === 'dashboard'}
-                                onChange={toggleView}
-                                color="default"
-                            />
-                        }
-                        label={currentView === 'map' ? 'Dashboard' : 'Map'}
-                        labelPlacement="start"
-                        sx={{mx: 2}}
+                    <Box display="flex" alignItems="center" sx={{mx: 2}}>
+                        <Typography
+                            sx={{color: currentView === 'dashboard' ? 'white' : 'grey.500', mr: 1}}
+                        >
+                            Dashboard
+                        </Typography>
+                        <Switch
+                            checked={currentView === 'dashboard'}
+                            onChange={toggleView}
+                            color="default"
+                        />
+                        <Typography
+                            sx={{color: currentView === 'map' ? 'white' : 'grey.500', ml: 1}}
+                        >
+                            Map
+                        </Typography>
+                    </Box>
+                    <Divider
+                        orientation="vertical"
+                        flexItem
+                        sx={{
+                            mx: 2,
+                            height: '40px',
+                            borderRightWidth: 2,
+                            borderColor: 'white',
+                            alignSelf: 'center',
+                        }}
                     />
 
                     <Button color="inherit" onClick={() => window.location.reload()}>Home</Button>
