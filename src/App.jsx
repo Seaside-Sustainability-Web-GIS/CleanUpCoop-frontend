@@ -25,7 +25,7 @@ import {SNACKBAR_MESSAGES, SNACKBAR_SEVERITIES} from '../constants/snackbarMessa
 import ReusableModal from "../Components/ReusableModal.jsx";
 import TermsModal from "../Components/TermsModal.jsx";
 import PrivacyModal from "../Components/PrivacyModal.jsx";
-import VerifyEmail from "../Components/VerifyEmail.jsx";
+import VerifyEmail from "../Components/VerifyEmailPage.jsx";
 
 function App() {
     // Map and Dashboard state
@@ -89,29 +89,12 @@ function App() {
 
         const response = await register(userData);
 
-        if (response.success) {
-            showSnackbar(SNACKBAR_MESSAGES.REGISTER_SUCCESS, SNACKBAR_SEVERITIES.SUCCESS);
-            setAuthOpen(false);
-            return;
-        }
-
-        // Check if the API response includes a "verify_email" flow that's pending.
-        if (response.data && response.data.flows) {
-            const verifyFlow = response.data.flows.find(
-                (flow) => flow.id === "verify_email" && flow.is_pending
-            );
-            if (verifyFlow) {
-                showSnackbar(
-                    "A verification email has been sent. Please check your inbox.",
-                    SNACKBAR_SEVERITIES.INFO
-                );
-                setAuthStage("verify-email");
-                return;
-            }
-        }
-
-        if (response.errors && response.errors.some(error => error.code === 'verification_pending')) {
-            setAuthStage('verify-email');
+        if (response.verification_pending) {
+            showSnackbar(response.message, SNACKBAR_SEVERITIES.INFO);
+            setAuthStage("verify-email");
+            setTimeout(() => {
+                setAuthOpen(false);
+            }, 2000);
         } else if (response.errors && response.errors.length > 0) {
             showSnackbar(`Registration Failed: ${response.errors[0].message}`, SNACKBAR_SEVERITIES.ERROR);
         } else {
@@ -209,27 +192,18 @@ function App() {
             {/* Sign-In Modal */}
             <Dialog open={authOpen} onClose={() => setAuthOpen(false)}>
                 <DialogTitle>
-                    {authStage === 'verify-email'
-                        ? 'Verify Your Email'
-                        : authStage === 'register'
-                            ? 'Register'
-                            : 'Sign in'
-                    }
+                    {authStage === 'register' ? 'Register' : 'Sign in'}
                 </DialogTitle>
                 <DialogContent>
-                    {authStage === 'verify-email' ? (
-                        <VerifyEmail closeVerifyEmail={() => setAuthOpen(false)}/>
-                    ) : (
-                        <AuthForm
-                            closeAuth={() => setAuthOpen(false)}
-                            openForgotPassword={() => {
-                                setAuthOpen(false);
-                                setForgotPasswordOpen(true);
-                            }}
-                            onLogin={handleLogin}
-                            onRegister={handleRegister}
-                        />
-                    )}
+                    <AuthForm
+                        closeAuth={() => setAuthOpen(false)}
+                        openForgotPassword={() => {
+                            setAuthOpen(false);
+                            setForgotPasswordOpen(true);
+                        }}
+                        onLogin={handleLogin}
+                        onRegister={handleRegister}
+                    />
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={() => setAuthOpen(false)} color="primary">

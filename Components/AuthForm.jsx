@@ -6,7 +6,7 @@ import {useAuthStore} from "../src/store/useAuthStore.js";
 
 const AuthForm = ({openForgotPassword, onLogin, onRegister}) => {
     const [isRegister, setIsRegister] = useState(false);
-    const { authStage, setAuthStage } = useAuthStore();
+    const { setAuthStage } = useAuthStore();
     const [loading, setLoading] = useState(false);
     const {
         handleSubmit,
