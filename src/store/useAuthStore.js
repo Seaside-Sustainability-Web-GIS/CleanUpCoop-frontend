@@ -109,7 +109,11 @@ export const useAuthStore = create(
                         const data = await response.json();
 
                         if (response.ok) {
-                            set({user: data.user, isAuthenticated: true});
+                            set({
+                                user: data.user,
+                                isAuthenticated: true,
+                                sessionToken: data.meta.session_token
+                            });
                             return {success: true, message: "Login successful!"};
                         } else {
                             return {success: false, message: data.error || "Invalid credentials"};
@@ -118,8 +122,7 @@ export const useAuthStore = create(
                         console.error("Login failed:", error);
                         return {success: false, message: "Server error. Please try again later."};
                     }
-                }
-                ,
+                },
 
 // ✅ Logout User
                 logout:
@@ -127,26 +130,33 @@ export const useAuthStore = create(
                         try {
 
                             await get().setCsrfToken();
-                            const updatedCsrfToken = get().csrfToken || getCSRFToken();
+                            const csrfToken = get().csrfToken || getCSRFToken();
 
-                            if (!updatedCsrfToken) {
+                            if (!csrfToken) {
                                 console.error("🚨 CSRF token missing. Cannot log out.");
                                 return {success: false, message: "CSRF token missing. Cannot log out."};
                             }
 
-                            const response = await fetch('http://localhost:8000/api/logout', {
-                                method: 'POST',
+                            const sessionToken = get().sessionToken;
+                            if (!sessionToken) {
+                                console.error("🚨 Session token missing. Cannot log out.");
+                                return {success: false, message: "Session token missing. Cannot log out."};
+                            }
+
+                            // Send DELETE request to the logout endpoint.
+                            const response = await fetch(`${allAuthEndpoint}/session`, {
+                                method: 'DELETE',
                                 headers: {
-                                    'X-CSRFToken': updatedCsrfToken,
-                                    'Content-Type': 'application/json'
+                                    'Content-Type': 'application/json',
+                                    'X-CSRFToken': csrfToken,
+                                    'X-Session-Token': sessionToken,
                                 },
-                                credentials: 'include'
+                                credentials: 'include',
                             });
 
-                            // Update Zustand state
-                            set(() => ({user: null, isAuthenticated: false, csrfToken: null}));
-
-                            if (response.ok) {
+                            // A successful logout returns a 401 response (no authenticated session).
+                            if (response.status === 401) {
+                                set({user: null, isAuthenticated: false, sessionToken: null});
                                 return {success: true, message: "Logout successful!"};
                             } else {
                                 return {success: false, message: "Logout completed, but API returned an error."};
