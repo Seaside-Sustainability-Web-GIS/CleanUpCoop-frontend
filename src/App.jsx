@@ -59,7 +59,10 @@ function App() {
             showSnackbar(SNACKBAR_MESSAGES.LOGIN_SUCCESS, SNACKBAR_SEVERITIES.SUCCESS);
             setAuthOpen(false);
         } else {
-            showSnackbar(response.errors[0].message || SNACKBAR_MESSAGES.LOGIN_FAILURE, SNACKBAR_SEVERITIES.ERROR);
+            const errorMessage = Array.isArray(response.errors) && response.errors.length > 0
+                ? response.errors[0].message
+                : SNACKBAR_MESSAGES.LOGIN_FAILURE;
+            showSnackbar(errorMessage, SNACKBAR_SEVERITIES.ERROR);
         }
     };
 
