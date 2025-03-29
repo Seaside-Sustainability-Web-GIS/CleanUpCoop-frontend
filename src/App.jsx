@@ -1,4 +1,4 @@
-import {useState, useEffect} from 'react';
+import {useState} from 'react';
 import {
     AppBar,
     Toolbar,
@@ -25,7 +25,6 @@ import {SNACKBAR_MESSAGES, SNACKBAR_SEVERITIES} from '../constants/snackbarMessa
 import ReusableModal from "../Components/ReusableModal.jsx";
 import TermsModal from "../Components/TermsModal.jsx";
 import PrivacyModal from "../Components/PrivacyModal.jsx";
-import VerifyEmail from "../Components/VerifyEmailPage.jsx";
 
 function App() {
     // Map and Dashboard state
@@ -36,7 +35,6 @@ function App() {
     // User Auth State
     const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
     const logout = useAuthStore((state) => state.logout);
-    const setCsrfToken = useAuthStore(state => state.setCsrfToken);
     const {login, register, authStage, setAuthStage} = useAuthStore();
 
     // Modals State
@@ -48,10 +46,6 @@ function App() {
     const [privacyOpen, setPrivacyOpen] = useState(false);
 
     const geojsonData = useStore((state) => state.geojsonData);
-
-    useEffect(() => {
-        void setCsrfToken();
-    }, [setCsrfToken]);
 
     const handleLogin = async (email, password) => {
         if (!login) {

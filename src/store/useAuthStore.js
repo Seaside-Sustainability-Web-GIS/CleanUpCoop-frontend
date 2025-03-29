@@ -8,37 +8,13 @@ export const useAuthStore = create(
             (set, get) => ({
                 user: null,
                 isAuthenticated: false,
-                csrfToken: null,
+                sessionToken: null,
 
                 authStage: 'signin',
                 setAuthStage: (stage) => set({authStage: stage}),
 
-                // ✅ Set CSRF Token before making requests
-                setCsrfToken: async () => {
-                    try {
-                        const response = await fetch('http://localhost:8000/api/set-csrf-token', {
-                            method: 'GET',
-                            credentials: 'include'
-                        });
-                        const data = await response.json();
-                        if (data.csrftoken) {
-                            set({csrfToken: data.csrftoken});
-                        }
-                    } catch (error) {
-                        console.error("Failed to fetch CSRF token", error);
-                    }
-                },
-
-// ✅ Register User using Allauth's default signup endpoint
-                register: async ({email, password, first_name, last_name}) => {
-                    // Ensure CSRF token is set
-                    await get().setCsrfToken();
-                    const csrftoken = get().csrfToken || getCSRFToken();
-
-                    if (!csrftoken) {
-                        console.error("🚨 CSRF token is missing. Cannot register.");
-                        return {success: false, errors: [{message: "CSRF token missing"}]};
-                    }
+// ✅ Signup User using Allauth's default signup endpoint
+                signup: async ({email, password, first_name, last_name}) => {
 
                     // Prepare payload
                     const username = email; // Using email as username
@@ -55,10 +31,8 @@ export const useAuthStore = create(
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',
-                                'X-CSRFToken': csrftoken
                             },
                             body: requestBody,
-                            credentials: 'include'
                         });
 
                         const data = await response.json();
@@ -87,23 +61,14 @@ export const useAuthStore = create(
 
                 // ✅ Login User
                 login: async (email, password) => {
-                    await get().setCsrfToken();
-                    const csrftoken = get().csrfToken || getCSRFToken();
-
-                    if (!csrftoken) {
-                        console.error("CSRF token is missing. Cannot log in.");
-                        return {success: false, message: "CSRF token missing"};
-                    }
 
                     try {
                         const response = await fetch(`${allAuthEndpoint}/login`, {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',
-                                'X-CSRFToken': csrftoken
                             },
-                            body: JSON.stringify({email, password}),
-                            credentials: 'include'
+                            body: JSON.stringify({ email, password }),
                         });
 
                         const data = await response.json();
@@ -129,14 +94,6 @@ export const useAuthStore = create(
                     async () => {
                         try {
 
-                            await get().setCsrfToken();
-                            const csrfToken = get().csrfToken || getCSRFToken();
-
-                            if (!csrfToken) {
-                                console.error("🚨 CSRF token missing. Cannot log out.");
-                                return {success: false, message: "CSRF token missing. Cannot log out."};
-                            }
-
                             const sessionToken = get().sessionToken;
                             if (!sessionToken) {
                                 console.error("🚨 Session token missing. Cannot log out.");
@@ -148,10 +105,8 @@ export const useAuthStore = create(
                                 method: 'DELETE',
                                 headers: {
                                     'Content-Type': 'application/json',
-                                    'X-CSRFToken': csrfToken,
                                     'X-Session-Token': sessionToken,
                                 },
-                                credentials: 'include',
                             });
 
                             // A successful logout returns a 401 response (no authenticated session).
@@ -176,7 +131,6 @@ export const useAuthStore = create(
                                 'Content-Type': 'application/json'
                             },
                             body: JSON.stringify({key: decodedKey}),
-                            credentials: 'include',
                         });
                         const data = await response.json();
                         if (response.status === 401 && data.data && data.data.flows) {
@@ -201,20 +155,20 @@ export const useAuthStore = create(
                 fetchUser:
                     async () => {
                         try {
-                            await get().setCsrfToken();
-                            const csrftoken = get().csrfToken || getCSRFToken();
 
-                            const response = await fetch('http://localhost:8000/api/user', {
-                                credentials: 'include',
+                            const response = await fetch(`${allAuthEndpoint}/session`, {
                                 headers: {
                                     'Content-Type': 'application/json',
-                                    'X-CSRFToken': csrftoken
                                 },
                             });
 
-                            if (response.ok) {
-                                const data = await response.json();
-                                set({user: data, isAuthenticated: true});
+                            const result = await response.json();
+                            if (result.status === 200 && result.data && result.data.user) {
+                                set({
+                                    user: result.data.user,
+                                    isAuthenticated: result.meta?.is_authenticated || true,
+                                    sessionToken: result.meta?.session_token || get().sessionToken,
+                                });
                             } else {
                                 set({user: null, isAuthenticated: false});
                             }
@@ -233,19 +187,3 @@ export const useAuthStore = create(
     )
 ;
 
-// ✅ Improved CSRF Token Retrieval Function
-export const getCSRFToken = () => {
-    const name = 'csrftoken';
-    let cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-        const cookies = document.cookie.split(';');
-        for (let i = 0; i < cookies.length; i++) {
-            const cookie = cookies[i].trim();
-            if (cookie.startsWith(name + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
-            }
-        }
-    }
-    return cookieValue || null; // Return null instead of throwing an error
-};
