@@ -1,4 +1,4 @@
-import {useState, useEffect} from 'react';
+import {useState} from 'react';
 import {
     AppBar,
     Toolbar,
@@ -8,9 +8,8 @@ import {
     DialogActions,
     DialogContent,
     Dialog,
-    DialogTitle,
     Snackbar,
-    Alert, FormControlLabel, Switch, Divider,
+    Alert, Switch, Divider, DialogTitle,
 } from '@mui/material';
 import Sidebar from '../Components/Sidebar.jsx';
 import MapView from '../Components/Mapview.jsx';
@@ -36,8 +35,7 @@ function App() {
     // User Auth State
     const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
     const logout = useAuthStore((state) => state.logout);
-    const setCsrfToken = useAuthStore(state => state.setCsrfToken);
-    const {login, register} = useAuthStore();
+    const {login, signup, authStage, setAuthStage} = useAuthStore();
 
     // Modals State
     const [aboutOpen, setAboutOpen] = useState(false);
@@ -48,10 +46,6 @@ function App() {
     const [privacyOpen, setPrivacyOpen] = useState(false);
 
     const geojsonData = useStore((state) => state.geojsonData);
-
-    useEffect(() => {
-        void setCsrfToken();
-    }, [setCsrfToken]);
 
     const handleLogin = async (email, password) => {
         if (!login) {
@@ -65,7 +59,10 @@ function App() {
             showSnackbar(SNACKBAR_MESSAGES.LOGIN_SUCCESS, SNACKBAR_SEVERITIES.SUCCESS);
             setAuthOpen(false);
         } else {
-            showSnackbar(response.message || SNACKBAR_MESSAGES.LOGIN_FAILURE, SNACKBAR_SEVERITIES.ERROR);
+            const errorMessage = Array.isArray(response.errors) && response.errors.length > 0
+                ? response.errors[0].message
+                : SNACKBAR_MESSAGES.LOGIN_FAILURE;
+            showSnackbar(errorMessage, SNACKBAR_SEVERITIES.ERROR);
         }
     };
 
@@ -81,23 +78,26 @@ function App() {
         }
     };
 
-    const handleRegister = async (userData) => {
-        if (!register) {
-            console.error("register function is not defined in useAuthStore");
+    const handleSignup = async (userData) => {
+        if (!signup) {
+            console.error("signup function is not defined in useAuthStore");
             return;
         }
 
-        const response = await register(userData);
+        const response = await signup(userData);
 
-        if (response.success) {
-            showSnackbar(SNACKBAR_MESSAGES.REGISTER_SUCCESS, SNACKBAR_SEVERITIES.SUCCESS);
-            setAuthOpen(false);
+        if (response.verification_pending) {
+            showSnackbar(response.message, SNACKBAR_SEVERITIES.INFO);
+            setAuthStage("verify-email");
+            setTimeout(() => {
+                setAuthOpen(false);
+            }, 2000);
+        } else if (response.errors && response.errors.length > 0) {
+            showSnackbar(`Registration Failed: ${response.errors[0].message}`, SNACKBAR_SEVERITIES.ERROR);
         } else {
-            showSnackbar(SNACKBAR_MESSAGES.REGISTER_FAILURE, SNACKBAR_SEVERITIES.ERROR);
+            showSnackbar(SNACKBAR_MESSAGES.SIGNUP_FAILURE, SNACKBAR_SEVERITIES.ERROR);
         }
     };
-
-
     return (
         <Box sx={{display: 'flex', flexDirection: 'column', height: '100vh', overflow: 'hidden'}}>
             {/* Navbar */}
@@ -154,7 +154,13 @@ function App() {
             {/* Main Content */}
             <Box sx={{display: 'flex', flex: 1, position: 'relative', overflow: 'hidden'}}>
                 <Sidebar setMapCenter={setMapCenter}/>
-                <Box sx={{flex: 1, display: 'flex', flexDirection: 'column', position: 'relative', overflow: 'auto'}}>
+                <Box sx={{
+                    flex: 1,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    position: 'relative',
+                    overflow: 'auto'
+                }}>
                     {currentView === 'map' && (
                         <>
                             <MapView/>
@@ -182,15 +188,18 @@ function App() {
 
             {/* Sign-In Modal */}
             <Dialog open={authOpen} onClose={() => setAuthOpen(false)}>
-                <DialogTitle>Sign in</DialogTitle>
+                <DialogTitle>
+                    {authStage === 'signup' ? 'Signup' : 'Sign in'}
+                </DialogTitle>
                 <DialogContent>
-                    <AuthForm closeAuth={() => setAuthOpen(false)}
-                              openForgotPassword={() => {
-                                  setAuthOpen(false);
-                                  setForgotPasswordOpen(true);
-                              }}
-                              onLogin={handleLogin}
-                              onRegister={handleRegister}
+                    <AuthForm
+                        closeAuth={() => setAuthOpen(false)}
+                        openForgotPassword={() => {
+                            setAuthOpen(false);
+                            setForgotPasswordOpen(true);
+                        }}
+                        onLogin={handleLogin}
+                        onSignup={handleSignup}
                     />
                 </DialogContent>
                 <DialogActions>
