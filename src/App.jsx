@@ -55,13 +55,13 @@ function App() {
 
         const response = await login(email, password); // ✅ Use the full response object
 
-        if (response.success) {  // ✅ Now properly checking the `success` property
+        if (response.success) {
             showSnackbar(SNACKBAR_MESSAGES.LOGIN_SUCCESS, SNACKBAR_SEVERITIES.SUCCESS);
             setAuthOpen(false);
         } else {
             const errorMessage = Array.isArray(response.errors) && response.errors.length > 0
                 ? response.errors[0].message
-                : SNACKBAR_MESSAGES.LOGIN_FAILURE;
+                : `${SNACKBAR_MESSAGES.LOGIN_FAILURE}${response.message ? `: ${response.message}` : ''}`;
             showSnackbar(errorMessage, SNACKBAR_SEVERITIES.ERROR);
         }
     };
@@ -74,7 +74,10 @@ function App() {
         if (response.success) {
             showSnackbar(SNACKBAR_MESSAGES.LOGOUT_SUCCESS, SNACKBAR_SEVERITIES.INFO);
         } else {
-            showSnackbar(SNACKBAR_MESSAGES.LOGOUT_FAILURE, SNACKBAR_SEVERITIES.ERROR);
+             const errorMessage = Array.isArray(response.errors) && response.errors.length > 0
+                ? response.errors[0].message
+                : `${SNACKBAR_MESSAGES.LOGOUT_FAILURE}${response.message ? `: ${response.message}` : ''}`;
+            showSnackbar(errorMessage, SNACKBAR_SEVERITIES.ERROR);
         }
     };
 
@@ -93,7 +96,7 @@ function App() {
                 setAuthOpen(false);
             }, 2000);
         } else if (response.errors && response.errors.length > 0) {
-            showSnackbar(`Registration Failed: ${response.errors[0].message}`, SNACKBAR_SEVERITIES.ERROR);
+            showSnackbar(`Signup Failed: ${response.errors[0].message}`, SNACKBAR_SEVERITIES.ERROR);
         } else {
             showSnackbar(SNACKBAR_MESSAGES.SIGNUP_FAILURE, SNACKBAR_SEVERITIES.ERROR);
         }
