@@ -29,7 +29,7 @@ const ResetPasswordFromKey = () => {
       if (response.success) {
         setSuccess('Your password has been reset successfully!');
         // Optionally, redirect to the login page after a short delay
-        setTimeout(() => navigate('/l'), 2000);
+        setTimeout(() => navigate('/'), 2000);
       } else {
         const errorMsg =
           response.error ||
