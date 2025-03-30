@@ -79,7 +79,7 @@ function App() {
     };
 
     const handleSignup = async (userData) => {
-        if (!signup()) {
+        if (!signup) {
             console.error("signup function is not defined in useAuthStore");
             return;
         }
