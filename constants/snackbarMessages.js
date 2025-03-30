@@ -1,9 +1,9 @@
 export const SNACKBAR_MESSAGES = {
     LOGIN_SUCCESS: "You are now logged in!",
-    LOGIN_FAILURE: "Login failed. Please check your credentials.",
+    LOGIN_FAILURE: "Login failed",
     LOGOUT_SUCCESS: "You are now logged out!",
     LOGOUT_FAILURE: "Logout failed. Please try again.",
-    SIGNUPSUCCESS: "Signup successful!",
+    SIGNUP_SUCCESS: "Signup successful!",
     SIGNUP_FAILURE: "Signup failed. Please try again.",
 };
 
