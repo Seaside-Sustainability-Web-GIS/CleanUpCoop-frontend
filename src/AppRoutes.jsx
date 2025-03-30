@@ -6,7 +6,7 @@ import VerifyEmailPage from "../Components/VerifyEmailPage";
 
 function AppRoutes() {
     return (
-        <Router basename="/">
+        <Router>
             <Routes>
                 <Route path="/" element={<App/>}/>
                 <Route path="/verify-email/:key" element={<VerifyEmailPage/>}/>
