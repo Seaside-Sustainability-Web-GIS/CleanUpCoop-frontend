@@ -2,15 +2,16 @@ import {useState} from "react";
 import {useForm} from "react-hook-form";
 import {TextField, Button, Box, Typography, CircularProgress} from "@mui/material";
 import {useAuthStore} from "../src/store/useAuthStore.js";
+import PropTypes from "prop-types";
 
 
-const AuthForm = ({openForgotPassword, onLogin, onRegister}) => {
-    const [isRegister, setIsRegister] = useState(false);
-    const { setAuthStage } = useAuthStore();
+const AuthForm = ({openForgotPassword, onLogin, onSignup}) => {
+    const [isSignup, setIsSignup] = useState(false);
+    const {setAuthStage} = useAuthStore();
     const [loading, setLoading] = useState(false);
     const {
         handleSubmit,
-        register: formRegister,
+        register,
         watch,
         formState: {errors},
     } = useForm();
@@ -18,14 +19,14 @@ const AuthForm = ({openForgotPassword, onLogin, onRegister}) => {
     const onSubmit = async (data) => {
         setLoading(true);
 
-        if (isRegister) {
-            if (!onRegister) {
-                console.error("onRegister is not defined in AuthForm");
+        if (isSignup) {
+            if (!onSignup) {
+                console.error("onSignup is not defined in AuthForm");
                 setLoading(false);
                 return;
             }
 
-            await onRegister({  // ✅ Pass an object, not separate arguments
+            await onSignup({  // ✅ Pass an object, not separate arguments
                 email: data.email,
                 password: data.password,
                 first_name: data.first_name,
@@ -47,24 +48,24 @@ const AuthForm = ({openForgotPassword, onLogin, onRegister}) => {
     return (
         <Box component="form" onSubmit={handleSubmit(onSubmit)} sx={{width: 300}}>
             {/* First Name - Only for Registration */}
-            {isRegister && (
+            {isSignup && (
                 <TextField
                     label="First Name"
                     fullWidth
                     margin="normal"
-                    {...formRegister("first_name", {required: "First name is required"})}
+                    {...register("first_name", {required: "First name is required"})}
                     error={!!errors.first_name}
                     helperText={errors.first_name?.message}
                 />
             )}
 
             {/* Last Name - Only for Registration */}
-            {isRegister && (
+            {isSignup && (
                 <TextField
                     label="Last Name"
                     fullWidth
                     margin="normal"
-                    {...formRegister("last_name", {required: "Last name is required"})}
+                    {...register("last_name", {required: "Last name is required"})}
                     error={!!errors.last_name}
                     helperText={errors.last_name?.message}
                 />
@@ -74,7 +75,7 @@ const AuthForm = ({openForgotPassword, onLogin, onRegister}) => {
                 label="Email"
                 fullWidth
                 margin="normal"
-                {...formRegister("email", {
+                {...register("email", {
                     required: "Email is required",
                     pattern: {value: /^\S+@\S+$/, message: "Invalid email format"}
                 })}
@@ -87,7 +88,7 @@ const AuthForm = ({openForgotPassword, onLogin, onRegister}) => {
                 type="password"
                 fullWidth
                 margin="normal"
-                {...formRegister("password", {
+                {...register("password", {
                     required: "Password is required",
                     minLength: {value: 6, message: "Minimum 6 characters"}
                 })}
@@ -95,13 +96,13 @@ const AuthForm = ({openForgotPassword, onLogin, onRegister}) => {
                 helperText={errors.password?.message}
             />
 
-            {isRegister && (
+            {isSignup && (
                 <TextField
                     label="Confirm Password"
                     type="password"
                     fullWidth
                     margin="normal"
-                    {...formRegister("confirmPassword", {
+                    {...register("confirmPassword", {
                         required: "Confirm your password",
                         validate: (value) => value === watch("password") || "Passwords do not match"
                     })}
@@ -111,25 +112,25 @@ const AuthForm = ({openForgotPassword, onLogin, onRegister}) => {
             )}
 
             <Button type="submit" variant="contained" fullWidth sx={{mt: 2}} disabled={loading}>
-                {loading ? <CircularProgress size={24}/> : isRegister ? "Register" : "Login"}
+                {loading ? <CircularProgress size={24}/> : isSignup ? "Signup" : "Login"}
             </Button>
 
             <Button fullWidth sx={{mt: 1}} onClick={() => {
-                if (!isRegister) {
-                    setAuthStage("register");
+                if (!isSignup) {
+                    setAuthStage("signup");
                 } else {
                     setAuthStage("sign in");
                 }
-                setIsRegister(!isRegister);
+                setIsSignup(!isSignup);
             }}
             >
-                {isRegister
+                {isSignup
                     ? "Already have an account? Login"
-                    : "Don't have an account? Register"}
+                    : "Don't have an account? Signup"}
             </Button>
 
             {/* Forgot Password Link */}
-            {!isRegister && (
+            {!isSignup && (
                 <Typography
                     variant="body2"
                     onClick={openForgotPassword}
@@ -140,6 +141,12 @@ const AuthForm = ({openForgotPassword, onLogin, onRegister}) => {
             )}
         </Box>
     );
+};
+
+AuthForm.propTypes = {
+    openForgotPassword: PropTypes.func,
+    onLogin: PropTypes.func.isRequired,
+    onSignup: PropTypes.func.isRequired,
 };
 
 export default AuthForm;

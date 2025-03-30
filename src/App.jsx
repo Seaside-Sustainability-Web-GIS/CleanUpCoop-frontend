@@ -35,7 +35,7 @@ function App() {
     // User Auth State
     const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
     const logout = useAuthStore((state) => state.logout);
-    const {login, register, authStage, setAuthStage} = useAuthStore();
+    const {login, signup, authStage, setAuthStage} = useAuthStore();
 
     // Modals State
     const [aboutOpen, setAboutOpen] = useState(false);
@@ -75,13 +75,13 @@ function App() {
         }
     };
 
-    const handleRegister = async (userData) => {
-        if (!register) {
-            console.error("register function is not defined in useAuthStore");
+    const handleSignup = async (userData) => {
+        if (!signup()) {
+            console.error("signup function is not defined in useAuthStore");
             return;
         }
 
-        const response = await register(userData);
+        const response = await signup(userData);
 
         if (response.verification_pending) {
             showSnackbar(response.message, SNACKBAR_SEVERITIES.INFO);
@@ -92,7 +92,7 @@ function App() {
         } else if (response.errors && response.errors.length > 0) {
             showSnackbar(`Registration Failed: ${response.errors[0].message}`, SNACKBAR_SEVERITIES.ERROR);
         } else {
-            showSnackbar(SNACKBAR_MESSAGES.REGISTER_FAILURE, SNACKBAR_SEVERITIES.ERROR);
+            showSnackbar(SNACKBAR_MESSAGES.SIGNUP_FAILURE, SNACKBAR_SEVERITIES.ERROR);
         }
     };
     return (
@@ -186,7 +186,7 @@ function App() {
             {/* Sign-In Modal */}
             <Dialog open={authOpen} onClose={() => setAuthOpen(false)}>
                 <DialogTitle>
-                    {authStage === 'register' ? 'Register' : 'Sign in'}
+                    {authStage === 'signup' ? 'Signup' : 'Sign in'}
                 </DialogTitle>
                 <DialogContent>
                     <AuthForm
@@ -196,7 +196,7 @@ function App() {
                             setForgotPasswordOpen(true);
                         }}
                         onLogin={handleLogin}
-                        onRegister={handleRegister}
+                        onSignup={handleSignup}
                     />
                 </DialogContent>
                 <DialogActions>

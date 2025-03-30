@@ -9,15 +9,13 @@ export const useAuthStore = create(
                 user: null,
                 isAuthenticated: false,
                 sessionToken: null,
-
                 authStage: 'signin',
                 setAuthStage: (stage) => set({authStage: stage}),
 
-// ✅ Signup User using Allauth's default signup endpoint
                 signup: async ({email, password, first_name, last_name}) => {
 
                     // Prepare payload
-                    const username = email; // Using email as username
+                    const username = email;
                     const requestBody = JSON.stringify({
                         email,
                         username,
@@ -51,10 +49,10 @@ export const useAuthStore = create(
                         }
                         return {
                             success: false,
-                            errors: data.errors || [{message: data.error || "Registration failed"}]
+                            errors: data.errors || [{message: data.error || "Signup failed"}]
                         };
                     } catch (error) {
-                        console.error("🚨 Error during registration:", error);
+                        console.error("Error during signup:", error);
                         return {success: false, errors: [{message: "Server error. Please try again later."}]};
                     }
                 },
@@ -68,7 +66,7 @@ export const useAuthStore = create(
                             headers: {
                                 'Content-Type': 'application/json',
                             },
-                            body: JSON.stringify({ email, password }),
+                            body: JSON.stringify({email, password}),
                         });
 
                         const data = await response.json();
@@ -96,7 +94,7 @@ export const useAuthStore = create(
 
                             const sessionToken = get().sessionToken;
                             if (!sessionToken) {
-                                console.error("🚨 Session token missing. Cannot log out.");
+                                console.error("Session token missing. Cannot log out.");
                                 return {success: false, message: "Session token missing. Cannot log out."};
                             }
 
@@ -109,7 +107,6 @@ export const useAuthStore = create(
                                 },
                             });
 
-                            // A successful logout returns a 401 response (no authenticated session).
                             if (response.status === 401) {
                                 set({user: null, isAuthenticated: false, sessionToken: null});
                                 return {success: true, message: "Logout successful!"};
@@ -117,7 +114,7 @@ export const useAuthStore = create(
                                 return {success: false, message: "Logout completed, but API returned an error."};
                             }
                         } catch (error) {
-                            console.error("🚨 Logout error:", error);
+                            console.error("Logout error:", error);
                             return {success: false, message: "Server error. Try again later."};
                         }
                     },
@@ -141,7 +138,6 @@ export const useAuthStore = create(
                                 return {success: false, error: data.error || "Verification is still pending."};
                             }
                         } else {
-                            // If the response is not a 401 with flows, treat it as a failure.
                             return {success: false, error: data.error || "Verification failed."};
                         }
                     } catch (error) {
@@ -150,8 +146,36 @@ export const useAuthStore = create(
                     }
                 },
 
+                resetPasswordFromKey: async ({key, password}) => {
+                    try {
+                        const response = await fetch(`${allAuthEndpoint}/password/reset`, {
+                            method: 'POST',
+                            headers: {'Content-Type': 'application/json'},
+                            body: JSON.stringify({key, password}),
+                        });
+                        const data = await response.json();
 
-                // ✅ Fetch User Session
+                        if (response.ok) {
+                            set({
+                                user: data.user,
+                                isAuthenticated: true,
+                                sessionToken: data.meta?.session_token,
+                            });
+                            return {success: true, message: "Password reset successful!"};
+                        } else if (response.status === 401) {
+                            return {success: true, message: "Password reset successful. Please log in."};
+                        } else {
+                            return {
+                                success: false,
+                                errors: data.errors || [{message: data.error || "Password reset failed"}],
+                            };
+                        }
+                    } catch (error) {
+                        console.error("Error resetting password from key:", error);
+                        return {success: false, errors: [{message: "Server error. Please try again later."}]};
+                    }
+                },
+
                 fetchUser:
                     async () => {
                         try {
