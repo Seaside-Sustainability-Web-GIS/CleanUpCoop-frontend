@@ -1,8 +1,8 @@
-import { useState } from 'react';
-import { Typography, TextField, Button, Paper, Box, IconButton } from '@mui/material';
-import { ChevronLeft, ChevronRight } from '@mui/icons-material';
+import {useState} from 'react';
+import {Typography, TextField, Button, Paper, Box, IconButton} from '@mui/material';
+import {ChevronLeft, ChevronRight, Clear, Room} from '@mui/icons-material';
 
-function Sidebar({ setMapCenter }) {
+function Sidebar({setMapCenter}) {
     const [searchText, setSearchText] = useState('');
     const [isCollapsed, setIsCollapsed] = useState(false); // State to manage collapse
 
@@ -21,7 +21,7 @@ function Sidebar({ setMapCenter }) {
             );
             const results = await response.json();
             if (results.length > 0) {
-                const { lat, lon } = results[0];
+                const {lat, lon} = results[0];
                 setMapCenter([parseFloat(lat), parseFloat(lon)]);
             } else {
                 alert('Location not found.');
@@ -32,7 +32,7 @@ function Sidebar({ setMapCenter }) {
     };
 
     return (
-        <Box sx={{ display: 'flex', height: '100%' }}>
+        <Box sx={{display: 'flex', height: '100%'}}>
             <Paper
                 sx={{
                     width: isCollapsed ? '50px' : '300px',
@@ -46,54 +46,96 @@ function Sidebar({ setMapCenter }) {
             >
                 <IconButton
                     onClick={() => setIsCollapsed((prev) => !prev)}
-                    sx={{ alignSelf: 'flex-end', marginBottom: 2 }}
+                    sx={{alignSelf: 'flex-end', marginBottom: 2}}
                 >
-                    {isCollapsed ? <ChevronRight /> : <ChevronLeft />}
+                    {isCollapsed ? <ChevronRight/> : <ChevronLeft/>}
                 </IconButton>
 
                 {!isCollapsed && (
-                    <Box sx={{ width: '100%' }}>
-                        <Box sx={{ marginTop: 2 }}>
-                            <Typography variant="h6">Search Location</Typography>
+                    <Box sx={{width: '100%'}}>
+                        <Box>
+                            <Typography variant="h6">Go to Location</Typography>
                             <Box
                                 component="form"
                                 onSubmit={(e) => {
                                     e.preventDefault();
-                                    handleSearch(); // Trigger the search when the form is submitted
+                                    handleSearch();
                                 }}
                             >
                                 <TextField
-                                    label="Search"
+                                    label="Type Location..."
                                     variant="outlined"
                                     size="small"
                                     fullWidth
                                     value={searchText}
                                     onChange={(e) => setSearchText(e.target.value)}
-                                    sx={{ marginBottom: 1 }}
+                                    sx={{marginBottom: 1}}
+                                    InputProps={{
+                                        endAdornment: searchText && (
+                                            <IconButton
+                                                size="small"
+                                                onClick={() => setSearchText('')}
+                                                aria-label="clear search"
+                                                edge="end"
+                                            >
+                                                <Clear fontSize="small"/>
+                                            </IconButton>
+                                        ),
+                                    }}
                                 />
-                                <Button
-                                    type="submit" // Set the button type to "submit"
-                                    variant="contained"
-                                    color="primary"
-                                    fullWidth
+                                <Box sx={{display: 'flex', gap: 1}}>
+                                    <Button
+                                        type="submit"
+                                        variant="contained"
+                                        color="primary"
+                                        fullWidth
+                                    >
+                                        Go
+                                    </Button>
+                                    <Button
+                                        type="button"
+                                        variant="outlined"
+                                        color="secondary"
+                                        fullWidth
+                                        onClick={() => setSearchText('')}
+                                    >
+                                        Clear
+                                    </Button>
+                                </Box>
+                                <Box sx={{marginTop: 2}}>
+                                    <Button
+                                        variant="contained"
+                                        color="success"
+                                        fullWidth
+                                        startIcon={<Room/>}
+                                        onClick={() => {
+                                            alert("Adopt an Area clicked!");
+                                        }}
+                                        sx={{
+                                            marginTop: 1,
+                                            fontWeight: 'bold',
+                                            paddingY: 1.2,
+                                            textTransform: 'none',
+                                        }}
+                                    >
+                                        Adopt an Area
+                                    </Button>
+                                </Box>
+                                <Typography variant="h6" sx={{mt: 2}}>Query Data</Typography>
+                                <Box
+                                    component="form"
+                                    onSubmit={handleFormSubmit}
+                                    sx={{display: 'flex', flexDirection: 'column', gap: 2}}
                                 >
-                                    Search
-                                </Button>
-                            </Box>
-                        </Box>
-                        <Typography variant="h6">Query Data</Typography>
-                        <Box
-                            component="form"
-                            onSubmit={handleFormSubmit}
-                            sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}
-                        >
-                            <Box sx={{ display: 'flex', flexDirection: 'row', gap: 1 }}>
-                                <Button type="submit" variant="contained" color="primary">
-                                    Submit
-                                </Button>
-                                <Button type="reset" variant="contained" color="secondary">
-                                    Reset
-                                </Button>
+                                    <Box sx={{display: 'flex', flexDirection: 'row', gap: 1}}>
+                                        <Button type="submit" variant="contained" color="primary">
+                                            Submit
+                                        </Button>
+                                        <Button type="reset" variant="contained" color="secondary">
+                                            Reset
+                                        </Button>
+                                    </Box>
+                                </Box>
                             </Box>
                         </Box>
                     </Box>

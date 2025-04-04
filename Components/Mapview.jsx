@@ -132,7 +132,7 @@ function MapView() {
         <Box sx={{ flex: 1, position: 'relative' }}>
             <MapContainer
                 center={mapCenter}
-                zoom={11}
+                zoom={3}
                 style={{ height: '100%', width: '100%' }}
             >
                 <HomeButton />

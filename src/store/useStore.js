@@ -1,8 +1,8 @@
 import {create} from 'zustand';
 
 const useStore = create((set) => ({
-    defaultCenter: [38.64, -90.3], // Default map center
-    mapCenter: [38.64, -90.3], // Default map center
+    defaultCenter: [0, 0],
+    mapCenter: [0, 0],
     setMapCenter: (newCenter) => set({mapCenter: newCenter}),
 
     userLocation: null,
