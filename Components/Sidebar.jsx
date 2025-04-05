@@ -1,10 +1,23 @@
 import {useState} from 'react';
-import {Typography, TextField, Button, Paper, Box, IconButton} from '@mui/material';
+import {
+    Typography,
+    Button,
+    Paper,
+    Box,
+    IconButton,
+    FormControl,
+    InputLabel,
+    OutlinedInput, InputAdornment
+} from '@mui/material';
 import {ChevronLeft, ChevronRight, Clear, Room} from '@mui/icons-material';
+import {useAuthStore} from "../src/store/useAuthStore.js";
+import PropTypes from "prop-types";
+
 
 function Sidebar({setMapCenter}) {
+    const {isAuthenticated, setAuthOpen, authOpen} = useAuthStore();
     const [searchText, setSearchText] = useState('');
-    const [isCollapsed, setIsCollapsed] = useState(false); // State to manage collapse
+    const [isCollapsed, setIsCollapsed] = useState(false);
 
     const handleFormSubmit = (event) => {
         event.preventDefault();
@@ -62,27 +75,29 @@ function Sidebar({setMapCenter}) {
                                     handleSearch();
                                 }}
                             >
-                                <TextField
-                                    label="Type Location..."
-                                    variant="outlined"
-                                    size="small"
-                                    fullWidth
-                                    value={searchText}
-                                    onChange={(e) => setSearchText(e.target.value)}
-                                    sx={{marginBottom: 1}}
-                                    InputProps={{
-                                        endAdornment: searchText && (
-                                            <IconButton
-                                                size="small"
-                                                onClick={() => setSearchText('')}
-                                                aria-label="clear search"
-                                                edge="end"
-                                            >
-                                                <Clear fontSize="small"/>
-                                            </IconButton>
-                                        ),
-                                    }}
-                                />
+                                <FormControl fullWidth size="small" sx={{marginBottom: 1}}>
+                                    <InputLabel htmlFor="location-input">Type Location...</InputLabel>
+                                    <OutlinedInput
+                                        id="location-input"
+                                        label="Type Location..."
+                                        value={searchText}
+                                        onChange={(e) => setSearchText(e.target.value)}
+                                        endAdornment={
+                                            searchText && (
+                                                <InputAdornment position="end">
+                                                    <IconButton
+                                                        size="small"
+                                                        onClick={() => setSearchText('')}
+                                                        edge="end"
+                                                        aria-label="clear input"
+                                                    >
+                                                        <Clear fontSize="small"/>
+                                                    </IconButton>
+                                                </InputAdornment>
+                                            )
+                                        }
+                                    />
+                                </FormControl>
                                 <Box sx={{display: 'flex', gap: 1}}>
                                     <Button
                                         type="submit"
@@ -109,6 +124,11 @@ function Sidebar({setMapCenter}) {
                                         fullWidth
                                         startIcon={<Room/>}
                                         onClick={() => {
+                                            if (!isAuthenticated) {
+                                                setAuthOpen(true)
+                                                console.log("AuthModal open:", authOpen);
+                                                return;
+                                            }
                                             alert("Adopt an Area clicked!");
                                         }}
                                         sx={{
@@ -123,7 +143,6 @@ function Sidebar({setMapCenter}) {
                                 </Box>
                                 <Typography variant="h6" sx={{mt: 2}}>Query Data</Typography>
                                 <Box
-                                    component="form"
                                     onSubmit={handleFormSubmit}
                                     sx={{display: 'flex', flexDirection: 'column', gap: 2}}
                                 >
@@ -144,5 +163,11 @@ function Sidebar({setMapCenter}) {
         </Box>
     );
 }
+
+Sidebar.propTypes = {
+    setMapCenter: PropTypes.func.isRequired,
+    setAuthOpen: PropTypes.func,
+    isAuthenticated: PropTypes.bool,
+};
 
 export default Sidebar;

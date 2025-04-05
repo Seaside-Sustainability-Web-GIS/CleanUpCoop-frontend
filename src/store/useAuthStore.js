@@ -8,9 +8,16 @@ export const useAuthStore = create(
             (set, get) => ({
                 user: null,
                 isAuthenticated: false,
+                setIsAuthenticated: (value) => set({ isAuthenticated: value }),
+
+                authOpen: false,
+                setAuthOpen: (value) => set({ authOpen: value }),
+
                 sessionToken: null,
                 authStage: 'signin',
                 setAuthStage: (stage) => set({authStage: stage}),
+
+
 
                 signup: async ({email, password, first_name, last_name}) => {
 

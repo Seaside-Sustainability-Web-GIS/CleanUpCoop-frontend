@@ -37,9 +37,11 @@ function App() {
     const logout = useAuthStore((state) => state.logout);
     const {login, signup, authStage, setAuthStage} = useAuthStore();
 
+
     // Modals State
     const [aboutOpen, setAboutOpen] = useState(false);
-    const [authOpen, setAuthOpen] = useState(false);
+    const authOpen = useAuthStore((state) => state.authOpen);
+    const setAuthOpen = useAuthStore((state) => state.setAuthOpen);
     const {snackbar, showSnackbar, hideSnackbar} = useStore();
     const [forgotPasswordOpen, setForgotPasswordOpen] = useState(false);
     const [termsOpen, setTermsOpen] = useState(false);
@@ -74,7 +76,7 @@ function App() {
         if (response.success) {
             showSnackbar(SNACKBAR_MESSAGES.LOGOUT_SUCCESS, SNACKBAR_SEVERITIES.INFO);
         } else {
-             const errorMessage = Array.isArray(response.errors) && response.errors.length > 0
+            const errorMessage = Array.isArray(response.errors) && response.errors.length > 0
                 ? response.errors[0].message
                 : `${SNACKBAR_MESSAGES.LOGOUT_FAILURE}${response.message ? `: ${response.message}` : ''}`;
             showSnackbar(errorMessage, SNACKBAR_SEVERITIES.ERROR);
