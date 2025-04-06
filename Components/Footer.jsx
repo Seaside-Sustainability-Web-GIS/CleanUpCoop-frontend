@@ -28,13 +28,13 @@ const Footer = ({ setTermsOpen, setPrivacyOpen }) => {
 
                 {/* Center-aligned Social Icons */}
                 <Box sx={{ display: 'flex', gap: 1.5 }}>
-                    <IconButton href="https://instagram.com" color="inherit" target="_blank" size="small">
+                    <IconButton href="https://www.instagram.com/seasusinc/" color="inherit" target="_blank" size="small">
                         <Instagram fontSize="small" />
                     </IconButton>
-                    <IconButton href="https://facebook.com" color="inherit" target="_blank" size="small">
+                    <IconButton href="https://www.facebook.com/seasusinc/" color="inherit" target="_blank" size="small">
                         <Facebook fontSize="small" />
                     </IconButton>
-                    <IconButton href="https://linkedin.com" color="inherit" target="_blank" size="small">
+                    <IconButton href="https://www.linkedin.com/company/seaside-sustainability" color="inherit" target="_blank" size="small">
                         <LinkedIn fontSize="small" />
                     </IconButton>
                 </Box>

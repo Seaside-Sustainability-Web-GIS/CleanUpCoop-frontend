@@ -1,4 +1,4 @@
-import {useState} from 'react';
+import {useEffect, useState} from 'react';
 import {
     Typography,
     Button,
@@ -13,6 +13,7 @@ import {ChevronLeft, ChevronRight, Clear, Room} from '@mui/icons-material';
 import {useAuthStore} from "../src/store/useAuthStore.js";
 import useStore from '../src/store/useStore';
 import PropTypes from "prop-types";
+import AdoptAreaFormModal from "./AdoptAreaFormModal.jsx";
 
 
 function Sidebar({setMapCenter}) {
@@ -20,6 +21,30 @@ function Sidebar({setMapCenter}) {
     const [searchText, setSearchText] = useState('');
     const [isCollapsed, setIsCollapsed] = useState(false);
     const setIsSelecting = useStore((state) => state.setIsSelecting);
+    const [adoptModalOpen, setAdoptModalOpen] = useState(false);
+    const selectedPoint = useStore((state) => state.selectedPoint);
+
+    const handleAdoptSubmit = async (formData) => {
+        try {
+            const response = await fetch('/api/adopt-area/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    // Add auth header here if needed
+                },
+                body: JSON.stringify(formData),
+            });
+
+            if (!response.ok) throw new Error('Submission failed');
+
+            const result = await response.json();
+            console.log('Success:', result);
+            alert('Adoption submitted!');
+        } catch (err) {
+            console.error(err);
+            alert('Error submitting adoption.');
+        }
+    };
 
     const handleFormSubmit = (event) => {
         event.preventDefault();
@@ -45,6 +70,12 @@ function Sidebar({setMapCenter}) {
             console.error('Error fetching location:', error);
         }
     };
+
+    useEffect(() => {
+  if (selectedPoint) {
+    setAdoptModalOpen(true);
+  }
+}, [selectedPoint]);
 
     return (
         <Box sx={{display: 'flex', height: '100%'}}>
@@ -127,11 +158,11 @@ function Sidebar({setMapCenter}) {
                                         startIcon={<Room/>}
                                         onClick={() => {
                                             if (!isAuthenticated) {
-                                                setAuthOpen(true)
+                                                setAuthOpen(true);
                                                 return;
                                             }
                                             setIsSelecting(true);
-                                            alert("Click on the map to select the area you want to adopt.");
+                                            alert('Click on the map to select an area to adopt.');
                                         }}
                                         sx={{
                                             marginTop: 1,
@@ -161,6 +192,12 @@ function Sidebar({setMapCenter}) {
                         </Box>
                     </Box>
                 )}
+                <AdoptAreaFormModal
+                    open={adoptModalOpen}
+                    onClose={() => setAdoptModalOpen(false)}
+                    onSubmit={handleAdoptSubmit}
+                    selectedPoint={selectedPoint}
+                />
             </Paper>
         </Box>
     );

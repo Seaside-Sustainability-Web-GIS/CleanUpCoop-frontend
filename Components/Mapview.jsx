@@ -33,7 +33,7 @@ function ClickCapture() {
 
       const { lat, lng } = e.latlng;
       setSelectedPoint([lat, lng]);
-      setIsSelecting(false); // Stop selecting after one click
+      setIsSelecting(false);
       alert(`Location selected at [${lat.toFixed(5)}, ${lng.toFixed(5)}]`);
     },
   });
