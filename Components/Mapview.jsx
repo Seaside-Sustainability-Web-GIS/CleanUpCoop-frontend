@@ -1,11 +1,11 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import {
     MapContainer,
     TileLayer,
     LayersControl,
     useMap,
     Marker,
-    GeoJSON,
+    useMapEvents
 } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -21,6 +21,46 @@ const gpsLocationIcon = L.divIcon({
     iconSize: [16, 16],
     html: `<div class="gps-marker"></div>`,
 });
+
+function ClickCapture() {
+  const isSelecting = useStore((state) => state.isSelecting);
+  const setSelectedPoint = useStore((state) => state.setSelectedPoint);
+  const setIsSelecting = useStore((state) => state.setIsSelecting);
+
+  useMapEvents({
+    click(e) {
+      if (!isSelecting) return;
+
+      const { lat, lng } = e.latlng;
+      setSelectedPoint([lat, lng]);
+      setIsSelecting(false); // Stop selecting after one click
+      alert(`Location selected at [${lat.toFixed(5)}, ${lng.toFixed(5)}]`);
+    },
+  });
+
+  return null;
+}
+function MapCursorManager() {
+  const isSelecting = useStore((state) => state.isSelecting);
+
+  useEffect(() => {
+    const mapContainer = document.querySelector('.leaflet-container');
+
+    if (!mapContainer) return;
+
+    if (isSelecting) {
+      mapContainer.style.cursor = 'crosshair';
+    } else {
+      mapContainer.style.cursor = '';
+    }
+
+    return () => {
+      mapContainer.style.cursor = '';
+    };
+  }, [isSelecting]);
+
+  return null;
+}
 
 function HomeButton() {
     const map = useMap();
@@ -104,7 +144,7 @@ function MapUpdater() {
 
     useEffect(() => {
         if (mapCenter) {
-            map.setView(mapCenter); // Update the map view dynamically
+            map.setView(mapCenter);
         }
     }, [mapCenter]);
 
@@ -114,15 +154,8 @@ function MapUpdater() {
 function MapView() {
     const { BaseLayer } = LayersControl;
     const mapCenter = useStore((state) => state.mapCenter);
-    const geojsonData = useStore((state) => state.geojsonData);
     const userLocation = useStore((state) => state.userLocation);
     const isDataLoaded = useStore((state) => state.isDataLoaded);
-    const fetchGeoJSONData = useStore((state) => state.fetchGeoJSONData);;
-
-    // Fetch GeoJSON data on mount
-    useEffect(() => {
-        fetchGeoJSONData();
-    }, [fetchGeoJSONData]);
 
 
     useEffect(() => {
@@ -135,14 +168,14 @@ function MapView() {
                 zoom={3}
                 style={{ height: '100%', width: '100%' }}
             >
+                 <MapCursorManager />
                 <HomeButton />
                 <GpsButton />
                 <MapUpdater />
                 {userLocation && (
                     <Marker key={userLocation.toString()} position={userLocation} icon={gpsLocationIcon} />
                 )}
-                {/* GeoJSON Layer */}
-                {geojsonData && <GeoJSON data={geojsonData} style={{ color: 'blue' }} />}
+                <ClickCapture onLocationSelected={(coords) => console.log('User clicked:', coords)} />
                 {/* Layers Control */}
                 <LayersControl
                     style={{

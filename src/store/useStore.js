@@ -4,6 +4,10 @@ const useStore = create((set) => ({
     defaultCenter: [0, 0],
     mapCenter: [0, 0],
     setMapCenter: (newCenter) => set({mapCenter: newCenter}),
+    selectedPoint: null,
+    setSelectedPoint: (coords) => set({selectedPoint: coords}),
+    isSelecting: false,
+    setIsSelecting: (val) => set({isSelecting: val}),
 
     userLocation: null,
     setUserLocation: (location) => {
@@ -21,23 +25,9 @@ const useStore = create((set) => ({
 
     aboutOpen: false, // State for dialog
 
-    geojsonData: null,
+
     isDataLoaded: false,
-    fetchGeoJSONData: async () => {
-        try {
-            const response = await fetch(
-                'https://services2.arcgis.com/w657bnjzrjguNyOy/ArcGIS/rest/services/Municipal_Boundaries_Line/FeatureServer/1/query?where=1%3D1&outFields=*&f=geojson'
-            );
-            const data = await response.json();
-            set({
-                geojsonData: data,
-                isDataLoaded: data?.features?.length > 0,
-            });
-        } catch (error) {
-            console.error('Error fetching GeoJSON data:', error);
-            set({geojsonData: null, isDataLoaded: false});
-        }
-    },
+
     snackbar: {
         open: false,
         message: '',

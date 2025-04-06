@@ -47,7 +47,6 @@ function App() {
     const [termsOpen, setTermsOpen] = useState(false);
     const [privacyOpen, setPrivacyOpen] = useState(false);
 
-    const geojsonData = useStore((state) => state.geojsonData);
 
     const handleLogin = async (email, password) => {
         if (!login) {
@@ -173,7 +172,7 @@ function App() {
                         </>
                     )}
                     {currentView === 'dashboard' && (
-                        <Dashboard data={geojsonData.features.map(f => f.properties)}/>
+                        <Dashboard />
                     )}
                 </Box>
             </Box>

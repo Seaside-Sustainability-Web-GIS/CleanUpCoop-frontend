@@ -11,13 +11,15 @@ import {
 } from '@mui/material';
 import {ChevronLeft, ChevronRight, Clear, Room} from '@mui/icons-material';
 import {useAuthStore} from "../src/store/useAuthStore.js";
+import useStore from '../src/store/useStore';
 import PropTypes from "prop-types";
 
 
 function Sidebar({setMapCenter}) {
-    const {isAuthenticated, setAuthOpen, authOpen} = useAuthStore();
+    const {isAuthenticated, setAuthOpen} = useAuthStore();
     const [searchText, setSearchText] = useState('');
     const [isCollapsed, setIsCollapsed] = useState(false);
+    const setIsSelecting = useStore((state) => state.setIsSelecting);
 
     const handleFormSubmit = (event) => {
         event.preventDefault();
@@ -126,10 +128,10 @@ function Sidebar({setMapCenter}) {
                                         onClick={() => {
                                             if (!isAuthenticated) {
                                                 setAuthOpen(true)
-                                                console.log("AuthModal open:", authOpen);
                                                 return;
                                             }
-                                            alert("Adopt an Area clicked!");
+                                            setIsSelecting(true);
+                                            alert("Click on the map to select the area you want to adopt.");
                                         }}
                                         sx={{
                                             marginTop: 1,
