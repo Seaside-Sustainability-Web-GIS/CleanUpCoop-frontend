@@ -8,6 +8,9 @@ const useStore = create((set) => ({
     setSelectedPoint: (coords) => set({selectedPoint: coords}),
     isSelecting: false,
     setIsSelecting: (val) => set({isSelecting: val}),
+    locationMetadata: null,
+    setLocationMetadata: (data) => set({locationMetadata: data}),
+
 
     userLocation: null,
     setUserLocation: (location) => {

@@ -17,8 +17,6 @@ export const useAuthStore = create(
                 authStage: 'signin',
                 setAuthStage: (stage) => set({authStage: stage}),
 
-
-
                 signup: async ({email, password, first_name, last_name}) => {
 
                     // Prepare payload
@@ -80,10 +78,11 @@ export const useAuthStore = create(
 
                         if (response.ok) {
                             set({
-                                user: data.user,
+                                user: data.data.user,
                                 isAuthenticated: true,
                                 sessionToken: data.meta.session_token
                             });
+                            console.log("Full login response:", data);
                             return {success: true, message: "Login successful!"};
                         } else {
                             return {success: false, message: data.error || "Invalid credentials"};

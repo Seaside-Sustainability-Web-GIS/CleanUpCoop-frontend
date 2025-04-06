@@ -14,6 +14,7 @@ import {useAuthStore} from "../src/store/useAuthStore.js";
 import useStore from '../src/store/useStore';
 import PropTypes from "prop-types";
 import AdoptAreaFormModal from "./AdoptAreaFormModal.jsx";
+import {Snackbar, Alert} from '@mui/material';
 
 
 function Sidebar({setMapCenter}) {
@@ -23,6 +24,8 @@ function Sidebar({setMapCenter}) {
     const setIsSelecting = useStore((state) => state.setIsSelecting);
     const [adoptModalOpen, setAdoptModalOpen] = useState(false);
     const selectedPoint = useStore((state) => state.selectedPoint);
+    const showSnackbar = useStore((state) => state.showSnackbar);
+    const hideSnackbar = useStore((state) => state.hideSnackbar);
 
     const handleAdoptSubmit = async (formData) => {
         try {
@@ -72,10 +75,10 @@ function Sidebar({setMapCenter}) {
     };
 
     useEffect(() => {
-  if (selectedPoint) {
-    setAdoptModalOpen(true);
-  }
-}, [selectedPoint]);
+        if (selectedPoint) {
+            setAdoptModalOpen(true);
+        }
+    }, [selectedPoint]);
 
     return (
         <Box sx={{display: 'flex', height: '100%'}}>
@@ -162,7 +165,7 @@ function Sidebar({setMapCenter}) {
                                                 return;
                                             }
                                             setIsSelecting(true);
-                                            alert('Click on the map to select an area to adopt.');
+                                            showSnackbar('Click on the map to select the area you want to adopt.', 'info', { autoHideDuration: null });
                                         }}
                                         sx={{
                                             marginTop: 1,
