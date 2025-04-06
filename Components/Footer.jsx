@@ -23,7 +23,7 @@ const Footer = ({ setTermsOpen, setPrivacyOpen }) => {
             >
                 {/* Left-aligned Copyright */}
                 <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                    © {new Date().getFullYear()} WebGIS Application
+                    © {new Date().getFullYear()} Seaside Sustainability
                 </Typography>
 
                 {/* Center-aligned Social Icons */}
