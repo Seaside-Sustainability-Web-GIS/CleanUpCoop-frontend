@@ -14,7 +14,6 @@ function AdoptAreaFormModal({open, onClose, onSubmit, selectedPoint}) {
     });
     const locationMetadata = useStore((state) => state.locationMetadata);
     const user = useAuthStore((state) => state.user);
-    console.log(user)
 
     useEffect(() => {
         if (selectedPoint) {
@@ -37,7 +36,7 @@ function AdoptAreaFormModal({open, onClose, onSubmit, selectedPoint}) {
 
     return (
         <Dialog open={open} onClose={onClose}>
-            <DialogTitle>Adopt This Area</DialogTitle>
+            <DialogTitle>Adopt this Area</DialogTitle>
             <DialogContent>
                 <TextField
                     name="first_name"

@@ -14,8 +14,8 @@ import {useAuthStore} from "../src/store/useAuthStore.js";
 import useStore from '../src/store/useStore';
 import PropTypes from "prop-types";
 import AdoptAreaFormModal from "./AdoptAreaFormModal.jsx";
-import {Snackbar, Alert} from '@mui/material';
 
+const apiEndpoint = 'http://localhost:8000';
 
 function Sidebar({setMapCenter}) {
     const {isAuthenticated, setAuthOpen} = useAuthStore();
@@ -25,16 +25,15 @@ function Sidebar({setMapCenter}) {
     const [adoptModalOpen, setAdoptModalOpen] = useState(false);
     const selectedPoint = useStore((state) => state.selectedPoint);
     const showSnackbar = useStore((state) => state.showSnackbar);
-    const hideSnackbar = useStore((state) => state.hideSnackbar);
 
     const handleAdoptSubmit = async (formData) => {
         try {
-            const response = await fetch('/api/adopt-area/', {
+            const response = await fetch(`${apiEndpoint}/api/adopt-area/`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    // Add auth header here if needed
                 },
+                credentials: 'include',
                 body: JSON.stringify(formData),
             });
 
@@ -44,7 +43,7 @@ function Sidebar({setMapCenter}) {
             console.log('Success:', result);
             alert('Adoption submitted!');
         } catch (err) {
-            console.error(err);
+            console.error('Adoption error:', err);
             alert('Error submitting adoption.');
         }
     };
@@ -165,7 +164,7 @@ function Sidebar({setMapCenter}) {
                                                 return;
                                             }
                                             setIsSelecting(true);
-                                            showSnackbar('Click on the map to select the area you want to adopt.', 'info', { autoHideDuration: null });
+                                            showSnackbar('Click on the map to select the area you want to adopt.', 'info', {autoHideDuration: null});
                                         }}
                                         sx={{
                                             marginTop: 1,
