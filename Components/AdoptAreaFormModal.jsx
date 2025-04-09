@@ -6,24 +6,33 @@ import {useAuthStore} from '../src/store/useAuthStore';
 
 function AdoptAreaFormModal({open, onClose, onSubmit, selectedPoint}) {
     const [formData, setFormData] = useState({
-        first_name: '',
-        last_name: '',
-        note: '',
-        lat: '',
-        lng: '',
+        "first_name": "",
+        "last_name": "",
+        "email": "",
+        "city": "",
+        "state": "",
+        "country": "",
+        "note": "",
+        "lat": "",
+        "lng": ""
     });
     const locationMetadata = useStore((state) => state.locationMetadata);
     const user = useAuthStore((state) => state.user);
 
     useEffect(() => {
-        if (selectedPoint) {
+        if (selectedPoint && locationMetadata && user) {
             setFormData((prev) => ({
                 ...prev,
+                email: user.email,
+                city: locationMetadata.city || "",
+                state: locationMetadata.state || "",
+                country: locationMetadata.country || "",
                 lat: selectedPoint[1].toFixed(6),
                 lng: selectedPoint[0].toFixed(6),
             }));
         }
-    }, [selectedPoint]);
+    }, [selectedPoint, locationMetadata, user]);
+
 
     const handleChange = (e) => {
         setFormData((prev) => ({...prev, [e.target.name]: e.target.value}));

@@ -47,6 +47,8 @@ function App() {
     const [termsOpen, setTermsOpen] = useState(false);
     const [privacyOpen, setPrivacyOpen] = useState(false);
 
+    const apiEndpoint = 'http://localhost:8000';
+
 
     const handleLogin = async (email, password) => {
         if (!login) {
@@ -54,16 +56,25 @@ function App() {
             return;
         }
 
-        const response = await login(email, password); // ✅ Use the full response object
+        try {
+            const response = await login(email, password);
 
-        if (response.success) {
-            showSnackbar(SNACKBAR_MESSAGES.LOGIN_SUCCESS, SNACKBAR_SEVERITIES.SUCCESS);
-            setAuthOpen(false);
-        } else {
-            const errorMessage = Array.isArray(response.errors) && response.errors.length > 0
-                ? response.errors[0].message
-                : `${SNACKBAR_MESSAGES.LOGIN_FAILURE}${response.message ? `: ${response.message}` : ''}`;
-            showSnackbar(errorMessage, SNACKBAR_SEVERITIES.ERROR);
+            if (response.success) {
+                await fetch(`${apiEndpoint}/api/csrf/`, {
+                    method: 'GET',
+                    credentials: 'include',
+                });
+                showSnackbar(SNACKBAR_MESSAGES.LOGIN_SUCCESS, SNACKBAR_SEVERITIES.SUCCESS);
+                setAuthOpen(false);
+            } else {
+                const errorMessage =
+                    response?.errors?.[0]?.message ||
+                    `${SNACKBAR_MESSAGES.LOGIN_FAILURE}${response.message ? `: ${response.message}` : ''}`;
+                showSnackbar(errorMessage, SNACKBAR_SEVERITIES.ERROR);
+            }
+        } catch (err) {
+            console.error("Login failed:", err);
+            showSnackbar("Unexpected error during login. Please try again.", SNACKBAR_SEVERITIES.ERROR);
         }
     };
 
@@ -172,7 +183,7 @@ function App() {
                         </>
                     )}
                     {currentView === 'dashboard' && (
-                        <Dashboard />
+                        <Dashboard/>
                     )}
                 </Box>
             </Box>

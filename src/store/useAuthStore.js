@@ -68,6 +68,7 @@ export const useAuthStore = create(
                     try {
                         const response = await fetch(`${allAuthEndpoint}/login`, {
                             method: 'POST',
+                            credentials: 'include',
                             headers: {
                                 'Content-Type': 'application/json',
                             },
@@ -82,7 +83,6 @@ export const useAuthStore = create(
                                 isAuthenticated: true,
                                 sessionToken: data.meta.session_token
                             });
-                            console.log("Full login response:", data);
                             return {success: true, message: "Login successful!"};
                         } else {
                             return {success: false, message: data.error || "Invalid credentials"};

@@ -25,6 +25,8 @@ function Sidebar({setMapCenter}) {
     const [adoptModalOpen, setAdoptModalOpen] = useState(false);
     const selectedPoint = useStore((state) => state.selectedPoint);
     const showSnackbar = useStore((state) => state.showSnackbar);
+    const sessionToken = useAuthStore.getState().sessionToken;
+
 
     const handleAdoptSubmit = async (formData) => {
         try {
@@ -32,19 +34,21 @@ function Sidebar({setMapCenter}) {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
+                    'X-Session-Token': sessionToken,
                 },
-                credentials: 'include',
                 body: JSON.stringify(formData),
             });
 
-            if (!response.ok) throw new Error('Submission failed');
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(`Submission failed: ${response.status} - ${errorText}`);
+            }
 
             const result = await response.json();
-            console.log('Success:', result);
-            alert('Adoption submitted!');
+            showSnackbar(result.message || 'Adoption submitted!', 'success');
         } catch (err) {
             console.error('Adoption error:', err);
-            alert('Error submitting adoption.');
+            alert(`Error: ${err.message}`);
         }
     };
 
