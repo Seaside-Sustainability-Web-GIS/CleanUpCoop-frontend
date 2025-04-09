@@ -1,32 +1,22 @@
-import {  useMemo } from 'react';
-import { Box, Button, Typography } from '@mui/material';
-import { DataGrid, GridToolbar } from '@mui/x-data-grid';
+import {useMemo} from 'react';
+import {Box, Button, Typography} from '@mui/material';
+import {DataGrid, GridToolbar} from '@mui/x-data-grid';
 import useStore from '../src/store/useStore';
 
 const CollapsibleTable = () => {
-    const geojsonData = useStore((state) => state.geojsonData);
     const isTableCollapsed = useStore((state) => state.isTableCollapsed);
     const toggleTable = useStore((state) => state.toggleTable);
 
-    // Transform GeoJSON features into rows using useMemo to memoize rows calculation
-    const rows = useMemo(() => {
-        return (
-            geojsonData?.features?.map((feature) => ({
-                id: feature.properties.OBJECTID,
-                ...feature.properties,
-            })) || []
-        );
-    }, [geojsonData]);
 
     // Define columns for the DataGrid
     const columns = useMemo(
         () => [
-            { field: 'OBJECTID', headerName: 'OBJECTID', flex: 1 },
-            { field: 'MUNICIPALITY', headerName: 'Municipality', flex: 2 },
-            { field: 'MUNI', headerName: 'MUNI Code', flex: 1 },
-            { field: 'MUNICODE', headerName: 'Municipality Code', flex: 1 },
-            { field: 'LABELTXT', headerName: 'Label Text', flex: 1, type: 'number' },
-            { field: 'SQ_MILES', headerName: 'Square Miles', flex: 1, type: 'number' },
+            {field: 'OBJECTID', headerName: 'OBJECTID', flex: 1},
+            {field: 'MUNICIPALITY', headerName: 'Municipality', flex: 2},
+            {field: 'MUNI', headerName: 'MUNI Code', flex: 1},
+            {field: 'MUNICODE', headerName: 'Municipality Code', flex: 1},
+            {field: 'LABELTXT', headerName: 'Label Text', flex: 1, type: 'number'},
+            {field: 'SQ_MILES', headerName: 'Square Miles', flex: 1, type: 'number'},
             {
                 field: 'last_edited_date',
                 headerName: 'Last Edited Date',
@@ -35,8 +25,8 @@ const CollapsibleTable = () => {
                 valueGetter: (params) =>
                     params.value ? new Date(params.value).toLocaleDateString() : '',
             },
-            { field: 'Shape__Area', headerName: 'Area', flex: 1, type: 'number' },
-            { field: 'Shape__Length', headerName: 'Length', flex: 1, type: 'number' },
+            {field: 'Shape__Area', headerName: 'Area', flex: 1, type: 'number'},
+            {field: 'Shape__Length', headerName: 'Length', flex: 1, type: 'number'},
         ],
         []
     );
@@ -79,18 +69,17 @@ const CollapsibleTable = () => {
                         zIndex: 10,
                     }}
                 >
-                    <Typography variant="h6" sx={{ padding: 1 }}>
+                    <Typography variant="h6" sx={{padding: 1}}>
                         Attribute Table
                     </Typography>
                     {rows.length > 0 ? (
-                        <Box sx={{ height: 650, width: '100%' }}>
+                        <Box sx={{height: 650, width: '100%'}}>
                             <DataGrid
                                 rows={rows}
                                 columns={columns}
-                                loading={!geojsonData}
-                                slots={{ toolbar: GridToolbar }}
+                                slots={{toolbar: GridToolbar}}
                                 initialState={{
-                                    pagination: { paginationModel: { pageSize: 10 } },
+                                    pagination: {paginationModel: {pageSize: 10}},
                                 }}
                                 pageSizeOptions={[5, 10, 25]}
                             />
@@ -99,7 +88,7 @@ const CollapsibleTable = () => {
                         <Typography
                             variant="body1"
                             align="center"
-                            sx={{ marginTop: 4 }}
+                            sx={{marginTop: 4}}
                         >
                             No data available.
                         </Typography>

@@ -37,15 +37,18 @@ function App() {
     const logout = useAuthStore((state) => state.logout);
     const {login, signup, authStage, setAuthStage} = useAuthStore();
 
+
     // Modals State
     const [aboutOpen, setAboutOpen] = useState(false);
-    const [authOpen, setAuthOpen] = useState(false);
+    const authOpen = useAuthStore((state) => state.authOpen);
+    const setAuthOpen = useAuthStore((state) => state.setAuthOpen);
     const {snackbar, showSnackbar, hideSnackbar} = useStore();
     const [forgotPasswordOpen, setForgotPasswordOpen] = useState(false);
     const [termsOpen, setTermsOpen] = useState(false);
     const [privacyOpen, setPrivacyOpen] = useState(false);
 
-    const geojsonData = useStore((state) => state.geojsonData);
+    const apiEndpoint = 'http://localhost:8000';
+
 
     const handleLogin = async (email, password) => {
         if (!login) {
@@ -53,16 +56,25 @@ function App() {
             return;
         }
 
-        const response = await login(email, password); // ✅ Use the full response object
+        try {
+            const response = await login(email, password);
 
-        if (response.success) {
-            showSnackbar(SNACKBAR_MESSAGES.LOGIN_SUCCESS, SNACKBAR_SEVERITIES.SUCCESS);
-            setAuthOpen(false);
-        } else {
-            const errorMessage = Array.isArray(response.errors) && response.errors.length > 0
-                ? response.errors[0].message
-                : `${SNACKBAR_MESSAGES.LOGIN_FAILURE}${response.message ? `: ${response.message}` : ''}`;
-            showSnackbar(errorMessage, SNACKBAR_SEVERITIES.ERROR);
+            if (response.success) {
+                await fetch(`${apiEndpoint}/api/csrf/`, {
+                    method: 'GET',
+                    credentials: 'include',
+                });
+                showSnackbar(SNACKBAR_MESSAGES.LOGIN_SUCCESS, SNACKBAR_SEVERITIES.SUCCESS);
+                setAuthOpen(false);
+            } else {
+                const errorMessage =
+                    response?.errors?.[0]?.message ||
+                    `${SNACKBAR_MESSAGES.LOGIN_FAILURE}${response.message ? `: ${response.message}` : ''}`;
+                showSnackbar(errorMessage, SNACKBAR_SEVERITIES.ERROR);
+            }
+        } catch (err) {
+            console.error("Login failed:", err);
+            showSnackbar("Unexpected error during login. Please try again.", SNACKBAR_SEVERITIES.ERROR);
         }
     };
 
@@ -74,7 +86,7 @@ function App() {
         if (response.success) {
             showSnackbar(SNACKBAR_MESSAGES.LOGOUT_SUCCESS, SNACKBAR_SEVERITIES.INFO);
         } else {
-             const errorMessage = Array.isArray(response.errors) && response.errors.length > 0
+            const errorMessage = Array.isArray(response.errors) && response.errors.length > 0
                 ? response.errors[0].message
                 : `${SNACKBAR_MESSAGES.LOGOUT_FAILURE}${response.message ? `: ${response.message}` : ''}`;
             showSnackbar(errorMessage, SNACKBAR_SEVERITIES.ERROR);
@@ -113,7 +125,7 @@ function App() {
                         src={logo}
                     />
                     <Typography variant="h6" sx={{flexGrow: 1}}>
-                        WebGIS Application Template
+                        Seaside Sustainability
                     </Typography>
                     <Box display="flex" alignItems="center" sx={{mx: 2}}>
                         <Typography
@@ -171,7 +183,7 @@ function App() {
                         </>
                     )}
                     {currentView === 'dashboard' && (
-                        <Dashboard data={geojsonData.features.map(f => f.properties)}/>
+                        <Dashboard/>
                     )}
                 </Box>
             </Box>
