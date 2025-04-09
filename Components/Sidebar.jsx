@@ -26,31 +26,36 @@ function Sidebar({setMapCenter}) {
     const selectedPoint = useStore((state) => state.selectedPoint);
     const showSnackbar = useStore((state) => state.showSnackbar);
     const sessionToken = useAuthStore.getState().sessionToken;
+    const fetchAdoptedAreas = useStore((state) => state.fetchAdoptedAreas);
 
 
-    const handleAdoptSubmit = async (formData) => {
-        try {
-            const response = await fetch(`${apiEndpoint}/api/adopt-area/`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-Session-Token': sessionToken,
-                },
-                body: JSON.stringify(formData),
-            });
+const handleAdoptSubmit = async (formData, { onSuccess } = {}) => {
+  try {
+    const response = await fetch(`${apiEndpoint}/api/adopt-area/`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Session-Token': sessionToken,
+      },
+      body: JSON.stringify(formData),
+    });
 
-            if (!response.ok) {
-                const errorText = await response.text();
-                throw new Error(`Submission failed: ${response.status} - ${errorText}`);
-            }
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Submission failed (${response.status}): ${errorText}`);
+    }
 
-            const result = await response.json();
-            showSnackbar(result.message || 'Adoption submitted!', 'success');
-        } catch (err) {
-            console.error('Adoption error:', err);
-            alert(`Error: ${err.message}`);
-        }
-    };
+    const result = await response.json();
+    showSnackbar(result.message || 'Area adopted successfully!', 'success');
+
+    if (onSuccess) {
+      onSuccess(); // e.g. refetch data, close modal, reset form
+    }
+  } catch (error) {
+    console.error('Adoption error:', error);
+    alert(`Error: ${error.message}`);
+  }
+};
 
     const handleFormSubmit = (event) => {
         event.preventDefault();

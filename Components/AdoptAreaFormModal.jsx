@@ -3,8 +3,9 @@ import {useState, useEffect} from 'react';
 import useStore from '../src/store/useStore';
 import {useAuthStore} from '../src/store/useAuthStore';
 
+const apiEndpoint = 'http://localhost:8000/api'
 
-function AdoptAreaFormModal({open, onClose, onSubmit, selectedPoint}) {
+function AdoptAreaFormModal({open, onClose, selectedPoint}) {
     const [formData, setFormData] = useState({
         "first_name": "",
         "last_name": "",
@@ -16,8 +17,12 @@ function AdoptAreaFormModal({open, onClose, onSubmit, selectedPoint}) {
         "lat": "",
         "lng": ""
     });
+
     const locationMetadata = useStore((state) => state.locationMetadata);
+    const fetchAdoptedAreas = useStore((state) => state.fetchAdoptedAreas);
+    const showSnackbar = useStore((state) => state.showSnackbar);
     const user = useAuthStore((state) => state.user);
+    const sessionToken = useAuthStore((state) => state.sessionToken);
 
     useEffect(() => {
         if (selectedPoint && locationMetadata && user) {
@@ -38,9 +43,31 @@ function AdoptAreaFormModal({open, onClose, onSubmit, selectedPoint}) {
         setFormData((prev) => ({...prev, [e.target.name]: e.target.value}));
     };
 
-    const handleSubmit = () => {
-        onSubmit(formData);
-        onClose();
+    const handleSubmit = async () => {
+        try {
+            const response = await fetch(`${apiEndpoint}/adopt-area/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Session-Token': sessionToken,
+                },
+                body: JSON.stringify(formData),
+            });
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(`Submission failed: ${response.status} - ${errorText}`);
+            }
+
+            const result = await response.json();
+            showSnackbar(result.message || 'Area adopted successfully!', 'success');
+
+            await fetchAdoptedAreas();
+            onClose();
+        } catch (err) {
+            console.error('Adoption error:', err);
+            alert(`Error: ${err.message}`);
+        }
     };
 
     return (

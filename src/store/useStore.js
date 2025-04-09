@@ -1,5 +1,7 @@
 import {create} from 'zustand';
 
+const apiEndpoint = 'http://localhost:8000/api';
+
 const useStore = create((set) => ({
     defaultCenter: [0, 0],
     mapCenter: [0, 0],
@@ -10,7 +12,6 @@ const useStore = create((set) => ({
     setIsSelecting: (val) => set({isSelecting: val}),
     locationMetadata: null,
     setLocationMetadata: (data) => set({locationMetadata: data}),
-
 
     userLocation: null,
     setUserLocation: (location) => {
@@ -28,7 +29,6 @@ const useStore = create((set) => ({
 
     aboutOpen: false, // State for dialog
 
-
     isDataLoaded: false,
 
     snackbar: {
@@ -44,6 +44,23 @@ const useStore = create((set) => ({
         set((state) => ({
             snackbar: {...state.snackbar, open: false},
         })),
+
+    adoptedAreas: [],
+    isLoadingAdoptedAreas: false,
+
+    fetchAdoptedAreas: async () => {
+        set({isLoadingAdoptedAreas: true});
+        try {
+            const res = await fetch(`${apiEndpoint}/adopted-area-layer/`);
+            const data = await res.json();
+            set({adoptedAreas: data});
+        } catch (err) {
+            console.error("Failed to fetch adopted areas:", err);
+        } finally {
+            set({isLoadingAdoptedAreas: false});
+        }
+    },
+
 }));
 
 export default useStore;
