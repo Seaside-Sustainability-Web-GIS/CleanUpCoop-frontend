@@ -26,7 +26,6 @@ function Sidebar({setMapCenter}) {
     const selectedPoint = useStore((state) => state.selectedPoint);
     const showSnackbar = useStore((state) => state.showSnackbar);
     const sessionToken = useAuthStore.getState().sessionToken;
-    const fetchAdoptedAreas = useStore((state) => state.fetchAdoptedAreas);
 
 
 const handleAdoptSubmit = async (formData, { onSuccess } = {}) => {

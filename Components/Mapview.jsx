@@ -10,11 +10,12 @@ import {
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import '../src/App.css';
-import {Box, IconButton} from '@mui/material';
+import { Box, Button, IconButton } from '@mui/material';
 import HomeIcon from '@mui/icons-material/Home';
 import GpsFixedIcon from '@mui/icons-material/GpsFixed';
 import useStore from '../src/store/useStore';
 import CollapsibleTable from './CollapsableTable.jsx';
+import {useAuthStore} from "../src/store/useAuthStore.js";
 
 const apiEndpoint = 'http://localhost:8000/api';
 
@@ -175,6 +176,7 @@ function MapView() {
     const adoptedAreas = useStore((state) => state.adoptedAreas);
     const fetchAdoptedAreas = useStore((state) => state.fetchAdoptedAreas);
     const setAdoptedAreas = useStore((state) => state.setAdoptedAreas);
+    const user = useAuthStore.getState().user;
 
     useEffect(() => {
         const fetchAdoptedAreas = async () => {
@@ -230,9 +232,29 @@ function MapView() {
                 {adoptedAreas.map(area => (
                     <Marker key={area.id} position={[area.lat, area.lng]}>
                         <Popup>
-                            <strong>{area.first_name} {area.last_name}</strong><br/>
-                            {area.city}, {area.state}, {area.country}<br/>
-                            {area.note}
+                            <div style={{fontSize: '12px', lineHeight: '1.1', margin: 0, padding: 0}}>
+                                <div style={{fontWeight: 'bold', fontSize: '13px'}}>
+                                    {area.area_name}
+                                </div>
+                                <div>{area.adoptee_name}</div>
+                                <div>{area.city}, {area.state}, {area.country}</div>
+                                <div>{area.note}</div>
+
+                                {user?.email === area.email && (
+                                    <div style={{marginTop: '4px', display: 'flex', gap: '4px', flexWrap: 'wrap'}}>
+                                        <Button size="small" variant="outlined" onClick={() => handleCreateEvent(area)}>
+                                            Create Event
+                                        </Button>
+                                        <Button size="small" variant="outlined" onClick={() => handleEdit(area)}>
+                                            Edit Area
+                                        </Button>
+                                        <Button size="small" variant="outlined" color="error"
+                                                onClick={() => handleDelete(area)}>
+                                            Delete
+                                        </Button>
+                                    </div>
+                                )}
+                            </div>
                         </Popup>
                     </Marker>
                 ))}

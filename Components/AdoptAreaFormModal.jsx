@@ -7,8 +7,8 @@ const apiEndpoint = 'http://localhost:8000/api'
 
 function AdoptAreaFormModal({open, onClose, selectedPoint}) {
     const [formData, setFormData] = useState({
-        "first_name": "",
-        "last_name": "",
+        "area_name": "",
+        "adoptee_name": "",
         "email": "",
         "city": "",
         "state": "",
@@ -75,20 +75,20 @@ function AdoptAreaFormModal({open, onClose, selectedPoint}) {
             <DialogTitle>Adopt this Area</DialogTitle>
             <DialogContent>
                 <TextField
-                    name="first_name"
-                    label="First Name"
+                    name="area_name"
+                    label="Area Name"
                     fullWidth
                     margin="dense"
-                    value={formData.first_name}
+                    value={formData.area_name}
                     onChange={handleChange}
                 />
 
                 <TextField
-                    name="last_name"
-                    label="Last Name"
+                    name="adoptee_name"
+                    label="Adoptee Name"
                     fullWidth
                     margin="dense"
-                    value={formData.last_name}
+                    value={formData.adoptee_name}
                     onChange={handleChange}
                 />
 
