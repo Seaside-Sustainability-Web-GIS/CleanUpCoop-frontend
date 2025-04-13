@@ -46,6 +46,7 @@ const useStore = create((set) => ({
         })),
 
     adoptedAreas: [],
+    setAdoptedAreas: (areas) => set({adoptedAreas: areas}),
     isLoadingAdoptedAreas: false,
 
     fetchAdoptedAreas: async () => {
