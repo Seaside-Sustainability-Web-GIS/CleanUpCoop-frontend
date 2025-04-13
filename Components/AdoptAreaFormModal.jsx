@@ -1,4 +1,4 @@
-import {Dialog, DialogTitle, DialogContent, DialogActions, TextField, Button} from '@mui/material';
+import {Dialog, DialogTitle, DialogContent, DialogActions, TextField, Button, MenuItem} from '@mui/material';
 import {useState, useEffect} from 'react';
 import useStore from '../src/store/useStore';
 import {useAuthStore} from '../src/store/useAuthStore';
@@ -9,6 +9,8 @@ function AdoptAreaFormModal({open, onClose, selectedPoint}) {
     const [formData, setFormData] = useState({
         "area_name": "",
         "adoptee_name": "",
+        "adoption_type": "indefinite",
+        "end_date": "",
         "email": "",
         "city": "",
         "state": "",
@@ -91,6 +93,39 @@ function AdoptAreaFormModal({open, onClose, selectedPoint}) {
                     value={formData.adoptee_name}
                     onChange={handleChange}
                 />
+
+                <TextField
+                    select
+                    name="adoption_type"
+                    label="Adoption Type"
+                    fullWidth
+                    margin="dense"
+                    value={formData.adoption_type}
+                    onChange={handleChange}
+                >
+                    <MenuItem value="indefinite">Indefinite</MenuItem>
+                    <MenuItem value="temporary">Temporary</MenuItem>
+                </TextField>
+
+                {formData.adoption_type === 'temporary' && (
+                    <TextField
+                        name="end_date"
+                        label="End Date"
+                        type="date"
+                        fullWidth
+                        margin="dense"
+                        value={formData.end_date}
+                        onChange={handleChange}
+                        sx={{
+                            '& input': {
+                                padding: '16.5px 14px',
+                            },
+                            '& label': {
+                                transform: 'translate(14px, -6px) scale(0.75)',
+                            },
+                        }}
+                    />
+                )}
 
                 <TextField
                     label="Email Address"
