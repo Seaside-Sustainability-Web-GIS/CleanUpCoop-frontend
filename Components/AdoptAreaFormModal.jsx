@@ -1,13 +1,16 @@
-import {Dialog, DialogTitle, DialogContent, DialogActions, TextField, Button} from '@mui/material';
+import {Dialog, DialogTitle, DialogContent, DialogActions, TextField, Button, MenuItem} from '@mui/material';
 import {useState, useEffect} from 'react';
 import useStore from '../src/store/useStore';
 import {useAuthStore} from '../src/store/useAuthStore';
 
+const apiEndpoint = 'http://localhost:8000/api'
 
-function AdoptAreaFormModal({open, onClose, onSubmit, selectedPoint}) {
+function AdoptAreaFormModal({open, onClose, selectedPoint}) {
     const [formData, setFormData] = useState({
-        "first_name": "",
-        "last_name": "",
+        "area_name": "",
+        "adoptee_name": "",
+        "adoption_type": "indefinite",
+        "end_date": "",
         "email": "",
         "city": "",
         "state": "",
@@ -16,8 +19,12 @@ function AdoptAreaFormModal({open, onClose, onSubmit, selectedPoint}) {
         "lat": "",
         "lng": ""
     });
+
     const locationMetadata = useStore((state) => state.locationMetadata);
+    const fetchAdoptedAreas = useStore((state) => state.fetchAdoptedAreas);
+    const showSnackbar = useStore((state) => state.showSnackbar);
     const user = useAuthStore((state) => state.user);
+    const sessionToken = useAuthStore((state) => state.sessionToken);
 
     useEffect(() => {
         if (selectedPoint && locationMetadata && user) {
@@ -38,9 +45,31 @@ function AdoptAreaFormModal({open, onClose, onSubmit, selectedPoint}) {
         setFormData((prev) => ({...prev, [e.target.name]: e.target.value}));
     };
 
-    const handleSubmit = () => {
-        onSubmit(formData);
-        onClose();
+    const handleSubmit = async () => {
+        try {
+            const response = await fetch(`${apiEndpoint}/adopt-area/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Session-Token': sessionToken,
+                },
+                body: JSON.stringify(formData),
+            });
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(`Submission failed: ${response.status} - ${errorText}`);
+            }
+
+            const result = await response.json();
+            showSnackbar(result.message || 'Area adopted successfully!', 'success');
+
+            await fetchAdoptedAreas();
+            onClose();
+        } catch (err) {
+            console.error('Adoption error:', err);
+            alert(`Error: ${err.message}`);
+        }
     };
 
     return (
@@ -48,22 +77,55 @@ function AdoptAreaFormModal({open, onClose, onSubmit, selectedPoint}) {
             <DialogTitle>Adopt this Area</DialogTitle>
             <DialogContent>
                 <TextField
-                    name="first_name"
-                    label="First Name"
+                    name="area_name"
+                    label="Area Name"
                     fullWidth
                     margin="dense"
-                    value={formData.first_name}
+                    value={formData.area_name}
                     onChange={handleChange}
                 />
 
                 <TextField
-                    name="last_name"
-                    label="Last Name"
+                    name="adoptee_name"
+                    label="Adoptee Name"
                     fullWidth
                     margin="dense"
-                    value={formData.last_name}
+                    value={formData.adoptee_name}
                     onChange={handleChange}
                 />
+
+                <TextField
+                    select
+                    name="adoption_type"
+                    label="Adoption Type"
+                    fullWidth
+                    margin="dense"
+                    value={formData.adoption_type}
+                    onChange={handleChange}
+                >
+                    <MenuItem value="indefinite">Indefinite</MenuItem>
+                    <MenuItem value="temporary">Temporary</MenuItem>
+                </TextField>
+
+                {formData.adoption_type === 'temporary' && (
+                    <TextField
+                        name="end_date"
+                        label="End Date"
+                        type="date"
+                        fullWidth
+                        margin="dense"
+                        value={formData.end_date}
+                        onChange={handleChange}
+                        sx={{
+                            '& input': {
+                                padding: '16.5px 14px',
+                            },
+                            '& label': {
+                                transform: 'translate(14px, -6px) scale(0.75)',
+                            },
+                        }}
+                    />
+                )}
 
                 <TextField
                     label="Email Address"
