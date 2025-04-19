@@ -10,7 +10,7 @@ import {
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import '../src/App.css';
-import { Box, Button, IconButton } from '@mui/material';
+import {Box, Button, IconButton} from '@mui/material';
 import HomeIcon from '@mui/icons-material/Home';
 import GpsFixedIcon from '@mui/icons-material/GpsFixed';
 import useStore from '../src/store/useStore';
@@ -18,6 +18,8 @@ import CollapsibleTable from './CollapsableTable.jsx';
 import {useAuthStore} from "../src/store/useAuthStore.js";
 
 const apiEndpoint = 'http://localhost:8000/api';
+const sessionToken = useAuthStore.getState().sessionToken;
+const showSnackbar = useStore.getState().showSnackbar;
 
 const gpsLocationIcon = L.divIcon({
     className: 'gps-location-icon',
@@ -168,33 +170,60 @@ function MapUpdater() {
     return null;
 }
 
+
 function MapView() {
     const {BaseLayer} = LayersControl;
     const mapCenter = useStore((state) => state.mapCenter);
     const userLocation = useStore((state) => state.userLocation);
     const isDataLoaded = useStore((state) => state.isDataLoaded);
     const adoptedAreas = useStore((state) => state.adoptedAreas);
-    const fetchAdoptedAreas = useStore((state) => state.fetchAdoptedAreas);
     const setAdoptedAreas = useStore((state) => state.setAdoptedAreas);
     const user = useAuthStore.getState().user;
 
-    useEffect(() => {
-        const fetchAdoptedAreas = async () => {
-            try {
-                const res = await fetch(`${apiEndpoint}/adopted-area-layer/`);
-                const data = await res.json();
-                setAdoptedAreas(data);
-            } catch (err) {
-                console.error("Failed to fetch adopted areas:", err);
-            }
-        };
+    const handleEdit = async (area) => {
+        const response = await fetch(`${apiEndpoint}/adopt-area/${area.id}/`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Session-Token': sessionToken,
+            },
+            body: JSON.stringify(updatedAreaData),
+        });
 
+        const result = await response.json();
+        showSnackbar(result.message, result.success ? 'success' : 'error');
+        await fetchAdoptedAreas();
+    };
+
+    const handleDelete = async (area) => {
+        if (!window.confirm('Are you sure you want to delete this area?')) return;
+
+        const response = await fetch(`${apiEndpoint}/adopt-area/${area.id}/`, {
+            method: 'DELETE',
+            headers: {
+                'X-Session-Token': sessionToken,
+            },
+        });
+        const result = await response.json();
+        showSnackbar(result.message, result.success ? 'success' : 'error');
+        await fetchAdoptedAreas();
+    };
+
+    const fetchAdoptedAreas = async () => {
+        try {
+            const res = await fetch(`${apiEndpoint}/adopted-area-layer/`);
+            const data = await res.json();
+            setAdoptedAreas(data);
+        } catch (err) {
+            console.error("Failed to fetch adopted areas:", err);
+        }
+    };
+
+    // ✅ Single useEffect
+    useEffect(() => {
         fetchAdoptedAreas();
     }, []);
 
-    useEffect(() => {
-        fetchAdoptedAreas();
-    }, [fetchAdoptedAreas]);
 
     return (
         <Box sx={{flex: 1, position: 'relative'}}>
@@ -242,7 +271,8 @@ function MapView() {
 
                                 {user?.email === area.email && (
                                     <div style={{marginTop: '4px', display: 'flex', gap: '4px', flexWrap: 'wrap'}}>
-                                        <Button size="small" variant="outlined" onClick={() => handleCreateEvent(area)}>
+                                        <Button size="small" variant="outlined"
+                                                onClick={() => handleCreateEvent(area)}>
                                             Create Event
                                         </Button>
                                         <Button size="small" variant="outlined" onClick={() => handleEdit(area)}>
