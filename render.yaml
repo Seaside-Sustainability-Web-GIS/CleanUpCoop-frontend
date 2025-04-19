@@ -8,6 +8,5 @@ services:
     autoDeploy: true
     buildCommand: npm install && npm run build
     staticPublishPath: dist
-    region: oregon
     pullRequestPreviewsEnabled: true
     healthCheckPath: /
