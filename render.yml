@@ -1,0 +1,13 @@
+# render.yaml
+services:
+  - type: static_site
+    name: seaside-frontend
+    repo: https://github.com/Seaside-Sustainability-Web-GIS/TRASH-frontend.git
+    branch: Deploy
+    env: static
+    buildCommand: npm install && npm run build
+    publishRoot: dist
+    region: oregon
+    pullRequestPreviews: true
+    healthCheckPath: /
+
