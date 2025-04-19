@@ -47,7 +47,7 @@ const AuthForm = ({openForgotPassword, onLogin, onSignup}) => {
 
     return (
         <Box component="form" onSubmit={handleSubmit(onSubmit)} sx={{width: 300}}>
-            {/* First Name - Only for Registration */}
+
             {isSignup && (
                 <TextField
                     label="First Name"
@@ -59,7 +59,6 @@ const AuthForm = ({openForgotPassword, onLogin, onSignup}) => {
                 />
             )}
 
-            {/* Last Name - Only for Registration */}
             {isSignup && (
                 <TextField
                     label="Last Name"

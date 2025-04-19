@@ -1,10 +1,60 @@
-import { useState } from 'react';
-import { Typography, TextField, Button, Paper, Box, IconButton } from '@mui/material';
-import { ChevronLeft, ChevronRight } from '@mui/icons-material';
+import {useEffect, useState} from 'react';
+import {
+    Typography,
+    Button,
+    Paper,
+    Box,
+    IconButton,
+    FormControl,
+    InputLabel,
+    OutlinedInput, InputAdornment
+} from '@mui/material';
+import {ChevronLeft, ChevronRight, Clear, Room} from '@mui/icons-material';
+import {useAuthStore} from "../src/store/useAuthStore.js";
+import useStore from '../src/store/useStore';
+import PropTypes from "prop-types";
+import AdoptAreaFormModal from "./AdoptAreaFormModal.jsx";
 
-function Sidebar({ setMapCenter }) {
+const apiEndpoint = 'http://localhost:8000';
+
+function Sidebar({setMapCenter}) {
+    const {isAuthenticated, setAuthOpen} = useAuthStore();
     const [searchText, setSearchText] = useState('');
-    const [isCollapsed, setIsCollapsed] = useState(false); // State to manage collapse
+    const [isCollapsed, setIsCollapsed] = useState(false);
+    const setIsSelecting = useStore((state) => state.setIsSelecting);
+    const [adoptModalOpen, setAdoptModalOpen] = useState(false);
+    const selectedPoint = useStore((state) => state.selectedPoint);
+    const showSnackbar = useStore((state) => state.showSnackbar);
+    const sessionToken = useAuthStore.getState().sessionToken;
+
+
+const handleAdoptSubmit = async (formData, { onSuccess } = {}) => {
+  try {
+    const response = await fetch(`${apiEndpoint}/api/adopt-area/`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Session-Token': sessionToken,
+      },
+      body: JSON.stringify(formData),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Submission failed (${response.status}): ${errorText}`);
+    }
+
+    const result = await response.json();
+    showSnackbar(result.message || 'Area adopted successfully!', 'success');
+
+    if (onSuccess) {
+      onSuccess(); // e.g. refetch data, close modal, reset form
+    }
+  } catch (error) {
+    console.error('Adoption error:', error);
+    alert(`Error: ${error.message}`);
+  }
+};
 
     const handleFormSubmit = (event) => {
         event.preventDefault();
@@ -21,7 +71,7 @@ function Sidebar({ setMapCenter }) {
             );
             const results = await response.json();
             if (results.length > 0) {
-                const { lat, lon } = results[0];
+                const {lat, lon} = results[0];
                 setMapCenter([parseFloat(lat), parseFloat(lon)]);
             } else {
                 alert('Location not found.');
@@ -31,8 +81,14 @@ function Sidebar({ setMapCenter }) {
         }
     };
 
+    useEffect(() => {
+        if (selectedPoint) {
+            setAdoptModalOpen(true);
+        }
+    }, [selectedPoint]);
+
     return (
-        <Box sx={{ display: 'flex', height: '100%' }}>
+        <Box sx={{display: 'flex', height: '100%'}}>
             <Paper
                 sx={{
                     width: isCollapsed ? '50px' : '300px',
@@ -46,61 +102,121 @@ function Sidebar({ setMapCenter }) {
             >
                 <IconButton
                     onClick={() => setIsCollapsed((prev) => !prev)}
-                    sx={{ alignSelf: 'flex-end', marginBottom: 2 }}
+                    sx={{alignSelf: 'flex-end', marginBottom: 2}}
                 >
-                    {isCollapsed ? <ChevronRight /> : <ChevronLeft />}
+                    {isCollapsed ? <ChevronRight/> : <ChevronLeft/>}
                 </IconButton>
 
                 {!isCollapsed && (
-                    <Box sx={{ width: '100%' }}>
-                        <Box sx={{ marginTop: 2 }}>
-                            <Typography variant="h6">Search Location</Typography>
+                    <Box sx={{width: '100%'}}>
+                        <Box>
+                            <Typography variant="h6">Go to Location</Typography>
                             <Box
                                 component="form"
                                 onSubmit={(e) => {
                                     e.preventDefault();
-                                    handleSearch(); // Trigger the search when the form is submitted
+                                    handleSearch();
                                 }}
                             >
-                                <TextField
-                                    label="Search"
-                                    variant="outlined"
-                                    size="small"
-                                    fullWidth
-                                    value={searchText}
-                                    onChange={(e) => setSearchText(e.target.value)}
-                                    sx={{ marginBottom: 1 }}
-                                />
-                                <Button
-                                    type="submit" // Set the button type to "submit"
-                                    variant="contained"
-                                    color="primary"
-                                    fullWidth
+                                <FormControl fullWidth size="small" sx={{marginBottom: 1}}>
+                                    <InputLabel htmlFor="location-input">Type Location...</InputLabel>
+                                    <OutlinedInput
+                                        id="location-input"
+                                        label="Type Location..."
+                                        value={searchText}
+                                        onChange={(e) => setSearchText(e.target.value)}
+                                        endAdornment={
+                                            searchText && (
+                                                <InputAdornment position="end">
+                                                    <IconButton
+                                                        size="small"
+                                                        onClick={() => setSearchText('')}
+                                                        edge="end"
+                                                        aria-label="clear input"
+                                                    >
+                                                        <Clear fontSize="small"/>
+                                                    </IconButton>
+                                                </InputAdornment>
+                                            )
+                                        }
+                                    />
+                                </FormControl>
+                                <Box sx={{display: 'flex', gap: 1}}>
+                                    <Button
+                                        type="submit"
+                                        variant="contained"
+                                        color="primary"
+                                        fullWidth
+                                    >
+                                        Go
+                                    </Button>
+                                    <Button
+                                        type="button"
+                                        variant="outlined"
+                                        color="secondary"
+                                        fullWidth
+                                        onClick={() => setSearchText('')}
+                                    >
+                                        Clear
+                                    </Button>
+                                </Box>
+                                <Box sx={{marginTop: 2}}>
+                                    <Button
+                                        variant="contained"
+                                        color="success"
+                                        fullWidth
+                                        startIcon={<Room/>}
+                                        onClick={() => {
+                                            if (!isAuthenticated) {
+                                                setAuthOpen(true);
+                                                return;
+                                            }
+                                            setIsSelecting(true);
+                                            showSnackbar('Click on the map to select the area you want to adopt.', 'info', {autoHideDuration: null});
+                                        }}
+                                        sx={{
+                                            marginTop: 1,
+                                            fontWeight: 'bold',
+                                            paddingY: 1.2,
+                                            textTransform: 'none',
+                                        }}
+                                    >
+                                        Adopt an Area
+                                    </Button>
+                                </Box>
+                                <Typography variant="h6" sx={{mt: 2}}>Query Data</Typography>
+                                <Box
+                                    onSubmit={handleFormSubmit}
+                                    sx={{display: 'flex', flexDirection: 'column', gap: 2}}
                                 >
-                                    Search
-                                </Button>
-                            </Box>
-                        </Box>
-                        <Typography variant="h6">Query Data</Typography>
-                        <Box
-                            component="form"
-                            onSubmit={handleFormSubmit}
-                            sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}
-                        >
-                            <Box sx={{ display: 'flex', flexDirection: 'row', gap: 1 }}>
-                                <Button type="submit" variant="contained" color="primary">
-                                    Submit
-                                </Button>
-                                <Button type="reset" variant="contained" color="secondary">
-                                    Reset
-                                </Button>
+                                    <Box sx={{display: 'flex', flexDirection: 'row', gap: 1}}>
+                                        <Button type="submit" variant="contained" color="primary">
+                                            Submit
+                                        </Button>
+                                        <Button type="reset" variant="contained" color="secondary">
+                                            Reset
+                                        </Button>
+                                    </Box>
+                                </Box>
                             </Box>
                         </Box>
                     </Box>
                 )}
+                <AdoptAreaFormModal
+                    open={adoptModalOpen}
+                    onClose={() => setAdoptModalOpen(false)}
+                    onSubmit={handleAdoptSubmit}
+                    selectedPoint={selectedPoint}
+                />
             </Paper>
         </Box>
     );
 }
+
+Sidebar.propTypes = {
+    setMapCenter: PropTypes.func.isRequired,
+    setAuthOpen: PropTypes.func,
+    isAuthenticated: PropTypes.bool,
+};
 
 export default Sidebar;

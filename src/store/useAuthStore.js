@@ -8,6 +8,11 @@ export const useAuthStore = create(
             (set, get) => ({
                 user: null,
                 isAuthenticated: false,
+                setIsAuthenticated: (value) => set({ isAuthenticated: value }),
+
+                authOpen: false,
+                setAuthOpen: (value) => set({ authOpen: value }),
+
                 sessionToken: null,
                 authStage: 'signin',
                 setAuthStage: (stage) => set({authStage: stage}),
@@ -63,6 +68,7 @@ export const useAuthStore = create(
                     try {
                         const response = await fetch(`${allAuthEndpoint}/login`, {
                             method: 'POST',
+                            credentials: 'include',
                             headers: {
                                 'Content-Type': 'application/json',
                             },
@@ -73,7 +79,7 @@ export const useAuthStore = create(
 
                         if (response.ok) {
                             set({
-                                user: data.user,
+                                user: data.data.user,
                                 isAuthenticated: true,
                                 sessionToken: data.meta.session_token
                             });
