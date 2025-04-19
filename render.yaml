@@ -1,5 +1,6 @@
 # render.yaml
 services:
+  # ────────────────────────── Frontend ──────────────────────────
   - name: seaside-frontend
     type: web
     runtime: static
@@ -10,3 +11,28 @@ services:
     staticPublishPath: dist
     pullRequestPreviewsEnabled: true
     healthCheckPath: /
+
+  # ────────────────────────── Backend ───────────────────────────
+  - name: seaside-backend
+    type: web
+    plan: starter
+    env: python
+    region: ohio
+    repo: https://github.com/Seaside-Sustainability-Web-GIS/TRASH-backend.git
+    branch: Deploy
+    autoDeploy: true
+    buildCommand: |
+       pip install -r requirements.txt
+       python manage.py collectstatic --no-input
+       python manage.py migrate
+    startCommand: gunicorn WebGIS.asgi:application -k uvicorn.workers.UvicornWorker
+
+    envVars:
+      - key: SECRET_KEY
+        generateValue: true
+
+databases:
+  - name: seaside-db
+    plan: basic-256mb
+    region: ohio
+    databaseName: seaside
