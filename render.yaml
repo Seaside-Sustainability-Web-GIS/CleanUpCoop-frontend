@@ -24,8 +24,9 @@ services:
     buildCommand: |
        pip install -r requirements.txt
        python manage.py collectstatic --no-input
-       python manage.py migrate
-    startCommand: gunicorn WebGIS.asgi:application -k uvicorn.workers.UvicornWorker
+    startCommand:
+      python manage.py migrate --no-input
+      gunicorn WebGIS.asgi:application -k uvicorn.workers.UvicornWorker
 
     envVars:
       - key: SECRET_KEY
