@@ -9,5 +9,5 @@ services:
     buildCommand: npm install && npm run build
     staticPublishPath: dist
     region: oregon
-    pullRequestPreviews: true
+    pullRequestPreviewsEnabled: true
     healthCheckPath: /
