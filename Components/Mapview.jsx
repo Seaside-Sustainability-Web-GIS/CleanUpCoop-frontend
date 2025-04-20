@@ -17,7 +17,7 @@ import useStore from '../src/store/useStore';
 import CollapsibleTable from './CollapsableTable.jsx';
 import {useAuthStore} from "../src/store/useAuthStore.js";
 
-const apiEndpoint = 'http://localhost:8000/api';
+const apiEndpoint = 'https://seaside-backend-oh06.onrender.com/api';
 const sessionToken = useAuthStore.getState().sessionToken;
 const showSnackbar = useStore.getState().showSnackbar;
 

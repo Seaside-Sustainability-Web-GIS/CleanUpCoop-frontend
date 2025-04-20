@@ -1,6 +1,6 @@
 import {create} from 'zustand';
 
-const apiEndpoint = 'http://localhost:8000/api';
+const apiEndpoint = 'https://seaside-backend-oh06.onrender.com/api';
 
 const useStore = create((set) => ({
     defaultCenter: [0, 0],

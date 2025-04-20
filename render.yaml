@@ -22,7 +22,7 @@ services:
     branch: Deploy
     autoDeploy: true
     buildCommand: |
-       pip install -r requirements.txt
+       pip install -r requirements.txt &&
        python manage.py collectstatic --no-input
     startCommand:
       python manage.py migrate --no-input &&
