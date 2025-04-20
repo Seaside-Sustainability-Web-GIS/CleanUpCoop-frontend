@@ -42,18 +42,32 @@ function AdoptAreaFormModal({open, onClose, selectedPoint}) {
 
 
     const handleChange = (e) => {
-        setFormData((prev) => ({...prev, [e.target.name]: e.target.value}));
+        const { name, value } = e.target;
+        setFormData((prev) => ({
+            ...prev,
+            [name]: value,
+            ...(name === 'adoption_type' && value === 'indefinite'
+                ? { end_date: '' }
+                    : {})
+        }));
     };
 
     const handleSubmit = async () => {
         try {
+            const payload = {
+                ...formData,
+                lat: parseFloat(formData.lat),
+                lng: parseFloat(formData.lng),
+                end_date: formData.adoption_type === 'indefinite' ? null : formData.end_date,
+            };
+
             const response = await fetch(`${apiEndpoint}/adopt-area/`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'X-Session-Token': sessionToken,
                 },
-                body: JSON.stringify(formData),
+                body: JSON.stringify(payload),
             });
 
             if (!response.ok) {
