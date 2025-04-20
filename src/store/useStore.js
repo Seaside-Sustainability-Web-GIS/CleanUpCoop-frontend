@@ -12,6 +12,8 @@ const useStore = create((set) => ({
     setIsSelecting: (val) => set({isSelecting: val}),
     locationMetadata: null,
     setLocationMetadata: (data) => set({locationMetadata: data}),
+    bounds: null,
+    setBounds: (bounds) => set({bounds}),
 
     userLocation: null,
     setUserLocation: (location) => {

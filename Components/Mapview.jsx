@@ -27,6 +27,20 @@ const gpsLocationIcon = L.divIcon({
     html: `<div class="gps-marker"></div>`,
 });
 
+function BoundsUpdater() {
+  const map = useMap()
+  // grab your bounds from Zustand ([ [south, west], [north, east] ] or null)
+  const bounds = useStore(state => state.bounds)
+
+  useEffect(() => {
+    if (bounds) {
+      map.fitBounds(bounds)
+    }
+  }, [map, bounds])
+
+  return null
+}
+
 function ClickCapture() {
     const isSelecting = useStore((state) => state.isSelecting);
     const setSelectedPoint = useStore((state) => state.setSelectedPoint);
@@ -90,7 +104,7 @@ function HomeButton() {
     const defaultCenter = useStore((state) => state.defaultCenter);
 
     const handleHomeClick = () => {
-        map.setView(defaultCenter, 11);
+        map.setView(defaultCenter, 3);
     };
 
     return (
@@ -179,6 +193,8 @@ function MapView() {
     const adoptedAreas = useStore((state) => state.adoptedAreas);
     const setAdoptedAreas = useStore((state) => state.setAdoptedAreas);
     const user = useAuthStore.getState().user;
+    const bounds = useStore((state) => state.bounds);
+
 
     const handleEdit = async (area) => {
         const response = await fetch(`${apiEndpoint}/adopt-area/${area.id}/`, {
@@ -227,11 +243,12 @@ function MapView() {
 
     return (
         <Box sx={{flex: 1, position: 'relative'}}>
-            <MapContainer center={mapCenter} zoom={3} style={{height: '100%', width: '100%'}}>
+            <MapContainer center={mapCenter} zoom={3} style={{ height: '100vh', width: '100%'}}>
                 <MapCursorManager/>
                 <HomeButton/>
                 <GpsButton/>
                 <MapUpdater/>
+                <BoundsUpdater/>
                 <ClickCapture/>
                 {userLocation && (
                     <Marker key={userLocation.toString()} position={userLocation} icon={gpsLocationIcon}/>
