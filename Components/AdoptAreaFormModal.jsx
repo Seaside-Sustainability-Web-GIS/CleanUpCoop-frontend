@@ -3,7 +3,7 @@ import {useState, useEffect} from 'react';
 import useStore from '../src/store/useStore';
 import {useAuthStore} from '../src/store/useAuthStore';
 
-const apiEndpoint = 'https://seaside-backend-oh06.onrender.com'
+const apiEndpoint = 'https://seaside-backend-oh06.onrender.com/api'
 
 function AdoptAreaFormModal({open, onClose, selectedPoint}) {
     const [formData, setFormData] = useState({
