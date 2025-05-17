@@ -28,17 +28,16 @@ const gpsLocationIcon = L.divIcon({
 });
 
 function BoundsUpdater() {
-  const map = useMap()
-  // grab your bounds from Zustand ([ [south, west], [north, east] ] or null)
-  const bounds = useStore(state => state.bounds)
+    const map = useMap()
+    const bounds = useStore(state => state.bounds)
 
-  useEffect(() => {
-    if (bounds) {
-      map.fitBounds(bounds)
-    }
-  }, [map, bounds])
+    useEffect(() => {
+        if (bounds) {
+            map.fitBounds(bounds)
+        }
+    }, [map, bounds])
 
-  return null
+    return null
 }
 
 function ClickCapture() {
@@ -243,7 +242,7 @@ function MapView() {
 
     return (
         <Box sx={{flex: 1, position: 'relative'}}>
-            <MapContainer center={mapCenter} zoom={3} style={{ height: '100vh', width: '100%'}}>
+            <MapContainer center={mapCenter} zoom={3} style={{height: '100vh', width: '100%'}}>
                 <MapCursorManager/>
                 <HomeButton/>
                 <GpsButton/>
@@ -275,41 +274,66 @@ function MapView() {
                         />
                     </BaseLayer>
                 </LayersControl>
-                {adoptedAreas.map(area => (
-                    <Marker key={area.id} position={[area.lat, area.lng]}>
-                        <Popup>
-                            <div style={{fontSize: '12px', lineHeight: '1.1', margin: 0, padding: 0}}>
-                                <div style={{fontWeight: 'bold', fontSize: '13px'}}>
-                                    {area.area_name}
-                                </div>
-                                <div>{area.adoptee_name}</div>
-                                <div>{area.city}, {area.state}, {area.country}</div>
-                                <div>{area.note}</div>
+                {adoptedAreas.map(area => {
+                    const coords = area.location?.coordinates;
 
-                                {user?.email === area.email && (
-                                    <div style={{marginTop: '4px', display: 'flex', gap: '4px', flexWrap: 'wrap'}}>
-                                        <Button size="small" variant="outlined"
-                                                onClick={() => handleCreateEvent(area)}>
-                                            Create Event
-                                        </Button>
-                                        <Button size="small" variant="outlined" onClick={() => handleEdit(area)}>
-                                            Edit Area
-                                        </Button>
-                                        <Button size="small" variant="outlined" color="error"
-                                                onClick={() => handleDelete(area)}>
-                                            Delete
-                                        </Button>
+                    // Skip if coords is undefined or malformed
+                    if (!Array.isArray(coords) || coords.length !== 2) return null;
+
+                    const [lng, lat] = coords;
+
+                    // Ensure both lat/lng are valid numbers
+                    if (typeof lat !== 'number' || typeof lng !== 'number') return null;
+
+                    return (
+                        <Marker key={area.id} position={[lat, lng]}>
+                            <Popup>
+                                <div style={{fontSize: '12px', lineHeight: '1.1', margin: 0, padding: 0}}>
+                                    <div style={{fontWeight: 'bold', fontSize: '13px'}}>
+                                        {area.area_name}
                                     </div>
-                                )}
-                            </div>
-                        </Popup>
-                    </Marker>
-                ))}
-            </MapContainer>
+                                    <div>{area.adoptee_name}</div>
+                                    <div>{area.city}, {area.state}, {area.country}</div>
+                                    <div>{area.note}</div>
 
-            {isDataLoaded && <CollapsibleTable/>}
+                                    {user?.email === area.email && (
+                                        <div style={{marginTop: '4px', display: 'flex', gap: '4px', flexWrap: 'wrap'}}>
+                                            <Button
+                                                size="small"
+                                                variant="outlined"
+                                                onClick={() => handleCreateEvent(area)}
+                                            >
+                                                Create Event
+                                            </Button>
+                                            <Button
+                                                size="small"
+                                                variant="outlined"
+                                                onClick={() => handleEdit(area)}
+                                            >
+                                                Edit Area
+                                            </Button>
+                                            <Button
+                                                size="small"
+                                                variant="outlined"
+                                                color="error"
+                                                onClick={() => handleDelete(area)}
+                                            >
+                                                Delete
+                                            </Button>
+                                        </div>
+                                    )}
+                                </div>
+                            </Popup>
+                        </Marker>
+                    );
+                })}
+            </MapContainer>
+            {
+                isDataLoaded && <CollapsibleTable/>
+            }
         </Box>
-    );
+    )
+        ;
 }
 
 export default MapView;

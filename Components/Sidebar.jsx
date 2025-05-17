@@ -27,17 +27,29 @@ function Sidebar({setMapCenter}) {
     const showSnackbar = useStore((state) => state.showSnackbar);
     const sessionToken = useAuthStore.getState().sessionToken;
     const setBounds = useStore(state => state.setBounds)
+    const [formData, setFormData] = useState({});
 
 
-    const handleAdoptSubmit = async (formData, {onSuccess} = {}) => {
+
+    const handleAdoptSubmit = async (rawFormData, {onSuccess} = {}) => {
+        const {lat, lng, ...rest} = rawFormData;
+
+        const payload = {
+            ...rest,
+            location: {
+                type: "Point",
+                coordinates: [parseFloat(lng), parseFloat(lat)]
+            }
+        };
         try {
             const response = await fetch(`${apiEndpoint}/api/adopt-area/`, {
+
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'X-Session-Token': sessionToken,
                 },
-                body: JSON.stringify(formData),
+                body: JSON.stringify(payload),
             });
 
             if (!response.ok) {
@@ -49,7 +61,7 @@ function Sidebar({setMapCenter}) {
             showSnackbar(result.message || 'Area adopted successfully!', 'success');
 
             if (onSuccess) {
-                onSuccess(); // e.g. refetch data, close modal, reset form
+                onSuccess();
             }
         } catch (error) {
             console.error('Adoption error:', error);
@@ -88,6 +100,11 @@ function Sidebar({setMapCenter}) {
     useEffect(() => {
         if (selectedPoint) {
             setAdoptModalOpen(true);
+            setFormData((prev) => ({
+                ...prev,
+                lat: selectedPoint.lat,
+                lng: selectedPoint.lng,
+            }));
         }
     }, [selectedPoint]);
 

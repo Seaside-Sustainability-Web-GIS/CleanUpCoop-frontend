@@ -16,8 +16,10 @@ function AdoptAreaFormModal({open, onClose, selectedPoint}) {
         "state": "",
         "country": "",
         "note": "",
-        "lat": "",
-        "lng": ""
+        "location": {
+            "type": "Point",
+            "coordinates": ["", ""]
+        }
     });
 
     const locationMetadata = useStore((state) => state.locationMetadata);
@@ -34,21 +36,26 @@ function AdoptAreaFormModal({open, onClose, selectedPoint}) {
                 city: locationMetadata.city || "",
                 state: locationMetadata.state || "",
                 country: locationMetadata.country || "",
-                lat: selectedPoint[1].toFixed(6),
-                lng: selectedPoint[0].toFixed(6),
+                location: {
+                    ...prev.location,
+                    coordinates: [
+                        parseFloat(selectedPoint[0].toFixed(6)),
+                        parseFloat(selectedPoint[1].toFixed(6)),
+                    ],
+                },
             }));
         }
     }, [selectedPoint, locationMetadata, user]);
 
 
     const handleChange = (e) => {
-        const { name, value } = e.target;
+        const {name, value} = e.target;
         setFormData((prev) => ({
             ...prev,
             [name]: value,
             ...(name === 'adoption_type' && value === 'indefinite'
-                ? { end_date: '' }
-                    : {})
+                ? {end_date: ''}
+                : {})
         }));
     };
 
@@ -174,7 +181,7 @@ function AdoptAreaFormModal({open, onClose, selectedPoint}) {
                     label="Latitude"
                     fullWidth
                     margin="dense"
-                    value={formData.lat}
+                    value={formData.location.coordinates[1] ?? ""}
                     disabled
                 />
                 <TextField
@@ -182,7 +189,7 @@ function AdoptAreaFormModal({open, onClose, selectedPoint}) {
                     label="Longitude"
                     fullWidth
                     margin="dense"
-                    value={formData.lng}
+                    value={formData.location.coordinates[0] ?? ""}
                     disabled
                 />
                 <TextField
