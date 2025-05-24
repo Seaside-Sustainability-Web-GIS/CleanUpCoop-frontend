@@ -15,7 +15,7 @@ import useStore from '../src/store/useStore';
 import PropTypes from "prop-types";
 import AdoptAreaFormModal from "./AdoptAreaFormModal.jsx";
 
-const apiEndpoint = 'http://localhost:8000';
+const apiEndpoint = 'https://seaside-backend-oh06.onrender.com';
 
 function Sidebar({setMapCenter}) {
     const {isAuthenticated, setAuthOpen} = useAuthStore();
