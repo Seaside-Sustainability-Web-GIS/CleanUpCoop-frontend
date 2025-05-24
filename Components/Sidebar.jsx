@@ -26,7 +26,6 @@ function Sidebar({setMapCenter}) {
     const selectedPoint = useStore((state) => state.selectedPoint);
     const showSnackbar = useStore((state) => state.showSnackbar);
     const sessionToken = useAuthStore.getState().sessionToken;
-    const bounds = useStore(state => state.bounds)
     const setBounds = useStore(state => state.setBounds)
 
 
