@@ -10,10 +10,12 @@ import {
     OutlinedInput, InputAdornment
 } from '@mui/material';
 import {ChevronLeft, ChevronRight, Clear, Room} from '@mui/icons-material';
+import GroupsIcon from '@mui/icons-material/Groups';
 import {useAuthStore} from "../src/store/useAuthStore.js";
 import useStore from '../src/store/useStore';
 import PropTypes from "prop-types";
 import AdoptAreaFormModal from "./AdoptAreaFormModal.jsx";
+import TeamsDashboardModal from "./TeamsDashboardModal.jsx";
 
 const apiEndpoint = 'http://localhost:8000';
 
@@ -27,8 +29,8 @@ function Sidebar({setMapCenter}) {
     const showSnackbar = useStore((state) => state.showSnackbar);
     const sessionToken = useAuthStore.getState().sessionToken;
     const setBounds = useStore(state => state.setBounds)
-    const [formData, setFormData] = useState({});
-
+    const [setFormData] = useState({});
+    const [teamsModalOpen, setTeamsModalOpen] = useState(false);
 
 
     const handleAdoptSubmit = async (rawFormData, {onSuccess} = {}) => {
@@ -205,6 +207,26 @@ function Sidebar({setMapCenter}) {
                                         Adopt an Area
                                     </Button>
                                 </Box>
+                                <Box sx={{marginTop: 2}}>
+                                    <Button
+                                        variant="contained"
+                                        color="info"
+                                        fullWidth
+                                        startIcon={<GroupsIcon />}
+                                        onClick={() => setTeamsModalOpen(true)}
+                                        sx={{
+                                            marginTop: 1,
+                                            fontWeight: 'bold',
+                                            paddingY: 1.2,
+                                            textTransform: 'none',
+                                        }}
+                                    >
+                                        View Teams
+                                    </Button>
+                                </Box>
+
+                                <TeamsDashboardModal open={teamsModalOpen} onClose={() => setTeamsModalOpen(false)}/>
+
                                 <Typography variant="h6" sx={{mt: 2}}>Query Data</Typography>
                                 <Box
                                     onSubmit={handleFormSubmit}
