@@ -11,7 +11,7 @@ import { useAuthStore } from '../src/store/useAuthStore';
 import { useTeamStore } from '../src/store/useTeamStore';
 import useStore from '../src/store/useStore';
 
-const apiEndpoint = 'http://localhost:8000/api';
+const apiEndpoint = 'https://seaside-backend-oh06.onrender.com/api/';
 
 function CreateTeamModal({ open, onClose }) {
     const sessionToken = useAuthStore((state) => state.sessionToken);

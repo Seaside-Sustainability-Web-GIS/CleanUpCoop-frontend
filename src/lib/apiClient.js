@@ -1,12 +1,12 @@
 import axios from 'axios';
 
 const apiClient = axios.create({
-    baseURL: 'http://localhost:8000/api/',
+    baseURL: 'https://seaside-backend-oh06.onrender.com/api/',
     headers: {
         'Accept': 'application/json',
         'Content-Type': 'application/json',
     },
-    withCredentials: true, // include if you’re using session cookies
+    withCredentials: true,
 });
 
 export default apiClient;

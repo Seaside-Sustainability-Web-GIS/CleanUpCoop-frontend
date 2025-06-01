@@ -13,7 +13,7 @@ import ClickCapture from './/map/ClickCapture.jsx';
 import HomeButton from './/map/HomeButton.jsx';
 import GpsButton from './/map/GpsButton.jsx';
 
-const apiEndpoint = 'http://localhost:8000/api';
+const apiEndpoint = 'https://seaside-backend-oh06.onrender.com/api/';
 const gpsLocationIcon = L.divIcon({
     className: 'gps-location-icon',
     iconSize: [16, 16],
