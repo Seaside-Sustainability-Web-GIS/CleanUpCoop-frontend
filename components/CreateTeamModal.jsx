@@ -100,6 +100,20 @@ function CreateTeamModal({ open, onClose }) {
         }
     };
 
+    useEffect(() => {
+        if (open) {
+            setLocationData({
+                headquarters: {
+                    type: 'Point',
+                    coordinates: selectedPoint || ['', ''],
+                },
+                city: locationMetadata?.city || '',
+                state: locationMetadata?.state || '',
+                country: locationMetadata?.country || '',
+            });
+        }
+    }, [open, selectedPoint, locationMetadata]);
+
     return (
         <Dialog open={open} onClose={onClose}>
             <DialogTitle>Create a Team</DialogTitle>
