@@ -1,8 +1,8 @@
 // AppRoutes.jsx
 import {BrowserRouter as Router, Routes, Route} from "react-router-dom";
 import App from "./App";
-import ResetPasswordFromKey from "../Components/ResetPasswordFromKey"
-import VerifyEmailPage from "../Components/VerifyEmailPage";
+import ResetPasswordFromKey from "../components/ResetPasswordFromKey"
+import VerifyEmailPage from "../components/VerifyEmailPage";
 
 function AppRoutes() {
     return (

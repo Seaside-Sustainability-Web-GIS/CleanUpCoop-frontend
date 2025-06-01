@@ -3,6 +3,14 @@ import {create} from 'zustand';
 const apiEndpoint = 'http://localhost:8000/api';
 
 const useStore = create((set) => ({
+    adoptModalOpen: false,
+    setAdoptModalOpen: (val) => set({ adoptModalOpen: val }),
+    selectionMode: null,
+    setSelectionMode: (mode) => set({ selectionMode: mode }),
+    createTeamModalOpen: false,
+    setCreateTeamModalOpen: (val) => set({ createTeamModalOpen: val }),
+    selectTarget: null,
+    setSelectTarget: (fn) => set({ selectTarget: fn }),
     defaultCenter: [0, 0],
     mapCenter: [0, 0],
     setMapCenter: (newCenter) => set({mapCenter: newCenter}),
