@@ -29,6 +29,7 @@ function AdoptAreaFormModal({open, onClose, selectedPoint}) {
     const sessionToken = useAuthStore((state) => state.sessionToken);
 
     useEffect(() => {
+        console.log(selectedPoint)
         if (selectedPoint && locationMetadata && user) {
             setFormData((prev) => ({
                 ...prev,
@@ -159,21 +160,21 @@ function AdoptAreaFormModal({open, onClose, selectedPoint}) {
                     label="City"
                     fullWidth
                     margin="dense"
-                    value={locationMetadata?.city || ''}
+                    value={formData?.city || ''}
                     disabled
                 />
                 <TextField
                     label="State"
                     fullWidth
                     margin="dense"
-                    value={locationMetadata?.state || ''}
+                    value={formData?.state || ''}
                     disabled
                 />
                 <TextField
                     label="Country"
                     fullWidth
                     margin="dense"
-                    value={locationMetadata?.country || ''}
+                    value={formData?.country || ''}
                     disabled
                 />
                 <TextField

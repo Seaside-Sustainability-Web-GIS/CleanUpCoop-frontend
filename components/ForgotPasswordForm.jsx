@@ -1,4 +1,4 @@
-// src/Components/ForgotPasswordForm.jsx
+// src/components/ForgotPasswordForm.jsx
 import {useState} from "react";
 import {useForm} from "react-hook-form";
 import {TextField, Button, Box, Typography} from "@mui/material";

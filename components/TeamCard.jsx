@@ -9,8 +9,10 @@ const TeamCard = ({ team, joined = false, onJoin, onLeave }) => {
                     {team.description || 'No description available.'}
                 </Typography>
                 <Typography variant="caption" color="textSecondary">
-                    Members: {team.member_ids.length} | Leaders: {team.leader_ids.length}
+                    Members: {Array.isArray(team.member_ids) ? team.member_ids.length : 0} |
+                    Leaders: {Array.isArray(team.leader_ids) ? team.leader_ids.length : 0}
                 </Typography>
+
 
                 <Box sx={{ mt: 2 }}>
                     {joined ? (

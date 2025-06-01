@@ -16,6 +16,7 @@ import useStore from '../src/store/useStore';
 import PropTypes from "prop-types";
 import AdoptAreaFormModal from "./AdoptAreaFormModal.jsx";
 import TeamsDashboardModal from "./TeamsDashboardModal.jsx";
+import CreateTeamModal from "./CreateTeamModal.jsx";
 
 const apiEndpoint = 'http://localhost:8000';
 
@@ -24,14 +25,19 @@ function Sidebar({setMapCenter}) {
     const [searchText, setSearchText] = useState('');
     const [isCollapsed, setIsCollapsed] = useState(false);
     const setIsSelecting = useStore((state) => state.setIsSelecting);
-    const [adoptModalOpen, setAdoptModalOpen] = useState(false);
-    const selectedPoint = useStore((state) => state.selectedPoint);
     const showSnackbar = useStore((state) => state.showSnackbar);
     const sessionToken = useAuthStore.getState().sessionToken;
     const setBounds = useStore(state => state.setBounds)
-    const [setFormData] = useState({});
     const [teamsModalOpen, setTeamsModalOpen] = useState(false);
-
+    const setSelectTarget = useStore((state) => state.setSelectTarget);
+    const setAdoptAreaModalOpen = useStore((state) => state.setAdoptAreaModalOpen);
+    const adoptModalOpen = useStore((s) => s.adoptModalOpen);
+    const setAdoptModalOpen = useStore((s) => s.setAdoptModalOpen);
+    const selectedPoint = useStore((s) => s.selectedPoint);
+    const setSelectedPoint = useStore((state) => state.setSelectedPoint);
+    const setLocationMetadata = useStore((state) => state.setLocationMetadata);
+    const createTeamModalOpen = useStore((s) => s.createTeamModalOpen);
+    const setCreateTeamModalOpen = useStore((s) => s.setCreateTeamModalOpen);
 
     const handleAdoptSubmit = async (rawFormData, {onSuccess} = {}) => {
         const {lat, lng, ...rest} = rawFormData;
@@ -98,17 +104,6 @@ function Sidebar({setMapCenter}) {
             console.error('Error fetching location:', error);
         }
     };
-
-    useEffect(() => {
-        if (selectedPoint) {
-            setAdoptModalOpen(true);
-            setFormData((prev) => ({
-                ...prev,
-                lat: selectedPoint.lat,
-                lng: selectedPoint.lng,
-            }));
-        }
-    }, [selectedPoint]);
 
     return (
         <Box sx={{display: 'flex', height: '100%'}}>
@@ -194,6 +189,13 @@ function Sidebar({setMapCenter}) {
                                                 setAuthOpen(true);
                                                 return;
                                             }
+
+                                            setSelectTarget((lat, lng, metadata) => {
+                                                setSelectedPoint([lng, lat]);
+                                                setLocationMetadata(metadata);
+                                                setAdoptModalOpen(true);
+                                            });
+
                                             setIsSelecting(true);
                                             showSnackbar('Click on the map to select the area you want to adopt.', 'info', {autoHideDuration: null});
                                         }}
@@ -212,7 +214,7 @@ function Sidebar({setMapCenter}) {
                                         variant="contained"
                                         color="info"
                                         fullWidth
-                                        startIcon={<GroupsIcon />}
+                                        startIcon={<GroupsIcon/>}
                                         onClick={() => setTeamsModalOpen(true)}
                                         sx={{
                                             marginTop: 1,
@@ -250,6 +252,10 @@ function Sidebar({setMapCenter}) {
                     onClose={() => setAdoptModalOpen(false)}
                     onSubmit={handleAdoptSubmit}
                     selectedPoint={selectedPoint}
+                />
+                <CreateTeamModal
+                    open={createTeamModalOpen}
+                    onClose={() => setCreateTeamModalOpen(false)}
                 />
             </Paper>
         </Box>
