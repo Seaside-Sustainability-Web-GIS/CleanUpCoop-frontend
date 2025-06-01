@@ -8,6 +8,7 @@ export const useAuthStore = create(
             (set, get) => ({
                 user: null,
                 isAuthenticated: false,
+                setUser: (user) => set({ user, isAuthenticated: !!user }),
                 setIsAuthenticated: (value) => set({ isAuthenticated: value }),
 
                 authOpen: false,
@@ -190,6 +191,7 @@ export const useAuthStore = create(
                                 headers: {
                                     'Content-Type': 'application/json',
                                 },
+                                credentials: 'include',
                             });
 
                             const result = await response.json();

@@ -11,20 +11,20 @@ import {
     Snackbar,
     Alert, Switch, Divider, DialogTitle,
 } from '@mui/material';
-import Sidebar from '../Components/Sidebar.jsx';
-import MapView from '../Components/Mapview.jsx';
-import CollapsibleTable from "../Components/CollapsableTable.jsx";
-import AuthForm from "../Components/AuthForm.jsx";
-import ForgotPasswordForm from "../Components/ForgotPasswordForm.jsx";
-import Dashboard from '../Components/Dashboard.jsx';
+import Sidebar from '../components/Sidebar.jsx';
+import MapView from '../components/Mapview.jsx';
+import CollapsibleTable from "../components/CollapsableTable.jsx";
+import AuthForm from "../components/AuthForm.jsx";
+import ForgotPasswordForm from "../components/ForgotPasswordForm.jsx";
+import Dashboard from '../components/Dashboard.jsx';
 import useStore from '../src/store/useStore';
 import {useAuthStore} from './store/useAuthStore.js';
-import Footer from "../Components/Footer.jsx";
+import Footer from "../components/Footer.jsx";
 import logo from './assets/geobradlogo.png';
 import {SNACKBAR_MESSAGES, SNACKBAR_SEVERITIES} from '../constants/snackbarMessages';
-import ReusableModal from "../Components/ReusableModal.jsx";
-import TermsModal from "../Components/TermsModal.jsx";
-import PrivacyModal from "../Components/PrivacyModal.jsx";
+import ReusableModal from "../components/ReusableModal.jsx";
+import TermsModal from "../components/TermsModal.jsx";
+import PrivacyModal from "../components/PrivacyModal.jsx";
 
 function App() {
     // Map and Dashboard state
