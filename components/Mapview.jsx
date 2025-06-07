@@ -61,6 +61,9 @@ function MapView() {
     const fetchTeams = async () => {
         try {
             const res = await fetch(`${apiEndpoint}/teams/`);
+            if (!res.ok) {
+                throw new Error(`Failed to fetch teams: ${res.statusText}`);
+            }
             const data = await res.json();
             setTeams(data);
         } catch (err) {
