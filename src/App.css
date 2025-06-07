@@ -25,3 +25,12 @@
   transform: translate(-50%, -50%);
 }
 
+.team-marker {
+  width: 16px;
+  height: 16px;
+  background-color: green; /* Different color from adopted areas */
+  border-radius: 50%;
+  border: 2px solid white;
+  box-shadow: 0 0 2px rgba(0,0,0,0.5);
+}
+
