@@ -8,10 +8,10 @@ import { Box, Button } from '@mui/material';
 import useStore from '../src/store/useStore';
 import { useAuthStore } from "../src/store/useAuthStore.js";
 import CollapsibleTable from './CollapsableTable.jsx';
-import MapCursorManager from './/map/MapCursorManager.jsx'
-import ClickCapture from './/map/ClickCapture.jsx';
-import HomeButton from './/map/HomeButton.jsx';
-import GpsButton from './/map/GpsButton.jsx';
+import MapCursorManager from './map/MapCursorManager.jsx'
+import ClickCapture from './map/ClickCapture.jsx';
+import HomeButton from './map/HomeButton.jsx';
+import GpsButton from './map/GpsButton.jsx';
 
 const apiEndpoint = 'http://localhost:8000/api';
 const gpsLocationIcon = L.divIcon({
@@ -56,6 +56,20 @@ function MapView() {
     const showSnackbar = useStore((state) => state.showSnackbar);
     const sessionToken = useAuthStore.getState().sessionToken;
     const user = useAuthStore.getState().user;
+    const setTeams = useStore((state) => state.setTeams);
+
+    const fetchTeams = async () => {
+        try {
+            const res = await fetch(`${apiEndpoint}/teams/`);
+            if (!res.ok) {
+                throw new Error(`Failed to fetch teams: ${res.statusText}`);
+            }
+            const data = await res.json();
+            setTeams(data);
+        } catch (err) {
+            console.error("Failed to fetch teams:", err);
+        }
+    };
 
     const fetchAdoptedAreas = async () => {
         try {
@@ -96,8 +110,18 @@ function MapView() {
         await fetchAdoptedAreas();
     };
 
+    const teams = useStore((state) => state.teams);
+
+    const teamIcon = L.divIcon({
+        className: 'team-icon',
+        iconSize: [16, 16],
+        html: `<div class="team-marker"></div>`, // add your CSS for color
+    });
+
+
     useEffect(() => {
         fetchAdoptedAreas();
+        fetchTeams();
     }, []);
 
     return (
@@ -159,6 +183,27 @@ function MapView() {
                         </Marker>
                     );
                 })}
+                {teams.map(team => {
+                    const coords = team.headquarters?.coordinates;
+                    if (!Array.isArray(coords) || coords.length !== 2) return null;
+
+                    const [lng, lat] = coords;
+                    if (typeof lat !== 'number' || typeof lng !== 'number') return null;
+
+                    return (
+                        <Marker key={`team-${team.id}`} position={[lat, lng]} icon={teamIcon}>
+                            <Popup>
+                                <div style={{ fontSize: '12px', lineHeight: '1.1' }}>
+                                    <div style={{ fontWeight: 'bold', fontSize: '13px' }}>{team.name}</div>
+                                    <div>{team.description}</div>
+                                    <div>Leaders: {team.leader_ids.length}</div>
+                                    <div>Members: {team.member_ids.length}</div>
+                                </div>
+                            </Popup>
+                        </Marker>
+                    );
+                })}
+
             </MapContainer>
             {isDataLoaded && <CollapsibleTable />}
         </Box>
