@@ -7,13 +7,16 @@ import '../src/App.css';
 import { Box, Button } from '@mui/material';
 import useStore from '../src/store/useStore';
 import { useAuthStore } from "../src/store/useAuthStore.js";
+import { useTeamStore } from "../src/store/useTeamStore.js";
+import useUIStore from '../src/store/useUIStore.js';
+import useMapStore from '../src/store/useMapStore.js';
+import useAdoptedAreasStore from '../src/store/useAdoptedAreasStore.js';
 import CollapsibleTable from './CollapsableTable.jsx';
 import MapCursorManager from './map/MapCursorManager.jsx'
 import ClickCapture from './map/ClickCapture.jsx';
 import HomeButton from './map/HomeButton.jsx';
 import GpsButton from './map/GpsButton.jsx';
 
-const apiEndpoint = 'http://localhost:8000/api';
 const gpsLocationIcon = L.divIcon({
     className: 'gps-location-icon',
     iconSize: [16, 16],
@@ -22,7 +25,7 @@ const gpsLocationIcon = L.divIcon({
 
 function BoundsUpdater() {
     const map = useMap();
-    const bounds = useStore(state => state.bounds);
+    const bounds = useMapStore(state => state.bounds);
 
     useEffect(() => {
         if (bounds) {
@@ -35,7 +38,7 @@ function BoundsUpdater() {
 
 function MapUpdater() {
     const map = useMap();
-    const mapCenter = useStore((state) => state.mapCenter);
+    const mapCenter = useMapStore((state) => state.mapCenter);
 
     useEffect(() => {
         if (mapCenter) {
@@ -48,69 +51,27 @@ function MapUpdater() {
 
 function MapView() {
     const { BaseLayer } = LayersControl;
-    const mapCenter = useStore((state) => state.mapCenter);
-    const userLocation = useStore((state) => state.userLocation);
+    const mapCenter = useMapStore((state) => state.mapCenter);
+    const userLocation = useMapStore((state) => state.userLocation);
     const isDataLoaded = useStore((state) => state.isDataLoaded);
-    const adoptedAreas = useStore((state) => state.adoptedAreas);
-    const setAdoptedAreas = useStore((state) => state.setAdoptedAreas);
-    const showSnackbar = useStore((state) => state.showSnackbar);
-    const sessionToken = useAuthStore.getState().sessionToken;
-    const user = useAuthStore.getState().user;
-    const setTeams = useStore((state) => state.setTeams);
+    const { adoptedAreas, fetchAdoptedAreas, updateAdoptedArea, deleteAdoptedArea } = useAdoptedAreasStore();
+    const showSnackbar = useUIStore((state) => state.showSnackbar);
+    const user = useAuthStore((state) => state.user);
+    const { teams, fetchTeams } = useTeamStore();
 
-    const fetchTeams = async () => {
-        try {
-            const res = await fetch(`${apiEndpoint}/teams/`);
-            if (!res.ok) {
-                throw new Error(`Failed to fetch teams: ${res.statusText}`);
-            }
-            const data = await res.json();
-            setTeams(data);
-        } catch (err) {
-            console.error("Failed to fetch teams:", err);
-        }
-    };
-
-    const fetchAdoptedAreas = async () => {
-        try {
-            const res = await fetch(`${apiEndpoint}/adopted-area-layer/`);
-            const data = await res.json();
-            setAdoptedAreas(data);
-        } catch (err) {
-            console.error("Failed to fetch adopted areas:", err);
-        }
-    };
 
     const handleEdit = async (area, updatedAreaData) => {
-        const response = await fetch(`${apiEndpoint}/adopt-area/${area.id}/`, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-Session-Token': sessionToken,
-            },
-            body: JSON.stringify(updatedAreaData),
-        });
-
-        const result = await response.json();
-        showSnackbar(result.message, result.success ? 'success' : 'error');
-        await fetchAdoptedAreas();
+        const result = await updateAdoptedArea(area.id, updatedAreaData);
+        showSnackbar(result.success ? 'Area updated successfully' : 'Failed to update area', result.success ? 'success' : 'error');
     };
 
     const handleDelete = async (area) => {
         if (!window.confirm('Are you sure you want to delete this area?')) return;
 
-        const response = await fetch(`${apiEndpoint}/adopt-area/${area.id}/`, {
-            method: 'DELETE',
-            headers: {
-                'X-Session-Token': sessionToken,
-            },
-        });
-        const result = await response.json();
-        showSnackbar(result.message, result.success ? 'success' : 'error');
-        await fetchAdoptedAreas();
+        const result = await deleteAdoptedArea(area.id);
+        showSnackbar(result.success ? 'Area deleted successfully' : 'Failed to delete area', result.success ? 'success' : 'error');
     };
 
-    const teams = useStore((state) => state.teams);
 
     const teamIcon = L.divIcon({
         className: 'team-icon',
@@ -122,7 +83,7 @@ function MapView() {
     useEffect(() => {
         fetchAdoptedAreas();
         fetchTeams();
-    }, []);
+    }, [fetchAdoptedAreas, fetchTeams]);
 
     return (
         <Box sx={{ flex: 1, position: 'relative' }}>

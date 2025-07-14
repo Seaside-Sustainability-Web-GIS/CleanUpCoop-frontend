@@ -1,9 +1,10 @@
 import {Dialog, DialogTitle, DialogContent, DialogActions, TextField, Button, MenuItem} from '@mui/material';
 import {useState, useEffect} from 'react';
-import useStore from '../src/store/useStore';
 import {useAuthStore} from '../src/store/useAuthStore';
+import useUIStore from '../src/store/useUIStore.js';
+import useMapStore from '../src/store/useMapStore.js';
+import useAdoptedAreasStore from '../src/store/useAdoptedAreasStore.js';
 
-const apiEndpoint = 'http://localhost:8000/api'
 
 function AdoptAreaFormModal({open, onClose, selectedPoint}) {
     const [formData, setFormData] = useState({
@@ -22,11 +23,10 @@ function AdoptAreaFormModal({open, onClose, selectedPoint}) {
         }
     });
 
-    const locationMetadata = useStore((state) => state.locationMetadata);
-    const fetchAdoptedAreas = useStore((state) => state.fetchAdoptedAreas);
-    const showSnackbar = useStore((state) => state.showSnackbar);
+    const locationMetadata = useMapStore((state) => state.locationMetadata);
+    const { createAdoptedArea } = useAdoptedAreasStore();
+    const showSnackbar = useUIStore((state) => state.showSnackbar);
     const user = useAuthStore((state) => state.user);
-    const sessionToken = useAuthStore((state) => state.sessionToken);
 
     useEffect(() => {
         console.log(selectedPoint)
@@ -64,33 +64,24 @@ function AdoptAreaFormModal({open, onClose, selectedPoint}) {
         try {
             const payload = {
                 ...formData,
-                lat: parseFloat(formData.lat),
-                lng: parseFloat(formData.lng),
+                location: {
+                    type: "Point",
+                    coordinates: [parseFloat(formData.lng), parseFloat(formData.lat)]
+                },
                 end_date: formData.adoption_type === 'indefinite' ? null : formData.end_date,
             };
 
-            const response = await fetch(`${apiEndpoint}/adopt-area/`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-Session-Token': sessionToken,
-                },
-                body: JSON.stringify(payload),
-            });
-
-            if (!response.ok) {
-                const errorText = await response.text();
-                throw new Error(`Submission failed: ${response.status} - ${errorText}`);
+            const result = await createAdoptedArea(payload);
+            
+            if (result.success) {
+                showSnackbar('Area adopted successfully!', 'success');
+                onClose();
+            } else {
+                showSnackbar(`Error: ${result.error}`, 'error');
             }
-
-            const result = await response.json();
-            showSnackbar(result.message || 'Area adopted successfully!', 'success');
-
-            await fetchAdoptedAreas();
-            onClose();
         } catch (err) {
             console.error('Adoption error:', err);
-            alert(`Error: ${err.message}`);
+            showSnackbar(`Error: ${err.message}`, 'error');
         }
     };
 
