@@ -26,6 +26,7 @@ function Sidebar({setMapCenter}) {
     const [searchText, setSearchText] = useState('');
     const [isCollapsed, setIsCollapsed] = useState(false);
     const setIsSelecting = useMapStore((state) => state.setIsSelecting);
+    const isSelecting =  useMapStore((state) => state.setIsSelecting);
     const showSnackbar = useUIStore((state) => state.showSnackbar);
     const setBounds = useMapStore((state) => state.setBounds);
     const [teamsModalOpen, setTeamsModalOpen] = useState(false);
@@ -181,14 +182,15 @@ function Sidebar({setMapCenter}) {
                                                 return;
                                             }
 
+                                            setIsSelecting(true);
+                                            console.log("IsSelecting: ", isSelecting.val)
+                                            showSnackbar('Click on the map to select the area you want to adopt.', 'info', {autoHideDuration: null});
+
                                             setSelectTarget((lat, lng, metadata) => {
                                                 setSelectedPoint([lng, lat]);
                                                 setLocationMetadata(metadata);
                                                 setAdoptModalOpen(true);
                                             });
-
-                                            setIsSelecting(true);
-                                            showSnackbar('Click on the map to select the area you want to adopt.', 'info', {autoHideDuration: null});
                                         }}
                                         sx={{
                                             marginTop: 1,

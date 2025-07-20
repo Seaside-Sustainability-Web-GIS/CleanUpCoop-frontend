@@ -175,7 +175,7 @@ function App() {
                     {currentView === 'map' && (
                         <>
                             <MapView/>
-                            <CollapsibleTable/>
+                            {/*<CollapsibleTable/>*/}
                         </>
                     )}
                     {currentView === 'dashboard' && (
