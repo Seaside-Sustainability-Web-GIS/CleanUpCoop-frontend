@@ -1,4 +1,4 @@
-import {useState} from 'react';
+import {useEffect, useState} from 'react';
 import {
     Typography,
     Button,
@@ -26,7 +26,6 @@ function Sidebar({setMapCenter}) {
     const [searchText, setSearchText] = useState('');
     const [isCollapsed, setIsCollapsed] = useState(false);
     const setIsSelecting = useMapStore((state) => state.setIsSelecting);
-    const isSelecting =  useMapStore((state) => state.setIsSelecting);
     const showSnackbar = useUIStore((state) => state.showSnackbar);
     const setBounds = useMapStore((state) => state.setBounds);
     const [teamsModalOpen, setTeamsModalOpen] = useState(false);
@@ -183,7 +182,6 @@ function Sidebar({setMapCenter}) {
                                             }
 
                                             setIsSelecting(true);
-                                            console.log("IsSelecting: ", isSelecting.val)
                                             showSnackbar('Click on the map to select the area you want to adopt.', 'info', {autoHideDuration: null});
 
                                             setSelectTarget((lat, lng, metadata) => {
