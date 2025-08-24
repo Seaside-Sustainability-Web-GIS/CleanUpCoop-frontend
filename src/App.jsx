@@ -17,8 +17,9 @@ import CollapsibleTable from "../components/CollapsableTable.jsx";
 import AuthForm from "../components/AuthForm.jsx";
 import ForgotPasswordForm from "../components/ForgotPasswordForm.jsx";
 import Dashboard from '../components/Dashboard.jsx';
-import useStore from '../src/store/useStore';
 import {useAuthStore} from './store/useAuthStore.js';
+import useUIStore from './store/useUIStore.js';
+import useMapStore from './store/useMapStore.js';
 import Footer from "../components/Footer.jsx";
 import logo from './assets/geobradlogo.png';
 import {SNACKBAR_MESSAGES, SNACKBAR_SEVERITIES} from '../constants/snackbarMessages';
@@ -28,9 +29,9 @@ import PrivacyModal from "../components/PrivacyModal.jsx";
 
 function App() {
     // Map and Dashboard state
-    const setMapCenter = useStore((state) => state.setMapCenter);
-    const currentView = useStore((state) => state.currentView);
-    const toggleView = useStore((state) => state.toggleView);
+    const setMapCenter = useMapStore((state) => state.setMapCenter);
+    const currentView = useUIStore((state) => state.currentView);
+    const toggleView = useUIStore((state) => state.toggleView);
 
     // User Auth State
     const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
@@ -39,10 +40,11 @@ function App() {
 
 
     // Modals State
-    const [aboutOpen, setAboutOpen] = useState(false);
+    const aboutOpen = useUIStore((state) => state.aboutOpen);
+    const setAboutOpen = useUIStore((state) => state.setAboutOpen);
     const authOpen = useAuthStore((state) => state.authOpen);
     const setAuthOpen = useAuthStore((state) => state.setAuthOpen);
-    const {snackbar, showSnackbar, hideSnackbar} = useStore();
+    const {snackbar, showSnackbar, hideSnackbar} = useUIStore();
     const [forgotPasswordOpen, setForgotPasswordOpen] = useState(false);
     const [termsOpen, setTermsOpen] = useState(false);
     const [privacyOpen, setPrivacyOpen] = useState(false);
@@ -173,7 +175,7 @@ function App() {
                     {currentView === 'map' && (
                         <>
                             <MapView/>
-                            <CollapsibleTable/>
+                            {/*<CollapsibleTable/>*/}
                         </>
                     )}
                     {currentView === 'dashboard' && (

@@ -1,11 +1,11 @@
-import { useMap } from 'react-leaflet';
-import { IconButton } from '@mui/material';
+import {useMap} from 'react-leaflet';
+import {IconButton} from '@mui/material';
 import HomeIcon from '@mui/icons-material/Home';
-import useStore from '../../src/store/useStore';
+import useMapStore from "../../src/store/useMapStore.js";
 
 function HomeButton() {
     const map = useMap();
-    const defaultCenter = useStore((state) => state.defaultCenter);
+    const defaultCenter = useMapStore((state) => state.defaultCenter);
 
     const handleHomeClick = () => {
         map.setView(defaultCenter, 3);
@@ -24,10 +24,10 @@ function HomeButton() {
                 padding: '4px',
                 backgroundColor: 'white',
                 border: 'grey 1px solid',
-                '&:hover': { backgroundColor: '#f0f0f0' },
+                '&:hover': {backgroundColor: '#f0f0f0'},
             }}
         >
-            <HomeIcon />
+            <HomeIcon/>
         </IconButton>
     );
 }

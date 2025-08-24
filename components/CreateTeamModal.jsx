@@ -9,19 +9,20 @@ import {
 import {useEffect, useState, useRef} from 'react';
 import { useAuthStore } from '../src/store/useAuthStore';
 import { useTeamStore } from '../src/store/useTeamStore';
-import useStore from '../src/store/useStore';
+import useMapStore from "../src/store/useMapStore.js";
+import useUIStore from "../src/store/useUIStore.js";
 
 const apiEndpoint = 'http://localhost:8000/api';
 
 function CreateTeamModal({ open, onClose }) {
     const sessionToken = useAuthStore((state) => state.sessionToken);
     const { fetchTeams } = useTeamStore();
-    const setSelectTarget = useStore((s) => s.setSelectTarget);
-    const setIsSelecting = useStore((s) => s.setIsSelecting);
-    const showSnackbar = useStore((s) => s.showSnackbar);
-    const setCreateTeamModalOpen = useStore((s) => s.setCreateTeamModalOpen);
-    const selectedPoint = useStore((state) => state.selectedPoint);
-    const locationMetadata = useStore((state) => state.locationMetadata);
+    const setSelectTarget = useMapStore((s) => s.setSelectTarget);
+    const setIsSelecting = useMapStore((s) => s.setIsSelecting);
+    const showSnackbar = useUIStore((s) => s.showSnackbar);
+    const setCreateTeamModalOpen = useUIStore((s) => s.setCreateTeamModalOpen);
+    const selectedPoint = useMapStore((state) => state.selectedPoint);
+    const locationMetadata = useMapStore((state) => state.locationMetadata);
 
     // Refs for uncontrolled inputs
     const nameRef = useRef();

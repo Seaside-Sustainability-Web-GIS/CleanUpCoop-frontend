@@ -1,11 +1,11 @@
 import { useMap } from 'react-leaflet';
 import { IconButton } from '@mui/material';
 import GpsFixedIcon from '@mui/icons-material/GpsFixed';
-import useStore from '../../src/store/useStore';
+import useMapStore from "../../src/store/useMapStore.js";
 
 function GpsButton() {
     const map = useMap();
-    const setUserLocation = useStore((state) => state.setUserLocation);
+    const setUserLocation = useMapStore((state) => state.setUserLocation);
 
     const handleGpsClick = () => {
         if ('geolocation' in navigator) {

@@ -1,11 +1,12 @@
 import {useMemo} from 'react';
 import {Box, Button, Typography} from '@mui/material';
 import {DataGrid, GridToolbar} from '@mui/x-data-grid';
-import useStore from '../src/store/useStore';
+import useUIStore from "../src/store/useUIStore.js";
+
 
 const CollapsibleTable = () => {
-    const isTableCollapsed = useStore((state) => state.isTableCollapsed);
-    const toggleTable = useStore((state) => state.toggleTable);
+    const isTableCollapsed = useUIStore((state) => state.isTableCollapsed);
+    const toggleTable = useUIStore((state) => state.toggleTable);
 
 
     // Define columns for the DataGrid
