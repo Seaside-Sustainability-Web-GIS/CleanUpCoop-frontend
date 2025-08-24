@@ -9,8 +9,8 @@ import {
 } from '@mui/material';
 import Grid from '@mui/material/Grid';
 import {useEffect, useState} from 'react';
-import useTeamStore from '../src/store/useTeamStore';
-import useAuthStore from '../src/store/useAuthStore';
+import {useTeamStore} from '../src/store/useTeamStore';
+import {useAuthStore} from '../src/store/useAuthStore';
 import TeamCard from './TeamCard';
 import CreateTeamModal from './CreateTeamModal';
 import useMapStore from "../src/store/useMapStore.js";
@@ -101,8 +101,8 @@ const TeamsDashboardModal = ({open, onClose}) => {
                                 const selectTargetCallback = (lat, lng, locationInfo) => {
                                     console.log('📍 Callback fired for create team', lat, lng, locationInfo);
 
-                                    useStore.getState().setSelectedPoint([lng, lat]);
-                                    useStore.getState().setLocationMetadata(locationInfo);
+                                    useMapStore.getState().setSelectedPoint([lng, lat]);
+                                    useMapStore.getState().setLocationMetadata(locationInfo);
                                     setCreateTeamModalOpen(true);
                                 };
 

@@ -5,7 +5,6 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import '../src/App.css';
 import { Box, Button } from '@mui/material';
-import useStore from '../src/store/useStore';
 import { useAuthStore } from "../src/store/useAuthStore.js";
 import { useTeamStore } from "../src/store/useTeamStore.js";
 import useUIStore from '../src/store/useUIStore.js';
