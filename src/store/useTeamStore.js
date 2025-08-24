@@ -6,6 +6,9 @@ export const useTeamStore = create((set, get) => ({
     teams: [],
     myTeamIds: [],
 
+    createTeamModalOpen: false,
+    setCreateTeamModalOpen: (val) => set({ createTeamModalOpen: val }),
+
     fetchTeams: async () => {
         try {
             const res = await apiClient.get('/teams', {

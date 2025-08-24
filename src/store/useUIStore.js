@@ -4,10 +4,7 @@ const useUIStore = create((set) => ({
     // Modal states
     adoptModalOpen: false,
     setAdoptModalOpen: (val) => set({ adoptModalOpen: val }),
-    
-    createTeamModalOpen: false,
-    setCreateTeamModalOpen: (val) => set({ createTeamModalOpen: val }),
-    
+
     aboutOpen: false,
     setAboutOpen: (val) => set({ aboutOpen: val }),
     
