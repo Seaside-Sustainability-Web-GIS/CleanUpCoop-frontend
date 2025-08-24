@@ -7,7 +7,7 @@ function ClickCapture() {
     const isSelecting = useMapStore((s) => s.isSelecting);
     const setIsSelecting = useMapStore((s) => s.setIsSelecting);
     const hideSnackbar = useUIStore((s) => s.hideSnackbar);
-    const selectTarget = useUIStore((s) => s.selectTarget);
+    const selectTarget = useMapStore((s) => s.selectTarget);
 
     useMapEvents({
         async click(e) {

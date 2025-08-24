@@ -4,6 +4,7 @@ import {useAuthStore} from '../src/store/useAuthStore';
 import useUIStore from '../src/store/useUIStore.js';
 import useMapStore from '../src/store/useMapStore.js';
 import useAdoptedAreasStore from '../src/store/useAdoptedAreasStore.js';
+import PropTypes from 'prop-types';
 
 
 function AdoptAreaFormModal({open, onClose, selectedPoint}) {
@@ -29,7 +30,6 @@ function AdoptAreaFormModal({open, onClose, selectedPoint}) {
     const user = useAuthStore((state) => state.user);
 
     useEffect(() => {
-        console.log(selectedPoint)
         if (selectedPoint && locationMetadata && user) {
             setFormData((prev) => ({
                 ...prev,
@@ -204,5 +204,11 @@ function AdoptAreaFormModal({open, onClose, selectedPoint}) {
         </Dialog>
     );
 }
+
+AdoptAreaFormModal.propTypes = {
+    open: PropTypes.bool.isRequired,
+    onClose: PropTypes.func.isRequired,
+    selectedPoint: PropTypes.arrayOf(PropTypes.number),
+};
 
 export default AdoptAreaFormModal;

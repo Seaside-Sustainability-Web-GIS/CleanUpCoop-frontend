@@ -15,6 +15,7 @@ import TeamCard from './TeamCard';
 import CreateTeamModal from './CreateTeamModal';
 import useMapStore from "../src/store/useMapStore.js";
 import useUIStore from "../src/store/useUIStore.js";
+import PropTypes from "prop-types";
 
 
 const TeamsDashboardModal = ({open, onClose}) => {
@@ -29,16 +30,18 @@ const TeamsDashboardModal = ({open, onClose}) => {
 
     // Fetch teams when the modal is opened
     useEffect(() => {
-        if (open) fetchTeams();
-    }, [open]);
+        if (open) {
+            fetchTeams().catch((err) => {
+                console.error('Error fetching teams:', err);
+            });
+        }
+    }, [open, fetchTeams]);
 
     const filteredTeams = teams.filter((team) =>
         team.name.toLowerCase().includes(searchText.toLowerCase())
     );
-    console.log("myTeamIds:", myTeamIds);
     const myTeams = filteredTeams.filter((t) => myTeamIds.includes(t.id));
     const nearbyTeams = filteredTeams.filter((t) => !myTeamIds.includes(t.id));
-    console.log("filteredTeams:", filteredTeams);
     return (
         <>
             <Dialog open={open} onClose={onClose} fullWidth maxWidth="xl">
@@ -58,7 +61,7 @@ const TeamsDashboardModal = ({open, onClose}) => {
                             <Typography variant="h6" sx={{mb: 1}}>My Teams</Typography>
                             <Grid container spacing={2} sx={{mb: 4}}>
                                 {myTeams.length > 0 ? myTeams.map((team) => (
-                                    <Grid item xs={12} sm={6} md={4} lg={3} key={team.id}>
+                                    <Grid size={{xs: 12,  sm: 6, md: 4,  lg: 3}} key={team.id}>
                                         <TeamCard team={team} joined onLeave={() => leaveTeam(team.id)}/>
                                     </Grid>
                                 )) : (
@@ -99,8 +102,6 @@ const TeamsDashboardModal = ({open, onClose}) => {
 
                                 // Set callback for selecting location
                                 const selectTargetCallback = (lat, lng, locationInfo) => {
-                                    console.log('📍 Callback fired for create team', lat, lng, locationInfo);
-
                                     useMapStore.getState().setSelectedPoint([lng, lat]);
                                     useMapStore.getState().setLocationMetadata(locationInfo);
                                     setCreateTeamModalOpen(true);
@@ -123,6 +124,11 @@ const TeamsDashboardModal = ({open, onClose}) => {
             />
         </>
     );
+};
+
+TeamsDashboardModal.propTypes = {
+    open: PropTypes.bool.isRequired,
+    onClose: PropTypes.func.isRequired,
 };
 
 export default TeamsDashboardModal;

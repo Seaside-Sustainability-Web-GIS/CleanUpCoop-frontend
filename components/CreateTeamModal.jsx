@@ -20,7 +20,7 @@ function CreateTeamModal({ open, onClose }) {
     const setSelectTarget = useMapStore((s) => s.setSelectTarget);
     const setIsSelecting = useMapStore((s) => s.setIsSelecting);
     const showSnackbar = useUIStore((s) => s.showSnackbar);
-    const setCreateTeamModalOpen = useUIStore((s) => s.setCreateTeamModalOpen);
+    const setCreateTeamModalOpen = useTeamStore((s) => s.setCreateTeamModalOpen);
     const selectedPoint = useMapStore((state) => state.selectedPoint);
     const locationMetadata = useMapStore((state) => state.locationMetadata);
 
@@ -45,8 +45,8 @@ function CreateTeamModal({ open, onClose }) {
 
         const selectTargetCallback = (lat, lng, locationInfo) => {
             // Update store with new location data
-            useStore.getState().setSelectedPoint([lng, lat]);
-            useStore.getState().setLocationMetadata(locationInfo);
+            useMapStore.getState().setSelectedPoint([lng, lat]);
+            useMapStore.getState().setLocationMetadata(locationInfo);
 
             // Update local state to reflect the new location
             setLocationData({
