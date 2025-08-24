@@ -40,6 +40,7 @@ function CreateTeamModal({ open, onClose }) {
     });
 
     const handleSelectTeamLocation = () => {
+        setCreateTeamModalOpen(false);
         setIsSelecting(true);
         showSnackbar('Click on the map to select the team headquarters.', 'info', { autoHideDuration: null });
 
