@@ -9,21 +9,23 @@ import {
 } from '@mui/material';
 import Grid from '@mui/material/Grid';
 import {useEffect, useState} from 'react';
-import {useTeamStore} from '../src/store/useTeamStore';
-import {useAuthStore} from '../src/store/useAuthStore';
+import useTeamStore from '../src/store/useTeamStore';
+import useAuthStore from '../src/store/useAuthStore';
 import TeamCard from './TeamCard';
-import useStore from "../src/store/useStore.js";
 import CreateTeamModal from './CreateTeamModal';
+import useMapStore from "../src/store/useMapStore.js";
+import useUIStore from "../src/store/useUIStore.js";
+
 
 const TeamsDashboardModal = ({open, onClose}) => {
     const {teams, fetchTeams, joinTeam, leaveTeam, myTeamIds} = useTeamStore();
     const [searchText, setSearchText] = useState('');
     const {isAuthenticated, setAuthOpen} = useAuthStore();
-    const setIsSelecting = useStore((state) => state.setIsSelecting);
-    const showSnackbar = useStore((state) => state.showSnackbar);
-    const setSelectTarget = useStore((state) => state.setSelectTarget);
-    const setCreateTeamModalOpen = useStore((s) => s.setCreateTeamModalOpen);
-    const createTeamModalOpen = useStore((s) => s.createTeamModalOpen); // Get the actual state
+    const setIsSelecting = useMapStore((state) => state.setIsSelecting);
+    const showSnackbar = useUIStore((state) => state.showSnackbar);
+    const setSelectTarget = useMapStore((state) => state.setSelectTarget);
+    const setCreateTeamModalOpen = useTeamStore((s) => s.setCreateTeamModalOpen);
+    const createTeamModalOpen = useTeamStore((s) => s.createTeamModalOpen); // Get the actual state
 
     // Fetch teams when the modal is opened
     useEffect(() => {

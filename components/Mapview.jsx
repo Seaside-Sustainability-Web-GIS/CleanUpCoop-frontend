@@ -53,7 +53,7 @@ function MapView() {
     const { BaseLayer } = LayersControl;
     const mapCenter = useMapStore((state) => state.mapCenter);
     const userLocation = useMapStore((state) => state.userLocation);
-    const isDataLoaded = useStore((state) => state.isDataLoaded);
+    const isDataLoaded = useMapStore((state) => state.isDataLoaded);
     const { adoptedAreas, fetchAdoptedAreas, updateAdoptedArea, deleteAdoptedArea } = useAdoptedAreasStore();
     const showSnackbar = useUIStore((state) => state.showSnackbar);
     const user = useAuthStore((state) => state.user);

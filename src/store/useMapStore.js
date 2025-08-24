@@ -33,6 +33,10 @@ const useMapStore = create((set) => ({
     setUserLocation: (location) => {
         set(() => ({ userLocation: location ? [...location] : null })); // Ensure a new array reference
     },
+
+    // Data loading state
+    isDataLoaded: false,
+
 }));
 
 export default useMapStore;
