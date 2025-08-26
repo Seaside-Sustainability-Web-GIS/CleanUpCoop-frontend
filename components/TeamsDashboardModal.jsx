@@ -35,7 +35,7 @@ const TeamsDashboardModal = ({open, onClose}) => {
                 console.error('Error fetching teams:', err);
             });
         }
-    }, [open, fetchTeams]);
+    }, [open]);
 
     const filteredTeams = teams.filter((team) =>
         team.name.toLowerCase().includes(searchText.toLowerCase())
