@@ -18,7 +18,6 @@ export const useTeamStore = create((set, get) => ({
             });
             const teamList = await res.data
 
-            console.log("Teams API response:", teamList); // confirm it's an array
             const currentUser = useAuthStore.getState().user;
 
             const myIds = currentUser
