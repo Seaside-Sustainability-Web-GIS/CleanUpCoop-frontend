@@ -20,7 +20,6 @@ function ClickCapture() {
             try {
                 const info = await reverseGeocode(lat, lng);
                 selectTarget(lat, lng, info);
-                console.log('📍 ClickCapture firing selectTarget:', lat, lng, info);
             } catch (err) {
                 console.error("Reverse geocode failed:", err);
                 selectTarget(lat, lng, {});

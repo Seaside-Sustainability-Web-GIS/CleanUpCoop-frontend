@@ -80,7 +80,7 @@ const TeamsDashboardModal = ({open, onClose}) => {
                     <Typography variant="h6" sx={{mb: 1}}>Teams in Your Area</Typography>
                     <Grid container spacing={2} sx={{mb: 4}}>
                         {nearbyTeams.map((team) => (
-                            <Grid item xs={12} sm={6} md={4} lg={3} key={team.id}>
+                            <Grid size={{xs: 12, sm:6, md: 4, lg: 3}} key={team.id}>
                                 <TeamCard team={team} onJoin={() => joinTeam(team.id)}/>
                             </Grid>
                         ))}

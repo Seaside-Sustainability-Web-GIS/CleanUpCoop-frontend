@@ -6,7 +6,7 @@ const apiClient = axios.create({
         'Accept': 'application/json',
         'Content-Type': 'application/json',
     },
-    withCredentials: true, // include if you're using session cookies
+    withCredentials: false,
 });
 
 // Add request interceptor to include session token
