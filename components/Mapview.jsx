@@ -8,6 +8,7 @@ import { Box, Button } from '@mui/material';
 import { useAuthStore } from "../src/store/useAuthStore.js";
 import useMapStore from '../src/store/useMapStore.js';
 import useAdoptedAreasStore from '../src/store/useAdoptedAreasStore.js';
+import useUIStore from '../src/store/useUIStore.js';
 import { useTeamStore } from '../src/store/useTeamStore.js';
 import CollapsibleTable from './CollapsableTable.jsx';
 import MapCursorManager from './map/MapCursorManager.jsx'

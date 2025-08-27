@@ -1,6 +1,5 @@
 import {Dialog, DialogTitle, DialogContent, DialogActions, TextField, Button, MenuItem} from '@mui/material';
 import {useState, useEffect} from 'react';
-import useStore from '../src/store/useStore';
 import {useAuthStore} from '../src/store/useAuthStore';
 
 const apiEndpoint = 'https://seaside-backend-oh06.onrender.com/api'
