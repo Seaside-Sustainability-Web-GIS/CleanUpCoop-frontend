@@ -1,4 +1,4 @@
-import {useEffect, useState} from 'react';
+import { useState } from 'react';
 import {
     Typography,
     Button,
@@ -12,32 +12,35 @@ import {
 import {ChevronLeft, ChevronRight, Clear, Room} from '@mui/icons-material';
 import GroupsIcon from '@mui/icons-material/Groups';
 import {useAuthStore} from "../src/store/useAuthStore.js";
-import useStore from '../src/store/useStore';
+import useUIStore from '../src/store/useUIStore.js';
+import useMapStore from '../src/store/useMapStore.js';
+import useAdoptedAreasStore from '../src/store/useAdoptedAreasStore.js';
+import {useTeamStore} from '../src/store/useTeamStore.js';
 import PropTypes from "prop-types";
 import AdoptAreaFormModal from "./AdoptAreaFormModal.jsx";
 import TeamsDashboardModal from "./TeamsDashboardModal.jsx";
 import CreateTeamModal from "./CreateTeamModal.jsx";
 
-const apiEndpoint = 'https://seaside-backend-oh06.onrender.com';
+const apiEndpoint = 'https://seaside-backend-oh06.onrender.com/api';
 
 function Sidebar({setMapCenter}) {
     const {isAuthenticated, setAuthOpen} = useAuthStore();
     const [searchText, setSearchText] = useState('');
     const [isCollapsed, setIsCollapsed] = useState(false);
-    const setIsSelecting = useStore((state) => state.setIsSelecting);
-    const showSnackbar = useStore((state) => state.showSnackbar);
-    const sessionToken = useAuthStore.getState().sessionToken;
-    const setBounds = useStore(state => state.setBounds)
+    const setIsSelecting = useMapStore((state) => state.setIsSelecting);
+    const showSnackbar = useUIStore((state) => state.showSnackbar);
+    const setBounds = useMapStore((state) => state.setBounds);
     const [teamsModalOpen, setTeamsModalOpen] = useState(false);
-    const setSelectTarget = useStore((state) => state.setSelectTarget);
-    const setAdoptAreaModalOpen = useStore((state) => state.setAdoptAreaModalOpen);
-    const adoptModalOpen = useStore((s) => s.adoptModalOpen);
-    const setAdoptModalOpen = useStore((s) => s.setAdoptModalOpen);
-    const selectedPoint = useStore((s) => s.selectedPoint);
-    const setSelectedPoint = useStore((state) => state.setSelectedPoint);
-    const setLocationMetadata = useStore((state) => state.setLocationMetadata);
-    const createTeamModalOpen = useStore((s) => s.createTeamModalOpen);
-    const setCreateTeamModalOpen = useStore((s) => s.setCreateTeamModalOpen);
+    const setSelectTarget = useMapStore((state) => state.setSelectTarget);
+    const adoptModalOpen = useUIStore((state) => state.adoptModalOpen);
+    const setAdoptModalOpen = useUIStore((state) => state.setAdoptModalOpen);
+    const selectedPoint = useMapStore((state) => state.selectedPoint);
+    const setSelectedPoint = useMapStore((state) => state.setSelectedPoint);
+    const setLocationMetadata = useMapStore((state) => state.setLocationMetadata);
+    const createTeamModalOpen = useTeamStore((state) => state.createTeamModalOpen);
+    const setCreateTeamModalOpen = useTeamStore((state) => state.setCreateTeamModalOpen);
+
+    const { createAdoptedArea } = useAdoptedAreasStore();
 
     const handleAdoptSubmit = async (rawFormData, {onSuccess} = {}) => {
         const {lat, lng, ...rest} = rawFormData;
@@ -49,31 +52,21 @@ function Sidebar({setMapCenter}) {
                 coordinates: [parseFloat(lng), parseFloat(lat)]
             }
         };
+
         try {
-            const response = await fetch(`${apiEndpoint}/api/adopt-area/`, {
+            const result = await createAdoptedArea(payload);
 
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-Session-Token': sessionToken,
-                },
-                body: JSON.stringify(payload),
-            });
-
-            if (!response.ok) {
-                const errorText = await response.text();
-                throw new Error(`Submission failed (${response.status}): ${errorText}`);
-            }
-
-            const result = await response.json();
-            showSnackbar(result.message || 'Area adopted successfully!', 'success');
-
-            if (onSuccess) {
-                onSuccess();
+            if (result.success) {
+                showSnackbar('Area adopted successfully!', 'success');
+                if (onSuccess) {
+                    onSuccess();
+                }
+            } else {
+                showSnackbar(`Error: ${result.error}`, 'error');
             }
         } catch (error) {
             console.error('Adoption error:', error);
-            alert(`Error: ${error.message}`);
+            showSnackbar(`Error: ${error.message}`, 'error');
         }
     };
 
@@ -190,14 +183,14 @@ function Sidebar({setMapCenter}) {
                                                 return;
                                             }
 
+                                            setIsSelecting(true);
+                                            showSnackbar('Click on the map to select the area you want to adopt.', 'info', {autoHideDuration: null});
+
                                             setSelectTarget((lat, lng, metadata) => {
                                                 setSelectedPoint([lng, lat]);
                                                 setLocationMetadata(metadata);
                                                 setAdoptModalOpen(true);
                                             });
-
-                                            setIsSelecting(true);
-                                            showSnackbar('Click on the map to select the area you want to adopt.', 'info', {autoHideDuration: null});
                                         }}
                                         sx={{
                                             marginTop: 1,

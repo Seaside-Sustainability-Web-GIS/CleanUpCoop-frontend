@@ -6,6 +6,9 @@ export const useTeamStore = create((set, get) => ({
     teams: [],
     myTeamIds: [],
 
+    createTeamModalOpen: false,
+    setCreateTeamModalOpen: (val) => set({ createTeamModalOpen: val }),
+
     fetchTeams: async () => {
         try {
             const res = await apiClient.get('/teams', {
@@ -15,7 +18,6 @@ export const useTeamStore = create((set, get) => ({
             });
             const teamList = await res.data
 
-            console.log("Teams API response:", teamList);
             const currentUser = useAuthStore.getState().user;
 
             const myIds = currentUser

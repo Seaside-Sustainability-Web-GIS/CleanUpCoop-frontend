@@ -1,12 +1,13 @@
 import { useMapEvents } from 'react-leaflet';
-import useStore from '../../src/store/useStore';
+import useMapStore from "../../src/store/useMapStore.js";
+import useUIStore from "../../src/store/useUIStore.js";
 import { reverseGeocode } from '../../src/utils/reverseGeocode.js';
 
 function ClickCapture() {
-    const isSelecting = useStore((s) => s.isSelecting);
-    const setIsSelecting = useStore((s) => s.setIsSelecting);
-    const hideSnackbar = useStore((s) => s.hideSnackbar);
-    const selectTarget = useStore((s) => s.selectTarget);
+    const isSelecting = useMapStore((s) => s.isSelecting);
+    const setIsSelecting = useMapStore((s) => s.setIsSelecting);
+    const hideSnackbar = useUIStore((s) => s.hideSnackbar);
+    const selectTarget = useMapStore((s) => s.selectTarget);
 
     useMapEvents({
         async click(e) {
@@ -19,7 +20,6 @@ function ClickCapture() {
             try {
                 const info = await reverseGeocode(lat, lng);
                 selectTarget(lat, lng, info);
-                console.log('📍 ClickCapture firing selectTarget:', lat, lng, info);
             } catch (err) {
                 console.error("Reverse geocode failed:", err);
                 selectTarget(lat, lng, {});

@@ -9,19 +9,20 @@ import {
 import {useEffect, useState, useRef} from 'react';
 import { useAuthStore } from '../src/store/useAuthStore';
 import { useTeamStore } from '../src/store/useTeamStore';
-import useStore from '../src/store/useStore';
+import useMapStore from "../src/store/useMapStore.js";
+import useUIStore from "../src/store/useUIStore.js";
 
 const apiEndpoint = 'https://seaside-backend-oh06.onrender.com/api';
 
 function CreateTeamModal({ open, onClose }) {
     const sessionToken = useAuthStore((state) => state.sessionToken);
     const { fetchTeams } = useTeamStore();
-    const setSelectTarget = useStore((s) => s.setSelectTarget);
-    const setIsSelecting = useStore((s) => s.setIsSelecting);
-    const showSnackbar = useStore((s) => s.showSnackbar);
-    const setCreateTeamModalOpen = useStore((s) => s.setCreateTeamModalOpen);
-    const selectedPoint = useStore((state) => state.selectedPoint);
-    const locationMetadata = useStore((state) => state.locationMetadata);
+    const setSelectTarget = useMapStore((s) => s.setSelectTarget);
+    const setIsSelecting = useMapStore((s) => s.setIsSelecting);
+    const showSnackbar = useUIStore((s) => s.showSnackbar);
+    const setCreateTeamModalOpen = useTeamStore((s) => s.setCreateTeamModalOpen);
+    const selectedPoint = useMapStore((state) => state.selectedPoint);
+    const locationMetadata = useMapStore((state) => state.locationMetadata);
 
     // Refs for uncontrolled inputs
     const nameRef = useRef();
@@ -39,13 +40,14 @@ function CreateTeamModal({ open, onClose }) {
     });
 
     const handleSelectTeamLocation = () => {
+        setCreateTeamModalOpen(false);
         setIsSelecting(true);
         showSnackbar('Click on the map to select the team headquarters.', 'info', { autoHideDuration: null });
 
         const selectTargetCallback = (lat, lng, locationInfo) => {
             // Update store with new location data
-            useStore.getState().setSelectedPoint([lng, lat]);
-            useStore.getState().setLocationMetadata(locationInfo);
+            useMapStore.getState().setSelectedPoint([lng, lat]);
+            useMapStore.getState().setLocationMetadata(locationInfo);
 
             // Update local state to reflect the new location
             setLocationData({

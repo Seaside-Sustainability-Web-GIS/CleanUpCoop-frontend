@@ -1,8 +1,8 @@
 import { useEffect } from 'react';
-import useStore from '../../src/store/useStore';
+import useMapStore from "../../src/store/useMapStore.js";
 
 function MapCursorManager() {
-    const isSelecting = useStore((state) => state.isSelecting);
+    const isSelecting = useMapStore((state) => state.isSelecting);
 
     useEffect(() => {
         const mapContainer = document.querySelector('.leaflet-container');
