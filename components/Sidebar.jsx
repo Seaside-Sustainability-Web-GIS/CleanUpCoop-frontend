@@ -15,6 +15,7 @@ import {useAuthStore} from "../src/store/useAuthStore.js";
 import useUIStore from '../src/store/useUIStore.js';
 import useMapStore from '../src/store/useMapStore.js';
 import useAdoptedAreasStore from '../src/store/useAdoptedAreasStore.js';
+import {useTeamStore} from '../src/store/useTeamStore.js';
 import PropTypes from "prop-types";
 import AdoptAreaFormModal from "./AdoptAreaFormModal.jsx";
 import TeamsDashboardModal from "./TeamsDashboardModal.jsx";
@@ -35,8 +36,8 @@ function Sidebar({setMapCenter}) {
     const selectedPoint = useMapStore((state) => state.selectedPoint);
     const setSelectedPoint = useMapStore((state) => state.setSelectedPoint);
     const setLocationMetadata = useMapStore((state) => state.setLocationMetadata);
-    const createTeamModalOpen = useUIStore((state) => state.createTeamModalOpen);
-    const setCreateTeamModalOpen = useUIStore((state) => state.setCreateTeamModalOpen);
+    const createTeamModalOpen = useTeamStore((state) => state.createTeamModalOpen);
+    const setCreateTeamModalOpen = useTeamStore((state) => state.setCreateTeamModalOpen);
 
     const { createAdoptedArea } = useAdoptedAreasStore();
 
