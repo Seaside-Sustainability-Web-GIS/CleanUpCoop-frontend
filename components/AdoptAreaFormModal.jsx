@@ -1,6 +1,9 @@
 import {Dialog, DialogTitle, DialogContent, DialogActions, TextField, Button, MenuItem} from '@mui/material';
 import {useState, useEffect} from 'react';
 import {useAuthStore} from '../src/store/useAuthStore';
+import useMapStore from '../src/store/useMapStore';
+import useAdoptedAreasStore from '../src/store/useAdoptedAreasStore';
+import useUIStore from '../src/store/useUIStore';
 
 const apiEndpoint = 'https://seaside-backend-oh06.onrender.com/api'
 
@@ -21,9 +24,9 @@ function AdoptAreaFormModal({open, onClose, selectedPoint}) {
         }
     });
 
-    const locationMetadata = useStore((state) => state.locationMetadata);
-    const fetchAdoptedAreas = useStore((state) => state.fetchAdoptedAreas);
-    const showSnackbar = useStore((state) => state.showSnackbar);
+    const locationMetadata = useMapStore((state) => state.locationMetadata);
+    const fetchAdoptedAreas = useAdoptedAreasStore((state) => state.fetchAdoptedAreas);
+    const showSnackbar = useUIStore((state) => state.showSnackbar);
     const user = useAuthStore((state) => state.user);
     const sessionToken = useAuthStore((state) => state.sessionToken);
 
