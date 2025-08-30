@@ -31,7 +31,6 @@ function AdoptAreaFormModal({open, onClose, selectedPoint}) {
     const sessionToken = useAuthStore((state) => state.sessionToken);
 
     useEffect(() => {
-        console.log(selectedPoint)
         if (selectedPoint && locationMetadata && user) {
             setFormData((prev) => ({
                 ...prev,

@@ -121,7 +121,7 @@ function App() {
                         src={logo}
                     />
                     <Typography variant="h6" sx={{flexGrow: 1}}>
-                        Clean up Co-op
+                        Clean Up Co-op
                     </Typography>
                     <Box display="flex" alignItems="center" sx={{mx: 2}}>
                         <Typography
