@@ -1,7 +1,7 @@
 import {create} from 'zustand';
 import {persist, createJSONStorage} from 'zustand/middleware';
 
-const allAuthEndpoint = 'https://seaside-backend-oh06.onrender.com/_allauth/app/v1/auth';
+const allAuthEndpoint = 'https://cleanupcoop-backend.onrender.com/_allauth/app/v1/auth';
 
 export const useAuthStore = create(
         persist(

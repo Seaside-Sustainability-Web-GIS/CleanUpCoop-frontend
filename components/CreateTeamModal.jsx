@@ -12,7 +12,7 @@ import { useTeamStore } from '../src/store/useTeamStore';
 import useMapStore from "../src/store/useMapStore.js";
 import useUIStore from "../src/store/useUIStore.js";
 
-const apiEndpoint = 'https://seaside-backend-oh06.onrender.com/api';
+const apiEndpoint = 'https://cleanupcoop-backend.onrender.com/api';
 
 function CreateTeamModal({ open, onClose }) {
     const sessionToken = useAuthStore((state) => state.sessionToken);

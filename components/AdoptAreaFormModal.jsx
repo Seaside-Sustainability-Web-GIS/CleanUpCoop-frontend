@@ -5,7 +5,7 @@ import useMapStore from '../src/store/useMapStore';
 import useAdoptedAreasStore from '../src/store/useAdoptedAreasStore';
 import useUIStore from '../src/store/useUIStore';
 
-const apiEndpoint = 'https://seaside-backend-oh06.onrender.com/api'
+const apiEndpoint = 'https://cleanupcoop-backend.onrender.com/api'
 
 function AdoptAreaFormModal({open, onClose, selectedPoint}) {
     const [formData, setFormData] = useState({

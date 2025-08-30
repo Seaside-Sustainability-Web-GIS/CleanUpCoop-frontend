@@ -31,13 +31,13 @@ services:
       # DB for Django
       - key: DATABASE_URL
         fromDatabase:
-          name: cleanupcoop-db
+          name: CleanUpCoop-db
           property: connectionString
       # Redis URL for Django/Celery config
       - key: REDIS_URL
         fromService:
           type: redis
-          name: cleanupcoop-redis
+          name: CleanUpCoop-redis
           property: connectionString
       # Usual Django bits
       - key: SECRET_KEY
@@ -46,7 +46,7 @@ services:
         value: False
 
   # ────────────────────────── Celery Worker (Async Tasks) ──────────────────────────
-  - name: webgis-celery
+  - name: CleanUpCoop-celery
     type: worker
     env: python
     region: ohio
@@ -61,11 +61,11 @@ services:
       - key: REDIS_URL
         fromService:
           type: redis
-          name: cleanupcoop-redis
+          name: CleanUpCoop-redis
           property: connectionString
       - key: DATABASE_URL
         fromDatabase:
-          name: cleanupcoop-db
+          name: CleanUpCoop-db
           property: connectionString
       - key: SECRET_KEY
         generateValue: true
@@ -73,14 +73,14 @@ services:
         value: WebGIS.settings
 
   # ────────────────────────── Redis (Broker/Result Backend) ──────────────────────────
-  - name: cleanupcoop-redis
+  - name: CleanUpCoop-redis
     type: redis
     plan: starter
     region: ohio
     ipAllowList: []  # keep private
 
 databases:
-  - name: cleanupcoop-db
+  - name: CleanUpCoop-db
     plan: basic-256mb
     region: ohio
     databaseName: cleanupcoop

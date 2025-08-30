@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import {useState} from 'react';
 import {
     Typography,
     Button,
@@ -21,8 +21,6 @@ import AdoptAreaFormModal from "./AdoptAreaFormModal.jsx";
 import TeamsDashboardModal from "./TeamsDashboardModal.jsx";
 import CreateTeamModal from "./CreateTeamModal.jsx";
 
-const apiEndpoint = 'https://seaside-backend-oh06.onrender.com/api';
-
 function Sidebar({setMapCenter}) {
     const {isAuthenticated, setAuthOpen} = useAuthStore();
     const [searchText, setSearchText] = useState('');
@@ -40,7 +38,7 @@ function Sidebar({setMapCenter}) {
     const createTeamModalOpen = useTeamStore((state) => state.createTeamModalOpen);
     const setCreateTeamModalOpen = useTeamStore((state) => state.setCreateTeamModalOpen);
 
-    const { createAdoptedArea } = useAdoptedAreasStore();
+    const {createAdoptedArea} = useAdoptedAreasStore();
 
     const handleAdoptSubmit = async (rawFormData, {onSuccess} = {}) => {
         const {lat, lng, ...rest} = rawFormData;
