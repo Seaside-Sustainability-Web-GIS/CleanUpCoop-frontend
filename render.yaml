@@ -12,6 +12,11 @@ services:
     pullRequestPreviewsEnabled: true
     healthCheckPath: /
 
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+
   # ────────────────────────── Backend (Django) ──────────────────────────
   - name: CleanUpCoop-backend
     type: web
