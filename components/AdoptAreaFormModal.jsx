@@ -6,7 +6,6 @@ import useMapStore from '../src/store/useMapStore.js';
 import useAdoptedAreasStore from '../src/store/useAdoptedAreasStore.js';
 import PropTypes from 'prop-types';
 
-
 function AdoptAreaFormModal({open, onClose, selectedPoint}) {
     const [formData, setFormData] = useState({
         "area_name": "",
@@ -25,12 +24,18 @@ function AdoptAreaFormModal({open, onClose, selectedPoint}) {
     });
 
     const locationMetadata = useMapStore((state) => state.locationMetadata);
-    const { createAdoptedArea } = useAdoptedAreasStore();
+    const {createAdoptedArea} = useAdoptedAreasStore();
     const showSnackbar = useUIStore((state) => state.showSnackbar);
     const user = useAuthStore((state) => state.user);
 
     useEffect(() => {
         if (selectedPoint && locationMetadata && user) {
+            const lng = Number.isFinite(selectedPoint.lng)
+                ? selectedPoint.lng
+                : selectedPoint[0];
+            const lat = Number.isFinite(selectedPoint.lat)
+                ? selectedPoint.lat
+                : selectedPoint[1];
             setFormData((prev) => ({
                 ...prev,
                 email: user.email,
@@ -40,8 +45,8 @@ function AdoptAreaFormModal({open, onClose, selectedPoint}) {
                 location: {
                     ...prev.location,
                     coordinates: [
-                        parseFloat(selectedPoint[0].toFixed(6)),
-                        parseFloat(selectedPoint[1].toFixed(6)),
+                        parseFloat(lng.toFixed(6)),
+                        parseFloat(lat.toFixed(6)),
                     ],
                 },
             }));
@@ -62,22 +67,37 @@ function AdoptAreaFormModal({open, onClose, selectedPoint}) {
 
     const handleSubmit = async () => {
         try {
+            const coords = formData.location?.coordinates;
+            if (
+                !coords ||
+                coords.length !== 2 ||
+                !Number.isFinite(coords[0]) ||
+                !Number.isFinite(coords[1])
+            ) {
+                showSnackbar('Please choose a point on the map first.', 'error');
+                return;
+            }
+
+            if (formData.adoption_type === 'temporary' && !formData.end_date) {
+                showSnackbar('Please select an end date for a temporary adoption.', 'error');
+                return;
+            }
             const payload = {
                 ...formData,
+                end_date: formData.adoption_type === 'indefinite' ? null : formData.end_date,
                 location: {
                     type: "Point",
-                    coordinates: [parseFloat(formData.lng), parseFloat(formData.lat)]
+                    coordinates:  [coords[0], coords[1]],
                 },
-                end_date: formData.adoption_type === 'indefinite' ? null : formData.end_date,
             };
 
             const result = await createAdoptedArea(payload);
-            
+
             if (result.success) {
                 showSnackbar('Area adopted successfully!', 'success');
                 onClose();
             } else {
-                showSnackbar(`Error: ${result.error}`, 'error');
+                showSnackbar(`Error: ${result.error || 'Failed to save area.'}`, 'error');
             }
         } catch (err) {
             console.error('Adoption error:', err);
