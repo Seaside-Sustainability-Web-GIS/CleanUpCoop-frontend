@@ -1,11 +1,11 @@
 import {Dialog, DialogTitle, DialogContent, DialogActions, TextField, Button, MenuItem} from '@mui/material';
 import {useState, useEffect} from 'react';
 import {useAuthStore} from '../src/store/useAuthStore';
-import useMapStore from '../src/store/useMapStore';
-import useAdoptedAreasStore from '../src/store/useAdoptedAreasStore';
-import useUIStore from '../src/store/useUIStore';
+import useUIStore from '../src/store/useUIStore.js';
+import useMapStore from '../src/store/useMapStore.js';
+import useAdoptedAreasStore from '../src/store/useAdoptedAreasStore.js';
+import PropTypes from 'prop-types';
 
-const apiEndpoint = 'https://cleanupcoop-backend.onrender.com/api'
 
 function AdoptAreaFormModal({open, onClose, selectedPoint}) {
     const [formData, setFormData] = useState({
@@ -25,27 +25,50 @@ function AdoptAreaFormModal({open, onClose, selectedPoint}) {
     });
 
     const locationMetadata = useMapStore((state) => state.locationMetadata);
-    const fetchAdoptedAreas = useAdoptedAreasStore((state) => state.fetchAdoptedAreas);
+    const {createAdoptedArea} = useAdoptedAreasStore();
     const showSnackbar = useUIStore((state) => state.showSnackbar);
     const user = useAuthStore((state) => state.user);
-    const sessionToken = useAuthStore((state) => state.sessionToken);
 
     useEffect(() => {
         if (selectedPoint && locationMetadata && user) {
-            setFormData((prev) => ({
-                ...prev,
-                email: user.email,
-                city: locationMetadata.city || "",
-                state: locationMetadata.state || "",
-                country: locationMetadata.country || "",
-                location: {
-                    ...prev.location,
-                    coordinates: [
-                        parseFloat(selectedPoint[0].toFixed(6)),
-                        parseFloat(selectedPoint[1].toFixed(6)),
-                    ],
-                },
-            }));
+            let lng
+            let lat
+
+            if (typeof selectedPoint === "object" && !Array.isArray(selectedPoint)) {
+                // Object case: { lng, lat }
+                if (Number.isFinite(selectedPoint.lng)) {
+                    lng = selectedPoint.lng;
+                }
+                if (Number.isFinite(selectedPoint.lat)) {
+                    lat = selectedPoint.lat;
+                }
+            } else if (Array.isArray(selectedPoint)) {
+                // Array case: [lng, lat]
+                if (Number.isFinite(selectedPoint[0])) {
+                    lng = selectedPoint[0];
+                }
+                if (Number.isFinite(selectedPoint[1])) {
+                    lat = selectedPoint[1];
+                }
+            }
+
+            // Only update if both are valid numbers
+            if (lng !== undefined && lat !== undefined) {
+                setFormData((prev) => ({
+                    ...prev,
+                    email: user.email,
+                    city: locationMetadata.city || "",
+                    state: locationMetadata.state || "",
+                    country: locationMetadata.country || "",
+                    location: {
+                        ...prev.location,
+                        coordinates: [
+                            parseFloat(lng.toFixed(6)),
+                            parseFloat(lat.toFixed(6)),
+                        ],
+                    },
+                }));
+            }
         }
     }, [selectedPoint, locationMetadata, user]);
 
@@ -63,35 +86,41 @@ function AdoptAreaFormModal({open, onClose, selectedPoint}) {
 
     const handleSubmit = async () => {
         try {
-            const payload = {
-                ...formData,
-                lat: parseFloat(formData.lat),
-                lng: parseFloat(formData.lng),
-                end_date: formData.adoption_type === 'indefinite' ? null : formData.end_date,
-            };
-
-            const response = await fetch(`${apiEndpoint}/adopt-area/`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-Session-Token': sessionToken,
-                },
-                body: JSON.stringify(payload),
-            });
-
-            if (!response.ok) {
-                const errorText = await response.text();
-                throw new Error(`Submission failed: ${response.status} - ${errorText}`);
+            const coords = formData.location?.coordinates;
+            if (
+                !coords ||
+                coords.length !== 2 ||
+                !Number.isFinite(coords[0]) ||
+                !Number.isFinite(coords[1])
+            ) {
+                showSnackbar('Please choose a point on the map first.', 'error');
+                return;
             }
 
-            const result = await response.json();
-            showSnackbar(result.message || 'Area adopted successfully!', 'success');
+            if (formData.adoption_type === 'temporary' && !formData.end_date) {
+                showSnackbar('Please select an end date for a temporary adoption.', 'error');
+                return;
+            }
+            const payload = {
+                ...formData,
+                end_date: formData.adoption_type === 'indefinite' ? null : formData.end_date,
+                location: {
+                    type: "Point",
+                    coordinates: [coords[0], coords[1]],
+                },
+            };
 
-            await fetchAdoptedAreas();
-            onClose();
+            const result = await createAdoptedArea(payload);
+
+            if (result.success) {
+                showSnackbar('Area adopted successfully!', 'success');
+                onClose();
+            } else {
+                showSnackbar(`Error: ${result.error || 'Failed to save area.'}`, 'error');
+            }
         } catch (err) {
             console.error('Adoption error:', err);
-            alert(`Error: ${err.message}`);
+            showSnackbar(`Error: ${err.message}`, 'error');
         }
     };
 
@@ -214,5 +243,11 @@ function AdoptAreaFormModal({open, onClose, selectedPoint}) {
         </Dialog>
     );
 }
+
+AdoptAreaFormModal.propTypes = {
+    open: PropTypes.bool.isRequired,
+    onClose: PropTypes.func.isRequired,
+    selectedPoint: PropTypes.arrayOf(PropTypes.number),
+};
 
 export default AdoptAreaFormModal;
