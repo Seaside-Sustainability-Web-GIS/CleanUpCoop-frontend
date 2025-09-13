@@ -30,26 +30,44 @@ function AdoptAreaFormModal({open, onClose, selectedPoint}) {
 
     useEffect(() => {
         if (selectedPoint && locationMetadata && user) {
-            const lng = Number.isFinite(selectedPoint.lng)
-                ? selectedPoint.lng
-                : selectedPoint[0];
-            const lat = Number.isFinite(selectedPoint.lat)
-                ? selectedPoint.lat
-                : selectedPoint[1];
-            setFormData((prev) => ({
-                ...prev,
-                email: user.email,
-                city: locationMetadata.city || "",
-                state: locationMetadata.state || "",
-                country: locationMetadata.country || "",
-                location: {
-                    ...prev.location,
-                    coordinates: [
-                        parseFloat(lng.toFixed(6)),
-                        parseFloat(lat.toFixed(6)),
-                    ],
-                },
-            }));
+            let lng
+            let lat
+
+            if (typeof selectedPoint === "object" && !Array.isArray(selectedPoint)) {
+                // Object case: { lng, lat }
+                if (Number.isFinite(selectedPoint.lng)) {
+                    lng = selectedPoint.lng;
+                }
+                if (Number.isFinite(selectedPoint.lat)) {
+                    lat = selectedPoint.lat;
+                }
+            } else if (Array.isArray(selectedPoint)) {
+                // Array case: [lng, lat]
+                if (Number.isFinite(selectedPoint[0])) {
+                    lng = selectedPoint[0];
+                }
+                if (Number.isFinite(selectedPoint[1])) {
+                    lat = selectedPoint[1];
+                }
+            }
+
+            // Only update if both are valid numbers
+            if (lng !== undefined && lat !== undefined) {
+                setFormData((prev) => ({
+                    ...prev,
+                    email: user.email,
+                    city: locationMetadata.city || "",
+                    state: locationMetadata.state || "",
+                    country: locationMetadata.country || "",
+                    location: {
+                        ...prev.location,
+                        coordinates: [
+                            parseFloat(lng.toFixed(6)),
+                            parseFloat(lat.toFixed(6)),
+                        ],
+                    },
+                }));
+            }
         }
     }, [selectedPoint, locationMetadata, user]);
 
@@ -87,7 +105,7 @@ function AdoptAreaFormModal({open, onClose, selectedPoint}) {
                 end_date: formData.adoption_type === 'indefinite' ? null : formData.end_date,
                 location: {
                     type: "Point",
-                    coordinates:  [coords[0], coords[1]],
+                    coordinates: [coords[0], coords[1]],
                 },
             };
 
