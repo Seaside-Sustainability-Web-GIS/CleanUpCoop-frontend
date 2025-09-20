@@ -39,7 +39,7 @@ services:
           name: CleanUpCoop-db
           property: connectionString
       # Redis URL for Django/Celery config
-      - key: REDIS_URL
+      - key: CELERY_BROKER_URL
         fromService:
           type: redis
           name: CleanUpCoop-redis
@@ -63,7 +63,7 @@ services:
       celery -A WebGIS worker -l info --concurrency=${CELERY_WORKER_CONCURRENCY:-2}
     envVars:
       # Celery/Django need access to Redis and (optionally) DB
-      - key: REDIS_URL
+      - key: CELERY_BROKER_URL
         fromService:
           type: redis
           name: CleanUpCoop-redis
