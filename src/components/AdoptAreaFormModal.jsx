@@ -1,9 +1,9 @@
 import {Dialog, DialogTitle, DialogContent, DialogActions, TextField, Button, MenuItem} from '@mui/material';
 import {useState, useEffect} from 'react';
-import {useAuthStore} from '../src/store/useAuthStore';
-import useUIStore from '../src/store/useUIStore.js';
-import useMapStore from '../src/store/useMapStore.js';
-import useAdoptedAreasStore from '../src/store/useAdoptedAreasStore.js';
+import {useAuthStore} from 'src/store/useAuthStore';
+import useUIStore from 'src/store/useUIStore.js';
+import useMapStore from 'src/store/useMapStore.js';
+import useAdoptedAreasStore from 'src/store/useAdoptedAreasStore.js';
 import PropTypes from 'prop-types';
 
 function AdoptAreaFormModal({open, onClose, selectedPoint}) {

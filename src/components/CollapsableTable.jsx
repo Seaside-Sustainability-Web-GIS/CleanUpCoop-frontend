@@ -1,7 +1,7 @@
 import {useMemo} from 'react';
 import {Box, Button, Typography} from '@mui/material';
 import {DataGrid, GridToolbar} from '@mui/x-data-grid';
-import useUIStore from "../src/store/useUIStore.js";
+import useUIStore from "src/store/useUIStore.js";
 
 
 const CollapsibleTable = () => {

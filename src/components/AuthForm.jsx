@@ -1,7 +1,7 @@
 import {useState} from "react";
 import {useForm} from "react-hook-form";
 import {TextField, Button, Box, Typography, CircularProgress} from "@mui/material";
-import {useAuthStore} from "../src/store/useAuthStore.js";
+import {useAuthStore} from "src/store/useAuthStore.js";
 import PropTypes from "prop-types";
 
 

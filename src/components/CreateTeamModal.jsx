@@ -7,10 +7,10 @@ import {
     Button
 } from '@mui/material';
 import {useEffect, useState, useRef} from 'react';
-import { useAuthStore } from '../src/store/useAuthStore';
-import { useTeamStore } from '../src/store/useTeamStore';
-import useMapStore from "../src/store/useMapStore.js";
-import useUIStore from "../src/store/useUIStore.js";
+import { useAuthStore } from 'src/store/useAuthStore';
+import { useTeamStore } from 'src/store/useTeamStore';
+import useMapStore from "src/store/useMapStore.js";
+import useUIStore from "src/store/useUIStore.js";
 
 const apiEndpoint = 'http://localhost:8000/api';
 

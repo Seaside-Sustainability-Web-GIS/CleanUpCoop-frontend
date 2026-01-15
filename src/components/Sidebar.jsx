@@ -11,11 +11,11 @@ import {
 } from '@mui/material';
 import {ChevronLeft, ChevronRight, Clear, Room} from '@mui/icons-material';
 import GroupsIcon from '@mui/icons-material/Groups';
-import {useAuthStore} from "../src/store/useAuthStore.js";
-import useUIStore from '../src/store/useUIStore.js';
-import useMapStore from '../src/store/useMapStore.js';
-import useAdoptedAreasStore from '../src/store/useAdoptedAreasStore.js';
-import {useTeamStore} from '../src/store/useTeamStore.js';
+import {useAuthStore} from "src/store/useAuthStore.js";
+import useUIStore from 'src/store/useUIStore.js';
+import useMapStore from 'src/store/useMapStore.js';
+import useAdoptedAreasStore from 'src/store/useAdoptedAreasStore.js';
+import {useTeamStore} from 'src/store/useTeamStore.js';
 import PropTypes from "prop-types";
 import AdoptAreaFormModal from "./AdoptAreaFormModal.jsx";
 import TeamsDashboardModal from "./TeamsDashboardModal.jsx";

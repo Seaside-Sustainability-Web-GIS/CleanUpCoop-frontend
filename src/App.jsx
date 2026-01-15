@@ -11,21 +11,21 @@ import {
     Snackbar,
     Alert, Switch, Divider, DialogTitle,
 } from '@mui/material';
-import Sidebar from '../components/Sidebar.jsx';
-import MapView from '../components/Mapview.jsx';
-import CollapsibleTable from "../components/CollapsableTable.jsx";
-import AuthForm from "../components/AuthForm.jsx";
-import ForgotPasswordForm from "../components/ForgotPasswordForm.jsx";
-import Dashboard from '../components/Dashboard.jsx';
-import {useAuthStore} from './store/useAuthStore.js';
-import useUIStore from './store/useUIStore.js';
-import useMapStore from './store/useMapStore.js';
-import Footer from "../components/Footer.jsx";
-import logo from './assets/geobradlogo.png';
-import {SNACKBAR_MESSAGES, SNACKBAR_SEVERITIES} from '../constants/snackbarMessages';
-import ReusableModal from "../components/ReusableModal.jsx";
-import TermsModal from "../components/TermsModal.jsx";
-import PrivacyModal from "../components/PrivacyModal.jsx";
+import Sidebar from 'src/components/Sidebar.jsx';
+import MapView from 'src/components/Mapview.jsx';
+import CollapsibleTable from "src/components/CollapsableTable.jsx";
+import AuthForm from "src/components/AuthForm.jsx";
+import ForgotPasswordForm from "src/components/ForgotPasswordForm.jsx";
+import Dashboard from 'src/components/Dashboard.jsx';
+import {useAuthStore} from 'src/store/useAuthStore.js';
+import useUIStore from 'src/store/useUIStore.js';
+import useMapStore from 'src/store/useMapStore.js';
+import Footer from "src/components/Footer.jsx";
+import logo from 'src/assets/geobradlogo.png';
+import {SNACKBAR_MESSAGES, SNACKBAR_SEVERITIES} from 'src/constants/snackbarMessages';
+import ReusableModal from "src/components/ReusableModal.jsx";
+import TermsModal from "src/components/TermsModal.jsx";
+import PrivacyModal from "src/components/PrivacyModal.jsx";
 
 function App() {
     // Map and Dashboard state

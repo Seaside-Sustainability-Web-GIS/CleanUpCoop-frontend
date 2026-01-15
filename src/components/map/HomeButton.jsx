@@ -1,7 +1,7 @@
 import {useMap} from 'react-leaflet';
 import {IconButton} from '@mui/material';
 import HomeIcon from '@mui/icons-material/Home';
-import useMapStore from "../../src/store/useMapStore.js";
+import useMapStore from "src/store/useMapStore.js";
 
 function HomeButton() {
     const map = useMap();

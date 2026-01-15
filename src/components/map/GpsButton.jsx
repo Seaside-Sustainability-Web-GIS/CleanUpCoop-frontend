@@ -1,7 +1,7 @@
 import { useMap } from 'react-leaflet';
 import { IconButton } from '@mui/material';
 import GpsFixedIcon from '@mui/icons-material/GpsFixed';
-import useMapStore from "../../src/store/useMapStore.js";
+import useMapStore from "src/store/useMapStore.js";
 
 function GpsButton() {
     const map = useMap();

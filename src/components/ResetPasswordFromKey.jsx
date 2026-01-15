@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Box, Button, TextField, Typography, CircularProgress } from '@mui/material';
-import { useAuthStore } from '../src/store/useAuthStore.js';
+import { useAuthStore } from 'src/store/useAuthStore.js';
 
 const ResetPasswordFromKey = () => {
   const { key } = useParams();

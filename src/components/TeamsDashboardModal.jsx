@@ -9,12 +9,12 @@ import {
 } from '@mui/material';
 import Grid from '@mui/material/Grid';
 import {useEffect, useState} from 'react';
-import {useTeamStore} from '../src/store/useTeamStore';
-import {useAuthStore} from '../src/store/useAuthStore';
+import {useTeamStore} from 'src/store/useTeamStore';
+import {useAuthStore} from 'src/store/useAuthStore';
 import TeamCard from './TeamCard';
 import CreateTeamModal from './CreateTeamModal';
-import useMapStore from "../src/store/useMapStore.js";
-import useUIStore from "../src/store/useUIStore.js";
+import useMapStore from "src/store/useMapStore.js";
+import useUIStore from "src/store/useUIStore.js";
 import PropTypes from "prop-types";
 
 

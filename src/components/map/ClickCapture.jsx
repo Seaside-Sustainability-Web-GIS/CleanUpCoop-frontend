@@ -1,7 +1,7 @@
 import { useMapEvents } from 'react-leaflet';
-import useMapStore from "../../src/store/useMapStore.js";
-import useUIStore from "../../src/store/useUIStore.js";
-import { reverseGeocode } from '../../src/utils/reverseGeocode.js';
+import useMapStore from "src/store/useMapStore.js";
+import useUIStore from "src/store/useUIStore.js";
+import { reverseGeocode } from 'src/utils/reverseGeocode.js';
 
 function ClickCapture() {
     const isSelecting = useMapStore((s) => s.isSelecting);

@@ -2,7 +2,7 @@
 import {useParams, useNavigate} from 'react-router-dom';
 import {useEffect, useState} from 'react';
 import {Box, Button, CircularProgress, Typography} from '@mui/material';
-import {useAuthStore} from '../src/store/useAuthStore.js';
+import {useAuthStore} from 'src/store/useAuthStore.js';
 
 const VerifyEmailPage = () => {
     const {key} = useParams();

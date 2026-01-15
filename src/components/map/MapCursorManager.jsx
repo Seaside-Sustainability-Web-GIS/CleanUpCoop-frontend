@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import useMapStore from "../../src/store/useMapStore.js";
+import useMapStore from "src/store/useMapStore.js";
 
 function MapCursorManager() {
     const isSelecting = useMapStore((state) => state.isSelecting);
