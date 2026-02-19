@@ -11,6 +11,7 @@ import {
     Snackbar,
     Alert, Switch, Divider, DialogTitle,
 } from '@mui/material';
+import CloseIcon from '@mui/icons-material/Close';
 import Sidebar from 'src/components/Sidebar.jsx';
 import MapView from 'src/components/Mapview.jsx';
 import CollapsibleTable from "src/components/CollapsableTable.jsx";
@@ -111,7 +112,7 @@ function App() {
     };
     return (
         <Box sx={{display: 'flex', flexDirection: 'column', height: '100vh', overflow: 'hidden'}}>
-            {/* Navbar */}
+            {/* Navbar */} 
             <AppBar position="static">
                 <Toolbar>
                     <Box
@@ -198,9 +199,14 @@ function App() {
             </ReusableModal>
 
             {/* Sign-In Modal */}
-            <Dialog open={authOpen} onClose={() => setAuthOpen(false)}>
-                <DialogTitle>
-                    {authStage === 'signup' ? 'Signup' : 'Sign in'}
+            <Dialog open={authOpen} maxWidth="xs" onClose={() => setAuthOpen(false)}>
+                <DialogActions>
+                    <Button onClick={() => setAuthOpen(false)} color="primary" sx={{justifyContent: 'flex-end', p: 0}}>
+                        <CloseIcon />
+                    </Button>
+                </DialogActions>
+                <DialogTitle variant="h4" sx={{px: 3, pt: 0}}>
+                    {authStage === 'signup' ? 'Sign up' : 'Sign in'}
                 </DialogTitle>
                 <DialogContent>
                     <AuthForm
@@ -213,11 +219,6 @@ function App() {
                         onSignup={handleSignup}
                     />
                 </DialogContent>
-                <DialogActions>
-                    <Button onClick={() => setAuthOpen(false)} color="primary">
-                        Close
-                    </Button>
-                </DialogActions>
             </Dialog>
 
             {/* Forgot Password Modal */}

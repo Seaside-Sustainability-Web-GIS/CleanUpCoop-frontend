@@ -1,6 +1,6 @@
 import {useState} from "react";
 import {useForm} from "react-hook-form";
-import {TextField, Button, Box, Typography, CircularProgress} from "@mui/material";
+import {TextField, Button, Box, Typography, CircularProgress, Divider} from "@mui/material";
 import {useAuthStore} from "src/store/useAuthStore.js";
 import PropTypes from "prop-types";
 
@@ -46,13 +46,14 @@ const AuthForm = ({openForgotPassword, onLogin, onSignup}) => {
 
 
     return (
-        <Box component="form" onSubmit={handleSubmit(onSubmit)} sx={{width: 300}}>
+        <Box component="form" onSubmit={handleSubmit(onSubmit)}>
 
             {isSignup && (
                 <TextField
                     label="First Name"
                     fullWidth
-                    margin="normal"
+                    size="small"
+                    sx={{my: 1}}
                     {...register("first_name", {required: "First name is required"})}
                     error={!!errors.first_name}
                     helperText={errors.first_name?.message}
@@ -63,7 +64,8 @@ const AuthForm = ({openForgotPassword, onLogin, onSignup}) => {
                 <TextField
                     label="Last Name"
                     fullWidth
-                    margin="normal"
+                    size="small"
+                    sx={{my: 1}}
                     {...register("last_name", {required: "Last name is required"})}
                     error={!!errors.last_name}
                     helperText={errors.last_name?.message}
@@ -73,7 +75,8 @@ const AuthForm = ({openForgotPassword, onLogin, onSignup}) => {
             <TextField
                 label="Email"
                 fullWidth
-                margin="normal"
+                size="small"
+                sx={{my: 1}}
                 {...register("email", {
                     required: "Email is required",
                     pattern: {value: /^\S+@\S+$/, message: "Invalid email format"}
@@ -86,7 +89,8 @@ const AuthForm = ({openForgotPassword, onLogin, onSignup}) => {
                 label="Password"
                 type="password"
                 fullWidth
-                margin="normal"
+                size="small"
+                sx={{my: 1}}
                 {...register("password", {
                     required: "Password is required",
                     minLength: {value: 6, message: "Minimum 6 characters"}
@@ -100,7 +104,8 @@ const AuthForm = ({openForgotPassword, onLogin, onSignup}) => {
                     label="Confirm Password"
                     type="password"
                     fullWidth
-                    margin="normal"
+                    size="small"
+                    sx={{my: 1}}
                     {...register("confirmPassword", {
                         required: "Confirm your password",
                         validate: (value) => value === watch("password") || "Passwords do not match"
@@ -110,11 +115,11 @@ const AuthForm = ({openForgotPassword, onLogin, onSignup}) => {
                 />
             )}
 
-            <Button type="submit" variant="contained" fullWidth sx={{mt: 2}} disabled={loading}>
+            <Button type="submit" variant="contained" fullWidth sx={{mt: 3}} disabled={loading}>
                 {loading ? <CircularProgress size={24}/> : isSignup ? "Signup" : "Login"}
             </Button>
 
-            <Button fullWidth sx={{mt: 1}} onClick={() => {
+            <Button fullWidth sx={{mt: 3, p: 0}} onClick={() => {
                 if (!isSignup) {
                     setAuthStage("signup");
                 } else {
@@ -131,6 +136,7 @@ const AuthForm = ({openForgotPassword, onLogin, onSignup}) => {
             {/* Forgot Password Link */}
             {!isSignup && (
                 <Typography
+                    align="center"
                     variant="body2"
                     onClick={openForgotPassword}
                     sx={{mt: 1, textDecoration: "underline", cursor: "pointer"}}
@@ -138,6 +144,22 @@ const AuthForm = ({openForgotPassword, onLogin, onSignup}) => {
                     Forgot Password?
                 </Typography>
             )}
+            <Divider sx={{color: 'grey.700', my: 2}}> <Typography>or</Typography> </Divider>
+
+            <Button
+                fullWidth
+                variant="contained"
+                sx={{my: 1}}
+            >
+                {isSignup ? "Sign up with Google" : "Sign in with Google"}
+            </Button>
+            <Button
+                fullWidth
+                variant="contained"
+                sx={{my: 1}}
+            >
+                {isSignup ? "Sign up with Facebook" : "Sign in with Facebook"}
+            </Button>
         </Box>
     );
 };
