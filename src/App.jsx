@@ -1,4 +1,4 @@
-import {useState} from 'react';
+import { useEffect, useState } from 'react';
 import {
     AppBar,
     Toolbar,
@@ -27,6 +27,8 @@ import {SNACKBAR_MESSAGES, SNACKBAR_SEVERITIES} from 'src/constants/snackbarMess
 import ReusableModal from "src/components/ReusableModal.jsx";
 import TermsModal from "src/components/TermsModal.jsx";
 import PrivacyModal from "src/components/PrivacyModal.jsx";
+import AuthModal from "src/components/auth/AuthModal.jsx";
+import { useAuth } from 'src/hooks/useAuth.js';
 
 function App() {
     // Map and Dashboard state
@@ -38,13 +40,14 @@ function App() {
     const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
     const logout = useAuthStore((state) => state.logout);
     const {login, signup, authStage, setAuthStage} = useAuthStore();
-
+    const { session } = useAuth();
 
     // Modals State
     const aboutOpen = useUIStore((state) => state.aboutOpen);
     const setAboutOpen = useUIStore((state) => state.setAboutOpen);
-    const authOpen = useAuthStore((state) => state.authOpen);
-    const setAuthOpen = useAuthStore((state) => state.setAuthOpen);
+    const [isAuthOpen, setAuthOpen] = useState(false);
+    // const authOpen = useAuthStore((state) => state.authOpen);
+    // const setAuthOpen = useAuthStore((state) => state.setAuthOpen);
     const {snackbar, showSnackbar, hideSnackbar} = useUIStore();
     const [forgotPasswordOpen, setForgotPasswordOpen] = useState(false);
     const [termsOpen, setTermsOpen] = useState(false);
@@ -198,8 +201,9 @@ function App() {
                 </Typography>
             </ReusableModal>
 
-            {/* Sign-In Modal */}
-            <Dialog open={authOpen} maxWidth="xs" onClose={() => setAuthOpen(false)}>
+            {/* Auth Modal - Signin/Signup */}
+            <AuthModal isAuthOpen={isAuthOpen} setAuthOpen={setAuthOpen} />
+            {/* <Dialog open={authOpen} maxWidth="xs" onClose={() => setAuthOpen(false)}>
                 <DialogActions>
                     <Button onClick={() => setAuthOpen(false)} color="primary" sx={{justifyContent: 'flex-end', p: 0}}>
                         <CloseIcon />
@@ -219,7 +223,7 @@ function App() {
                         onSignup={handleSignup}
                     />
                 </DialogContent>
-            </Dialog>
+            </Dialog> */}
 
             {/* Forgot Password Modal */}
             <Dialog open={forgotPasswordOpen} onClose={() => setForgotPasswordOpen(false)}>
